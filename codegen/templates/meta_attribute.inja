@@ -1,0 +1,5 @@
+{% for key, value in flatten(this) %}
+    {% if not starts_with(key, "_spore_meta") %}
+        meta_attribute {"{{ key }}", {% if isString(value) %} "{{ value }}" {% else %} {{ value }} {% endif %}},
+    {% endif %}
+{% endfor %}

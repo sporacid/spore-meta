@@ -1,0 +1,133 @@
+#pragma once
+
+{% for class in classes %}
+    {% if truthy(class.attributes, "_spore_meta_enabled") and class.definition and not class.nested %}
+        {% if truthy(class.scope) %}
+            namespace {{ class.scope }}
+            {
+        {% endif %} {# #}
+        {% if class.is_template or class.is_template_specialization %}
+            template < {# #}
+                {% for template_param in class.template_params %}
+                    {{ template_param.type }} {{ template_param.name }} {% if not loop.is_last %}, {% endif %}
+                {% endfor %}
+            > {# #}
+        {% endif %}
+        template <typename func_t>
+        constexpr auto with_meta_type(meta_adl<{{ class.full_name }}>, func_t&& func)
+        {
+            constexpr meta_type type {
+                .name = "{{ class.full_name }}", // TODO @sporacid generate better name
+                .fields = meta_tuple {
+                    {% for field in class.fields %}
+                        {% if field.flags.public and truthy(field.attributes, "_spore_meta_enabled") %}
+                            meta_field {
+                                .name = "{{ field.name }}",
+                                .field = &{{ class.full_name }}::{{ field.name }},
+                                .attributes = meta_tuple {
+                                    {{ include("templates/meta_attribute.inja", field.attributes) }}
+                                },
+                            },
+                        {% endif %}
+                    {% endfor %}
+                },
+                .functions = meta_tuple {
+                    {% for function in class.functions %}
+                        {% if function.flags.public and truthy(function.attributes, "_spore_meta_enabled") %}
+                            meta_function {
+                                .name = "{{ function.name }}",
+                                .function = &{{ class.full_name }}::{{ function.name }},
+                                .arguments = meta_tuple {
+                                    meta_argument {
+                                        .name = "_this",
+                                        .type = meta_type_ref<{{ class.full_name }}>{},
+                                        .attributes = meta_tuple {},
+                                    },
+                                    {% for argument in function.arguments %}
+                                        meta_argument {
+                                            .name = "{{ argument.type.name }}",
+                                            .type = meta_type_ref<{{ argument.type.name }}>{},
+                                            .attributes = meta_tuple {
+                                                {{ include("templates/meta_attribute.inja", argument.attributes) }}
+                                            },
+                                        },
+                                    {% endfor %} {# #}
+                                },
+                                .attributes = meta_tuple {
+                                    {{ include("templates/meta_attribute.inja", function.attributes) }}
+                                },
+                            },
+                        {% endif %}
+                    {% endfor %}
+                },
+                .constructors = meta_tuple {
+                    {% for constructor in class.constructors %}
+                        {% if constructor.flags.public and truthy(function.attributes, "_spore_meta_enabled") %}
+                            meta_constructor {
+                                .constructor = +[]({{ class.full_name }}& value {# #}
+                                    {% for argument in constructor.arguments %}
+                                        , {{ argument.type.name }} {% if argument.is_variadic %} ... {% endif %} {{ argument.name }}
+                                    {% endfor %} {# #}
+                                ) {
+                                    new (&value) {{ class.full_name }} {
+                                        {% for argument in constructor.arguments %}
+                                            {{ argument.name }} {% if argument.is_variadic %} ... {% endif %} ,
+                                        {% endfor %}
+                                    };
+                                },
+                                .attributes = meta_tuple {
+                                    {{ include("templates/meta_attribute.inja", constructor.attributes) }}
+                                },
+                            },
+                        {% endif %}
+                    {% endfor %}
+                },
+                .attributes = meta_tuple {
+                    {{ include("templates/meta_attribute.inja", class.attributes) }}
+                },
+            };
+
+            return func.template operator()<type>();
+        }
+        {% if truthy(class.scope) %}
+            }
+
+        {% endif %}
+    {% endif %}
+{% endfor %}
+
+{% for enum in enums %}
+    {% if truthy(enum.attributes, "_spore_meta_enabled") and enum.definition and not enum.nested %}
+        {% if truthy(enum.scope) %}
+            namespace {{ enum.scope }}
+            {
+        {% endif %} {# #}
+        template <typename func_t>
+        constexpr auto with_meta_enum(meta_adl<{{ enum.full_name }}>, func_t&& func)
+        {
+            constexpr meta_enum enum_ {
+                .name = "{{ enum.full_name }}",
+                .values = meta_tuple {
+                {% for value in enum.values %}
+                    meta_enum_value {
+                        .name = "{{ value.name }}",
+                        .value = static_cast<{{ enum.base.name }}>({{ enum.full_name }}::{{ value.name }}),
+                        .attributes = meta_tuple {
+                            {{ include("templates/meta_attribute.inja", value.attributes) }}
+                        },
+                    },
+                {% endfor %}
+                },
+                .attributes = meta_tuple {
+                    {{ include("templates/meta_attribute.inja", enum.attributes) }}
+                },
+            };
+
+            return func.template operator()<enum_>();
+        }
+        {% if truthy(enum.scope) %}
+            }
+
+        {% endif %}
+    {% endif %}
+{% endfor %}

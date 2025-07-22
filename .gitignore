@@ -1,0 +1,9 @@
+# CMake files
+.cmake/
+CMakeUserPresets.json
+
+# Codegen files
+.codegen/
+
+# Jetbrains files
+.idea/

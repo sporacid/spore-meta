@@ -1,0 +1,66 @@
+#pragma once
+
+#include "spore/meta/meta.hpp"
+
+{% for class in classes %}
+    {% if truthy(class.attributes, "_spore_meta_enabled") and class.definition and not class.nested %}
+        {% if truthy(class.scope) %}
+            namespace {{ class.scope }}
+            {
+        {% endif %} {# #}
+        {# -- Begin class forward declaration -- #}
+        {% if class.is_template or class.is_template_specialization %}
+            template < {# #}
+                {% for template_param in class.template_params %}
+                    {{ template_param.type }} {{ template_param.name }} {% if not loop.is_last %}, {% endif %}
+                {% endfor %}
+            > {# #}
+        {% endif %}
+        {{ class.type }} {{ class.name }}
+        {% if class.is_template_specialization %}
+            < {# #}
+                {% for template_specialization_param in class.template_specialization_params %} {# #}
+                    {{ template_specialization_param }} {% if not loop.is_last %}, {% endif %}
+                {% endfor %}
+            > {# #}
+        {% endif %};
+        {# -- End class forward declaration -- #}
+        {% if class.is_template or class.is_template_specialization %}
+            template < {# #}
+                {% for template_param in class.template_params %}
+                    {{ template_param.type }} {{ template_param.name }} {% if not loop.is_last %}, {% endif %}
+                {% endfor %}
+            > {# #}
+        {% endif %}
+        {% if class.is_template or class.is_template_specialization %}
+            template < {# #}
+                {% for template_param in class.template_params %}
+                    {{ template_param.type }} {{ template_param.name }} {% if not loop.is_last %}, {% endif %}
+                {% endfor %}
+            > {# #}
+        {% endif %}
+        template <typename func_t>
+        constexpr auto with_meta_type(meta_adl<{{ class.full_name }}>, func_t&& func);
+        {% if truthy(class.scope) %}
+            }
+
+        {% endif %}
+    {% endif %}
+{% endfor %}
+
+{% for enum in enums %}
+    {% if truthy(enum.attributes, "_spore_meta_enabled") and enum.definition and not enum.nested %}
+        {% if truthy(enum.scope) %}
+            namespace {{ enum.scope }}
+            {
+        {% endif %} {# #}
+        {{ enum.type }} {{ enum.name }} : {{ enum.base.name }};
+
+        template <typename func_t>
+        constexpr auto with_meta_enum(meta_adl<{{ enum.full_name }}>, func_t&& func);
+        {% if truthy(enum.scope) %}
+            }
+
+        {% endif %}
+    {% endif %}
+{% endfor %}

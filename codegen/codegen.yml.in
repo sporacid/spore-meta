@@ -1,0 +1,16 @@
+version: 1
+stages:
+  - name: meta
+    parser: cpp
+    directory: "@SPORE_META_INPUT_DIRECTORY@"
+    files: "@SPORE_META_INPUT_FILES@"
+    steps:
+      - name: cpp.meta.include
+        directory: "@SPORE_META_OUTPUT_DIRECTORY@"
+        templates:
+          - "@SPORE_META_CODEGEN_DIRECTORY@/templates/meta.hpp.inja"
+          - "@SPORE_META_CODEGEN_DIRECTORY@/templates/meta.inl.inja"
+        condition:
+          type: attribute
+          value:
+            _spore_meta_enabled: true
