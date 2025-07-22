@@ -21,3 +21,8 @@ install(
   FILES "${PROJECT_SOURCE_DIR}/cmake/SporeMeta.cmake"
   DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake"
 )
+
+install(
+  DIRECTORY "${PROJECT_SOURCE_DIR}/codegen/"
+  DESTINATION "${CMAKE_INSTALL_PREFIX}/codegen"
+)
