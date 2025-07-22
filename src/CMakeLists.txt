@@ -8,3 +8,16 @@ configure_file(
 add_library(${TARGET_NAME} INTERFACE)
 
 target_include_directories(${TARGET_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/../include)
+
+include(GNUInstallDirs)
+
+install(
+  DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
+  DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}"
+  FILES_MATCHING PATTERN "**.hpp"
+)
+
+install(
+  FILES "${PROJECT_SOURCE_DIR}/cmake/SporeMeta.cmake"
+  DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake"
+)
