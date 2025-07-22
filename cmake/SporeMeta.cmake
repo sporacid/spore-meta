@@ -10,7 +10,6 @@ function(spore_add_meta SPORE_TARGET)
   get_target_property(SPORE_TARGET_SOURCE_DIR ${SPORE_TARGET} SOURCE_DIR)
   get_target_property(SPORE_TARGET_BINARY_DIR ${SPORE_TARGET} BINARY_DIR)
 
-  set(SPORE_META_CODEGEN_DIRECTORY ${PROJECT_SOURCE_DIR}/codegen)
 
   if (NOT SPORE_META_INPUT_DIRECTORY)
     set(SPORE_META_INPUT_DIRECTORY ${SPORE_TARGET_SOURCE_DIR}/include)
@@ -28,8 +27,13 @@ function(spore_add_meta SPORE_TARGET)
     set(SPORE_META_CODEGEN_TARGET ${SPORE_TARGET}.codegen)
   endif ()
 
+  # Might be set by toolchain (e.g. vcpkg)
+  if (NOT SPORE_META_CODEGEN_DIRECTORY)
+    set(SPORE_META_CODEGEN_DIRECTORY ${PROJECT_SOURCE_DIR}/codegen)
+  endif ()
+
   configure_file(
-    ${PROJECT_SOURCE_DIR}/codegen/codegen.yml.in
+    ${SPORE_META_CODEGEN_DIRECTORY}/codegen.yml.in
     ${SPORE_TARGET_BINARY_DIR}/codegen.yml
   )
 
