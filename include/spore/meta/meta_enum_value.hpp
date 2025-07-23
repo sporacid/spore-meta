@@ -3,11 +3,12 @@
 #include "spore/meta/meta_attribute.hpp"
 #include "spore/meta/meta_tuple.hpp"
 
+#include <cstddef>
 #include <type_traits>
 
 namespace spore
 {
-    template <size_t name_v, typename value_t, any_meta_attribute... attributes_t>
+    template <std::size_t name_v, typename value_t, any_meta_attribute... attributes_t>
     struct meta_enum_value
     {
         const char name[name_v];
@@ -15,7 +16,7 @@ namespace spore
         meta_tuple<attributes_t...> attributes;
     };
 
-    template <size_t name_v, typename value_t, any_meta_attribute... attributes_t>
+    template <std::size_t name_v, typename value_t, any_meta_attribute... attributes_t>
     meta_enum_value(const char (&)[name_v], value_t, meta_tuple<attributes_t...>)
         -> meta_enum_value<name_v, value_t, attributes_t...>;
 
@@ -24,7 +25,7 @@ namespace spore
     {
     };
 
-    template <size_t name_v, typename value_t, any_meta_attribute... attributes_t>
+    template <std::size_t name_v, typename value_t, any_meta_attribute... attributes_t>
     struct is_meta_enum_value<meta_enum_value<name_v, value_t, attributes_t...>> : std::true_type
     {
     };

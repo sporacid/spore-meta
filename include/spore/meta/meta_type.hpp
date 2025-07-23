@@ -6,15 +6,16 @@
 #include "spore/meta/meta_function.hpp"
 #include "spore/meta/meta_tuple.hpp"
 
+#include <cstddef>
 #include <type_traits>
 
 namespace spore
 {
-    template <size_t name_v, typename...>
+    template <std::size_t name_v, typename...>
     struct meta_type;
 
     template <
-        size_t name_v,
+        std::size_t name_v,
         any_meta_field... fields_t,
         any_meta_function... functions_t,
         any_meta_constructor... constructors_t,
@@ -33,7 +34,7 @@ namespace spore
         meta_tuple<attributes_t...> attributes;
     };
 
-    template <size_t name_v>
+    template <std::size_t name_v>
     struct meta_type<name_v>
     {
         const char name[name_v];
@@ -43,7 +44,7 @@ namespace spore
     };
 
     template <
-        size_t name_v,
+        std::size_t name_v,
         any_meta_field... fields_t,
         any_meta_function... functions_t,
         any_meta_constructor... constructors_t,
@@ -67,7 +68,7 @@ namespace spore
     };
 
     template <
-        size_t name_v,
+        std::size_t name_v,
         any_meta_field... fields_t,
         any_meta_function... functions_t,
         any_meta_constructor... constructors_t,

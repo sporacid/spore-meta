@@ -6,14 +6,15 @@
 #include "spore/meta/meta_tuple.hpp"
 #include "spore/meta/meta_utils.hpp"
 
+#include <cstddef>
 #include <type_traits>
 
 namespace spore
 {
-    template <size_t name_v, typename...>
+    template <std::size_t name_v, typename...>
     struct meta_function;
 
-    template <size_t name_v, typename function_t, any_meta_argument... arguments_t, any_meta_attribute... attributes_t>
+    template <std::size_t name_v, typename function_t, any_meta_argument... arguments_t, any_meta_attribute... attributes_t>
     struct meta_function<name_v, function_t, meta_tuple<arguments_t...>, meta_tuple<attributes_t...>>
     {
         using return_type = typename meta_function_traits<function_t>::return_type;
@@ -34,7 +35,7 @@ namespace spore
         }
     };
 
-    template <size_t name_v, typename function_t, any_meta_argument... arguments_t, any_meta_attribute... attributes_t>
+    template <std::size_t name_v, typename function_t, any_meta_argument... arguments_t, any_meta_attribute... attributes_t>
     meta_function(const char (&)[name_v], function_t, meta_tuple<arguments_t...>, meta_tuple<attributes_t...>)
         -> meta_function<name_v, function_t, meta_tuple<arguments_t...>, meta_tuple<attributes_t...>>;
 
@@ -43,7 +44,7 @@ namespace spore
     {
     };
 
-    template <size_t name_v, typename function_t, any_meta_argument... arguments_t, any_meta_attribute... attributes_t>
+    template <std::size_t name_v, typename function_t, any_meta_argument... arguments_t, any_meta_attribute... attributes_t>
     struct is_meta_function<meta_function<name_v, function_t, meta_tuple<arguments_t...>, meta_tuple<attributes_t...>>> : std::true_type
     {
     };

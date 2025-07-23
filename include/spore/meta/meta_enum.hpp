@@ -4,14 +4,15 @@
 #include "spore/meta/meta_enum_value.hpp"
 #include "spore/meta/meta_tuple.hpp"
 
+#include <cstddef>
 #include <type_traits>
 
 namespace spore
 {
-    template <size_t name_v, typename...>
+    template <std::size_t name_v, typename...>
     struct meta_enum;
 
-    template <size_t name_v, any_meta_enum_value... values_t, any_meta_attribute... attributes_t>
+    template <std::size_t name_v, any_meta_enum_value... values_t, any_meta_attribute... attributes_t>
     struct meta_enum<name_v, meta_tuple<values_t...>, meta_tuple<attributes_t...>>
     {
         const char name[name_v];
@@ -19,7 +20,7 @@ namespace spore
         meta_tuple<attributes_t...> attributes;
     };
 
-    template <size_t name_v, any_meta_enum_value... values_t, any_meta_attribute... attributes_t>
+    template <std::size_t name_v, any_meta_enum_value... values_t, any_meta_attribute... attributes_t>
     meta_enum(const char (&)[name_v], meta_tuple<values_t...>, meta_tuple<attributes_t...>)
         -> meta_enum<name_v, meta_tuple<values_t...>, meta_tuple<attributes_t...>>;
 
@@ -28,7 +29,7 @@ namespace spore
     {
     };
 
-    template <size_t name_v, any_meta_enum_value... values_t, any_meta_attribute... attributes_t>
+    template <std::size_t name_v, any_meta_enum_value... values_t, any_meta_attribute... attributes_t>
     struct is_meta_enum<meta_enum<name_v, meta_tuple<values_t...>, meta_tuple<attributes_t...>>> : std::true_type
     {
     };
