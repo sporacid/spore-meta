@@ -20,8 +20,6 @@ namespace spore
         using return_type = typename meta_function_traits<function_t>::return_type;
         using args_type = typename meta_function_traits<function_t>::args_type;
 
-        static_assert(std::tuple_size_v<args_type> == sizeof...(arguments_t));
-
         const char name[name_v];
         function_t function;
         meta_tuple<arguments_t...> arguments;

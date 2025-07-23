@@ -39,7 +39,7 @@ namespace spore::examples::hello_world
     enum class SPORE_META_ENUM() hello_world_enum
     {
         hello_world SPORE_META_ENUM_VALUE(display = "Hello world"),
-        sporacid    SPORE_META_ENUM_VALUE(),
+        sporacid,
     };
 }
 

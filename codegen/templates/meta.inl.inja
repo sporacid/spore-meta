@@ -1,7 +1,12 @@
 #pragma once
 
 {% for class in classes %}
-    {% if truthy(class.attributes, "_spore_meta_enabled") and class.definition and not class.nested %}
+    {% if truthy($.user_data, "implicit_types") %}
+        {% set meta_type_enabled = not existsIn(class.attributes, "_spore_meta_type") or truthy(class.attributes, "_spore_meta_type") %}
+    {% else %}
+        {% set meta_type_enabled = truthy(class.attributes, "_spore_meta_type") %}
+    {% endif %}
+    {% if meta_type_enabled and class.definition and not class.nested %}
         template < {# #}
             {% if class.is_template or class.is_template_specialization %}
                     {% for template_param in class.template_params %}
@@ -16,9 +21,21 @@
 
             constexpr meta_type type {
                 .name = "{{ class.full_name }}", // TODO @sporacid generate better name
+                .bases = meta_tuple {
+                    {% for base in class.bases %}
+                        meta_base {
+                            .type = meta_type_ref<{{ base.name }}>{},
+                        },
+                    {% endfor %}
+                },
                 .fields = meta_tuple {
                     {% for field in class.fields %}
-                        {% if field.flags.public and truthy(field.attributes, "_spore_meta_enabled") %}
+                        {% if truthy($.user_data, "implicit_fields") %}
+                            {% set meta_field_enabled = not existsIn(field.attributes, "_spore_meta_field") or truthy(field.attributes, "_spore_meta_field") %}
+                        {% else %}
+                            {% set meta_field_enabled = truthy(class.attributes, "_spore_meta_implicit_fields") or truthy(field.attributes, "_spore_meta_field") %}
+                        {% endif %}
+                        {% if meta_field_enabled and field.flags.public %}
                             meta_field {
                                 .name = "{{ field.name }}",
                                 .field = &{{ class.full_name }}::{{ field.name }},
@@ -31,19 +48,20 @@
                 },
                 .functions = meta_tuple {
                     {% for function in class.functions %}
-                        {% if function.flags.public and truthy(function.attributes, "_spore_meta_enabled") %}
+                        {% if truthy($.user_data, "implicit_functions") %}
+                            {% set meta_function_enabled = not existsIn(function.attributes, "_spore_meta_function") or truthy(function.attributes, "_spore_meta_function") %}
+                        {% else %}
+                            {% set meta_function_enabled = truthy(class.attributes, "_spore_meta_implicit_functions") or truthy(function.attributes, "_spore_meta_function") %}
+                        {% endif %}
+                        {% if meta_function_enabled and function.flags.public %}
                             meta_function {
                                 .name = "{{ function.name }}",
                                 .function = &{{ class.full_name }}::{{ function.name }},
                                 .arguments = meta_tuple {
-                                    meta_argument {
-                                        .name = "_this",
-                                        .type = meta_type_ref<{{ class.full_name }}>{},
-                                        .attributes = meta_tuple {},
-                                    },
                                     {% for argument in function.arguments %}
                                         meta_argument {
-                                            .name = "{{ argument.type.name }}",
+                                            .name = "{{ argument.name }}",
+                                            {# .default_value = {% if argument.default_value != "" %} {{ argument.default_value }} {% else %} std::nullopt {% endif %},#}
                                             .type = meta_type_ref<{{ argument.type.name }}>{},
                                             .attributes = meta_tuple {
                                                 {{ include("templates/meta_attribute.inja", argument.attributes) }}
@@ -60,9 +78,14 @@
                 },
                 .constructors = meta_tuple {
                     {% for constructor in class.constructors %}
-                        {% if constructor.flags.public and truthy(constructor.attributes, "_spore_meta_enabled") %}
+                        {% if truthy($.user_data, "implicit_constructors") %}
+                            {% set meta_constructor_enabled = not existsIn(constructor.attributes, "_spore_meta_constructor") or truthy(constructor.attributes, "_spore_meta_constructor") %}
+                        {% else %}
+                            {% set meta_constructor_enabled = truthy(class.attributes, "_spore_meta_implicit_constructors") or truthy(constructor.attributes, "_spore_meta_constructor") %}
+                        {% endif %}
+                        {% if meta_constructor_enabled and constructor.flags.public %}
                             meta_constructor {
-                                .constructor = []({{ class.full_name }}& value {# #}
+                                .constructor = +[]({{ class.full_name }}& value {# #}
                                     {% for argument in constructor.arguments %}
                                         , {{ argument.type.name }} {% if argument.is_variadic %} ... {% endif %} {{ " " }} {{ argument.name }}
                                     {% endfor %} {# #}
@@ -76,7 +99,8 @@
                                 .arguments = meta_tuple {
                                     {% for argument in constructor.arguments %}
                                         meta_argument {
-                                            .name = "{{ argument.type.name }}",
+                                            .name = "{{ argument.name }}",
+                                            {# .default_value = {% if argument.default_value != "" %} {{ argument.default_value }} {% else %} std::nullopt {% endif %}, #}
                                             .type = meta_type_ref<{{ argument.type.name }}>{},
                                             .attributes = meta_tuple {
                                                 {{ include("templates/meta_attribute.inja", argument.attributes) }}
@@ -103,7 +127,12 @@
 {% endfor %}
 
 {% for enum in enums %}
-    {% if truthy(enum.attributes, "_spore_meta_enabled") and enum.definition and not enum.nested %}
+    {% if truthy($.user_data, "implicit_enums") %}
+        {% set meta_enum_enabled = not existsIn(enum.attributes, "_spore_meta_enum") or truthy(enum.attributes, "_spore_meta_enum") %}
+    {% else %}
+        {% set meta_enum_enabled = truthy(enum.attributes, "_spore_meta_enum") %}
+    {% endif %}
+    {% if meta_enum_enabled and enum.definition and not enum.nested %}
         template <typename func_t>
         constexpr auto {{ enum.scope }}::with_meta_enum(spore::meta_adl<{{ enum.full_name }}>, func_t&& func)
         {
@@ -111,6 +140,7 @@
 
             constexpr meta_enum enum_ {
                 .name = "{{ enum.full_name }}",
+                .type = meta_type_ref<{{ enum.base.name }}>{},
                 .values = meta_tuple {
                 {% for value in enum.values %}
                     meta_enum_value {
