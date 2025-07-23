@@ -60,8 +60,6 @@ function(spore_add_meta SPORE_TARGET)
     endif ()
   endif ()
 
-  message(STATUS ${SPORE_META_CODEGEN_CONDITION})
-
   configure_file(
     ${SPORE_META_CODEGEN_DIRECTORY}/codegen.yml.in
     ${SPORE_TARGET_BINARY_DIR}/.codegen/codegen.yml
