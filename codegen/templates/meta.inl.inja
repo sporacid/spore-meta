@@ -2,19 +2,15 @@
 
 {% for class in classes %}
     {% if truthy(class.attributes, "_spore_meta_enabled") and class.definition and not class.nested %}
-        {% if truthy(class.scope) %}
-            namespace {{ class.scope }}
-            {
-        {% endif %} {# #}
-        {% if class.is_template or class.is_template_specialization %}
-            template < {# #}
-                {% for template_param in class.template_params %}
-                    {{ template_param.type }} {{ template_param.name }} {% if not loop.is_last %}, {% endif %}
-                {% endfor %}
-            > {# #}
-        {% endif %}
-        template <typename func_t>
-        constexpr auto with_meta_type(meta_adl<{{ class.full_name }}>, func_t&& func)
+        template < {# #}
+            {% if class.is_template or class.is_template_specialization %}
+                    {% for template_param in class.template_params %}
+                        {{ template_param.type }} {{ template_param.name }}, {# #}
+                    {% endfor %}
+            {% endif %}
+            typename func_t
+        > {# #}
+        constexpr auto {{ class.scope }}::with_meta_type(meta_adl<{{ class.full_name }}>, func_t&& func)
         {
             constexpr meta_type type {
                 .name = "{{ class.full_name }}", // TODO @sporacid generate better name
@@ -89,21 +85,14 @@
 
             return func.template operator()<type>();
         }
-        {% if truthy(class.scope) %}
-            }
 
-        {% endif %}
     {% endif %}
 {% endfor %}
 
 {% for enum in enums %}
     {% if truthy(enum.attributes, "_spore_meta_enabled") and enum.definition and not enum.nested %}
-        {% if truthy(enum.scope) %}
-            namespace {{ enum.scope }}
-            {
-        {% endif %} {# #}
         template <typename func_t>
-        constexpr auto with_meta_enum(meta_adl<{{ enum.full_name }}>, func_t&& func)
+        constexpr auto {{ enum.scope }}::with_meta_enum(meta_adl<{{ enum.full_name }}>, func_t&& func)
         {
             constexpr meta_enum enum_ {
                 .name = "{{ enum.full_name }}",
@@ -125,9 +114,6 @@
 
             return func.template operator()<enum_>();
         }
-        {% if truthy(enum.scope) %}
-            }
 
-        {% endif %}
     {% endif %}
 {% endfor %}
