@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <tuple>
 #include <type_traits>
 
@@ -7,7 +8,7 @@ namespace spore::meta::utils
 {
     namespace detail
     {
-        template <size_t index_v, typename from_tuple_t, typename to_tuple_t>
+        template <std::size_t index_v, typename from_tuple_t, typename to_tuple_t>
         consteval void check_is_assignable_impl()
         {
             static_assert(std::tuple_size_v<from_tuple_t> == std::tuple_size_v<to_tuple_t>);

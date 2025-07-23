@@ -3,6 +3,7 @@
 #include "spore/meta/meta_invalid.hpp"
 #include "spore/meta/meta_result.hpp"
 
+#include <cstddef>
 #include <type_traits>
 #include <variant>
 
@@ -14,12 +15,12 @@ namespace spore
     template <>
     struct meta_tuple<>
     {
-        constexpr size_t size() const
+        constexpr std::size_t size() const
         {
             return 0ULL;
         }
 
-        template <size_t>
+        template <std::size_t>
         constexpr auto at() const
         {
             return meta_invalid();
@@ -36,12 +37,12 @@ namespace spore
             : value(std::move(value)),
               rest(std::move(rest)...) {}
 
-        constexpr size_t size() const
+        constexpr std::size_t size() const
         {
             return 1ULL + sizeof...(values_t);
         }
 
-        template <size_t index_v>
+        template <std::size_t index_v>
         constexpr auto at() const
         {
             if constexpr (index_v == 0)
@@ -107,7 +108,7 @@ namespace spore
                 }
             }
 
-            template <size_t index_v, meta_tuple tuple_v, typename func_t>
+            template <std::size_t index_v, meta_tuple tuple_v, typename func_t>
             constexpr meta_result auto for_each_impl(func_t&& func)
             {
                 if constexpr (index_v < tuple_v.size())
@@ -158,7 +159,7 @@ namespace spore
                 }
             }
 
-            template <size_t index_v, meta_tuple tuple_v, typename predicate_t>
+            template <std::size_t index_v, meta_tuple tuple_v, typename predicate_t>
             constexpr auto find_impl(predicate_t&& predicate)
             {
                 if constexpr (index_v < tuple_v.size())

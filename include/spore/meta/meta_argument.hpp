@@ -4,11 +4,12 @@
 #include "spore/meta/meta_tuple.hpp"
 #include "spore/meta/meta_type_ref.hpp"
 
+#include <cstddef>
 #include <type_traits>
 
 namespace spore
 {
-    template <size_t name_v, typename value_t, any_meta_attribute... attributes_t>
+    template <std::size_t name_v, typename value_t, any_meta_attribute... attributes_t>
     struct meta_argument
     {
         using value_type = value_t;
@@ -18,7 +19,7 @@ namespace spore
         meta_tuple<attributes_t...> attributes;
     };
 
-    template <size_t name_v, typename value_t, any_meta_attribute... attributes_t>
+    template <std::size_t name_v, typename value_t, any_meta_attribute... attributes_t>
     meta_argument(const char (&)[name_v], meta_type_ref<value_t>, meta_tuple<attributes_t...>)
         -> meta_argument<name_v, value_t, attributes_t...>;
 
@@ -27,7 +28,7 @@ namespace spore
     {
     };
 
-    template <size_t name_v, typename value_t, any_meta_attribute... attributes_t>
+    template <std::size_t name_v, typename value_t, any_meta_attribute... attributes_t>
     struct is_meta_argument<meta_argument<name_v, value_t, attributes_t...>> : std::true_type
     {
     };
