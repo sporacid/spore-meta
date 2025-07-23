@@ -10,18 +10,17 @@
 
 namespace spore
 {
-    template <size_t name_v, typename...>
+    template <typename...>
     struct meta_constructor;
 
-    template <size_t name_v, typename constructor_t, any_meta_argument... arguments_t, any_meta_attribute... attributes_t>
-    struct meta_constructor<name_v, constructor_t, meta_tuple<arguments_t...>, meta_tuple<attributes_t...>>
+    template <typename constructor_t, any_meta_argument... arguments_t, any_meta_attribute... attributes_t>
+    struct meta_constructor<constructor_t, meta_tuple<arguments_t...>, meta_tuple<attributes_t...>>
     {
         using this_type = typename meta_constructor_traits<constructor_t>::this_type;
         using args_type = typename meta_constructor_traits<constructor_t>::args_type;
 
         static_assert(std::tuple_size_v<args_type> == sizeof...(arguments_t));
 
-        const char name[name_v];
         constructor_t constructor;
         meta_tuple<arguments_t...> arguments;
         meta_tuple<attributes_t...> attributes;
@@ -34,17 +33,17 @@ namespace spore
         }
     };
 
-    template <size_t name_v, typename constructor_t, any_meta_argument... arguments_t, any_meta_attribute... attributes_t>
-    meta_constructor(const char (&)[name_v], constructor_t, meta_tuple<arguments_t...>, meta_tuple<attributes_t...>)
-        -> meta_constructor<name_v, constructor_t, meta_tuple<arguments_t...>, meta_tuple<attributes_t...>>;
+    template <typename constructor_t, any_meta_argument... arguments_t, any_meta_attribute... attributes_t>
+    meta_constructor(constructor_t, meta_tuple<arguments_t...>, meta_tuple<attributes_t...>)
+        -> meta_constructor<constructor_t, meta_tuple<arguments_t...>, meta_tuple<attributes_t...>>;
 
     template <typename>
     struct is_meta_constructor : std::false_type
     {
     };
 
-    template <size_t name_v, typename constructor_t, any_meta_argument... arguments_t, any_meta_attribute... attributes_t>
-    struct is_meta_constructor<meta_constructor<name_v, constructor_t, meta_tuple<arguments_t...>, meta_tuple<attributes_t...>>> : std::true_type
+    template <typename constructor_t, any_meta_argument... arguments_t, any_meta_attribute... attributes_t>
+    struct is_meta_constructor<meta_constructor<constructor_t, meta_tuple<arguments_t...>, meta_tuple<attributes_t...>>> : std::true_type
     {
     };
 

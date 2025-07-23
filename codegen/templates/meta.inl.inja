@@ -60,18 +60,29 @@
                 },
                 .constructors = meta_tuple {
                     {% for constructor in class.constructors %}
-                        {% if constructor.flags.public and truthy(function.attributes, "_spore_meta_enabled") %}
+                        {% if constructor.flags.public and truthy(constructor.attributes, "_spore_meta_enabled") %}
                             meta_constructor {
-                                .constructor = +[]({{ class.full_name }}& value {# #}
+                                .constructor = []({{ class.full_name }}& value {# #}
                                     {% for argument in constructor.arguments %}
-                                        , {{ argument.type.name }} {% if argument.is_variadic %} ... {% endif %} {{ argument.name }}
+                                        , {{ argument.type.name }} {% if argument.is_variadic %} ... {% endif %} {{ " " }} {{ argument.name }}
                                     {% endfor %} {# #}
                                 ) {
                                     new (&value) {{ class.full_name }} {
-                                        {% for argument in constructor.arguments %}
+                                        {% for argument in constructor.arguments %} {# #}
                                             {{ argument.name }} {% if argument.is_variadic %} ... {% endif %} ,
                                         {% endfor %}
                                     };
+                                },
+                                .arguments = meta_tuple {
+                                    {% for argument in constructor.arguments %}
+                                        meta_argument {
+                                            .name = "{{ argument.type.name }}",
+                                            .type = meta_type_ref<{{ argument.type.name }}>{},
+                                            .attributes = meta_tuple {
+                                                {{ include("templates/meta_attribute.inja", argument.attributes) }}
+                                            },
+                                        },
+                                    {% endfor %} {# #}
                                 },
                                 .attributes = meta_tuple {
                                     {{ include("templates/meta_attribute.inja", constructor.attributes) }}
