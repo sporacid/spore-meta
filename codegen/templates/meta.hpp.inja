@@ -32,7 +32,7 @@
             {% endif %}
             typename func_t
         > {# #}
-        constexpr auto with_meta_type(meta_adl<{{ class.full_name }}>, func_t&& func);
+        constexpr auto with_meta_type(spore::meta_adl<{{ class.full_name }}>, func_t&& func);
         {% if truthy(class.scope) %}
             }
 
@@ -49,7 +49,7 @@
         {{ enum.type }} {{ enum.name }} : {{ enum.base.name }};
 
         template <typename func_t>
-        constexpr auto with_meta_enum(meta_adl<{{ enum.full_name }}>, func_t&& func);
+        constexpr auto with_meta_enum(spore::meta_adl<{{ enum.full_name }}>, func_t&& func);
         {% if truthy(enum.scope) %}
             }
 

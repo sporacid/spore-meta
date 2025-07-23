@@ -33,12 +33,6 @@ namespace spore
     };
     // clang-format on
 
-    template <typename value_t, typename func_t>
-    constexpr auto with_meta_type(meta_adl<value_t>, func_t&& func) = delete;
-
-    template <typename value_t, typename func_t>
-    constexpr auto with_meta_enum(meta_adl<value_t>, func_t&& func) = delete;
-
     namespace meta
     {
         template <meta_type_enabled value_t>
