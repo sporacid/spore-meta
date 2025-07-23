@@ -1,8 +1,9 @@
 # What is Spore Meta
 
 `spore-meta` is a C++23, header-only library to define compile-time reflection metadata for any given type. The library
-is optionally integrated with [spore-codegen](https://github.com/sporacid/spore-codegen) to automatically generate this
-metadata via `libclang` and with CMake to automatically generate the metadata when building a target.
+is optionally integrated with [spore-codegen](https://github.com/sporacid/spore-codegen) to automatically generate the
+reflection
+metadata via `libclang` and with CMake to run the code generation automatically when building a target.
 
 ## Table of Contents
 
@@ -17,6 +18,11 @@ metadata via `libclang` and with CMake to automatically generate the metadata wh
     - [For Each](#for-each)
     - [Find](#find)
     - [Attributes](#attributes)
+- [Examples](#examples)
+    - [Hello World](#hello-world)
+    - [Implicit Code Generation](#implicit-code-generation)
+    - [Json Serialization](#json-serialization)
+    - [External Project Integration](#external-project-integration)
 
 # Quick Start
 
@@ -382,100 +388,24 @@ on [this wiki page](https://github.com/sporacid/spore-codegen/blob/main/docs/Par
 All attributes that start with `_spore_meta` are considered internal to this repository and won't be exposed through the
 reflection structure.
 
-# More examples
+# Examples
+
+## Hello World
+
+[Hello world example](examples/hello-world) shows multiple ways to print hello world using auto-generated reflection
+metadata.
+
+## Implicit Generation
+
+[Implicit generation example](examples/implicit) shows how to generate reflection metadata implicitly without relying on
+attributes and macros.
 
 ## JSON Serialization
 
-Here is an example on how to generate JSON with `nlohmann-json` and `spore-meta`.
+[JSON serialization example](examples/json) shows how to generate JSON serialization automatically
+with [nlohmann-json](https://github.com/nlohmann/json) and attributes.
 
-```cpp
-struct SPORE_META_TYPE() message
-{
-    SPORE_META_FIELD(json = "identifier")
-    int id = 0;
-    
-    SPORE_META_FIELD(json)
-    std::string value;
-    
-    SPORE_META_FIELD(json = false)
-    int hash = 0;
-};
+## External Project Integration
 
-template <typename value_t>
-void to_json(nlohmann::json& json, const value_t& value)
-{
-    using namespace spore;
-    meta::for_each_field([&]<meta_field field_v> {
-        constexpt auto predicate = []<meta_attribute attribute_v> { std::string_view(attribute_v.name) == "json" };
-        constexpr auto attribute = meta::find_attribute<field_v>(predicate);
-        
-        if constexpr (meta::is_valid(attribute))
-        {
-            if constexpr (attribute.is_truthy())
-            {
-                if constexpr (std::convertible_to<value_t, std::string_view>)
-                {
-                    constexpr std::string_view name = attribute.value;
-                    json[name] = field_v.get(value);
-                }
-                else
-                {
-                    constexpr std::string_view name = field_v.name;
-                    json[name] = field_v.get(value);
-                }
-            }
-        }     
-    });
-}
-
-template <typename value_t>
-void from_json(const nlohmann::json& json, value_t& value)
-{
-    using namespace spore;
-    meta::for_each_field([&]<meta_field field_v> {
-        constexpt auto predicate = []<meta_attribute attribute_v> { std::string_view(attribute_v.name) == "json" };
-        constexpr auto attribute = meta::find_attribute<field_v>(predicate);
-        
-        if constexpr (meta::is_valid(attribute))
-        {
-            if constexpr (attribute.is_truthy())
-            {
-                if constexpr (std::convertible_to<value_t, std::string_view>)
-                {
-                    constexpr std::string_view name = attribute.value;
-                    json[name].get_to(field_v.get(value));
-                }
-                else
-                {
-                    constexpr std::string_view name = field_v.name;
-                    json[name].get_to(field_v.get(value));
-                }
-            }
-        }     
-    });
-}
-
-int main()
-{
-    using namespace spore;
-
-    message msg {
-        .id = 1,
-        .value = "message",
-        .hash = 12345,
-    };
-    
-    std::string json = nlohmann::json(msg).dump(2);
-    std::cout << json << std::endl;
-    
-    message parsed;
-    nlohmann::json::parse(json).get_to(parsed)
-    
-    meta::for_each_field([]<meta_field field_v> {
-        std::cout << field_v.name << ": " << field_v.get(parsed) << std::endl;
-    });
-    
-    return 0;
-}
-
-```
+[External project integration example](https://github.com/sporacid/spore-meta-example) shows how to integrate with the
+library from vcpkg and cmake with [spore-vcpkg](https://github.com/sporacid/spore-vcpkg) custom repository.

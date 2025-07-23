@@ -11,5 +11,13 @@
         "cpp"
       ]
     }
-  ]
+  ],
+  "features": {
+    "examples": {
+      "description": "build examples",
+      "dependencies": [
+        "nlohmann-json"
+      ]
+    }
+  }
 }
