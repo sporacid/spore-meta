@@ -59,6 +59,22 @@ namespace spore
     meta_tuple(values_t&&...)
         -> meta_tuple<values_t...>;
 
+    template <typename>
+    struct is_meta_tuple : std::false_type
+    {
+    };
+
+    template <typename... values_t>
+    struct is_meta_tuple<meta_tuple<values_t...>> : std::true_type
+    {
+    };
+
+    template <typename value_t>
+    constexpr bool is_meta_tuple_v = is_meta_tuple<value_t>::value;
+
+    template <typename value_t>
+    concept any_meta_tuple = is_meta_tuple_v<value_t>;
+
     namespace meta::tuples
     {
         namespace detail
