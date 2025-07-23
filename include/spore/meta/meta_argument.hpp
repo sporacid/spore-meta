@@ -15,7 +15,7 @@ namespace spore
         using value_type = value_t;
 
         const char name[name_v];
-        meta_type_ref<value_type> type;
+        meta_type_ref<value_t> type;
         meta_tuple<attributes_t...> attributes;
     };
 
@@ -36,6 +36,6 @@ namespace spore
     template <typename value_t>
     constexpr bool is_meta_argument_v = is_meta_argument<value_t>::value;
 
-    template <typename attribute_t>
-    concept any_meta_argument = is_meta_argument_v<attribute_t>;
+    template <typename value_t>
+    concept any_meta_argument = is_meta_argument_v<value_t>;
 }

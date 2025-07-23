@@ -8,6 +8,8 @@
 #include "spore/meta/meta_enum.hpp"
 #include "spore/meta/meta_type.hpp"
 
+#include <type_traits>
+
 namespace spore::meta
 {
     template <typename value_t, typename func_t>
@@ -15,6 +17,7 @@ namespace spore::meta
     {
         constexpr meta_type type {
             .name = "",
+            .bases = meta_tuple {},
             .fields = meta_tuple {},
             .functions = meta_tuple {},
             .constructors = meta_tuple {},
@@ -29,6 +32,7 @@ namespace spore::meta
     {
         constexpr meta_enum enum_ {
             .name = "",
+            .type = meta_type_ref<std::underlying_type_t<value_t>> {},
             .values = meta_tuple {},
             .attributes = meta_tuple {},
         };

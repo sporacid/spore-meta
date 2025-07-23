@@ -19,8 +19,6 @@ namespace spore
         using this_type = typename meta_constructor_traits<constructor_t>::this_type;
         using args_type = typename meta_constructor_traits<constructor_t>::args_type;
 
-        static_assert(std::tuple_size_v<args_type> == sizeof...(arguments_t));
-
         constructor_t constructor;
         meta_tuple<arguments_t...> arguments;
         meta_tuple<attributes_t...> attributes;

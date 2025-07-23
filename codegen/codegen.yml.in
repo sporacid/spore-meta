@@ -10,7 +10,4 @@ stages:
         templates:
           - "@SPORE_META_CODEGEN_DIRECTORY@/templates/meta.hpp.inja"
           - "@SPORE_META_CODEGEN_DIRECTORY@/templates/meta.inl.inja"
-        condition:
-          type: attribute
-          value:
-            _spore_meta_enabled: true
+@SPORE_META_CODEGEN_CONDITION@

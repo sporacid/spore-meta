@@ -65,6 +65,13 @@ namespace spore
         }
 
         template <meta_type_enabled value_t, typename func_t>
+        constexpr meta_result auto for_each_base(func_t&& func)
+        {
+            constexpr meta_type type = get_type<value_t>();
+            return tuples::for_each<type.bases>(std::forward<func_t>(func));
+        }
+
+        template <meta_type_enabled value_t, typename func_t>
         constexpr meta_result auto for_each_field(func_t&& func)
         {
             constexpr meta_type type = get_type<value_t>();
@@ -102,6 +109,13 @@ namespace spore
         constexpr meta_result auto for_each_argument(func_t&& func) requires has_meta_arguments<object_v>
         {
             return tuples::for_each<object_v.arguments>(std::forward<func_t>(func));
+        }
+
+        template <meta_type_enabled value_t, typename predicate_t>
+        constexpr auto find_base(predicate_t&& predicate)
+        {
+            constexpr meta_type type = get_type<value_t>();
+            return tuples::find<type.bases>(std::forward<predicate_t>(predicate));
         }
 
         template <meta_type_enabled value_t, typename predicate_t>

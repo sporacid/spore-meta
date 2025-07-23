@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spore/meta/meta_attribute.hpp"
+#include "spore/meta/meta_base.hpp"
 #include "spore/meta/meta_constructor.hpp"
 #include "spore/meta/meta_field.hpp"
 #include "spore/meta/meta_function.hpp"
@@ -16,18 +17,21 @@ namespace spore
 
     template <
         std::size_t name_v,
+        any_meta_base... bases_t,
         any_meta_field... fields_t,
         any_meta_function... functions_t,
         any_meta_constructor... constructors_t,
         any_meta_attribute... attributes_t>
     struct meta_type<
         name_v,
+        meta_tuple<bases_t...>,
         meta_tuple<fields_t...>,
         meta_tuple<functions_t...>,
         meta_tuple<constructors_t...>,
         meta_tuple<attributes_t...>>
     {
         const char name[name_v];
+        meta_tuple<bases_t...> bases;
         meta_tuple<fields_t...> fields;
         meta_tuple<functions_t...> functions;
         meta_tuple<constructors_t...> constructors;
@@ -38,25 +42,30 @@ namespace spore
     struct meta_type<name_v>
     {
         const char name[name_v];
+        meta_tuple<> bases;
         meta_tuple<> fields;
         meta_tuple<> functions;
+        meta_tuple<> constructors;
         meta_tuple<> attributes;
     };
 
     template <
         std::size_t name_v,
+        any_meta_base... bases_t,
         any_meta_field... fields_t,
         any_meta_function... functions_t,
         any_meta_constructor... constructors_t,
         any_meta_attribute... attributes_t>
     meta_type(
         const char (&)[name_v],
+        meta_tuple<bases_t...>,
         meta_tuple<fields_t...>,
         meta_tuple<functions_t...>,
         meta_tuple<constructors_t...>,
         meta_tuple<attributes_t...>)
         -> meta_type<
             name_v,
+            meta_tuple<bases_t...>,
             meta_tuple<fields_t...>,
             meta_tuple<functions_t...>,
             meta_tuple<constructors_t...>,
@@ -69,12 +78,14 @@ namespace spore
 
     template <
         std::size_t name_v,
+        any_meta_base... bases_t,
         any_meta_field... fields_t,
         any_meta_function... functions_t,
         any_meta_constructor... constructors_t,
         any_meta_attribute... attributes_t>
     struct is_meta_type<meta_type<
         name_v,
+        meta_tuple<bases_t...>,
         meta_tuple<fields_t...>,
         meta_tuple<functions_t...>,
         meta_tuple<constructors_t...>,
