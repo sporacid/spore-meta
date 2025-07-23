@@ -10,7 +10,6 @@ function(spore_add_meta SPORE_TARGET)
   get_target_property(SPORE_TARGET_SOURCE_DIR ${SPORE_TARGET} SOURCE_DIR)
   get_target_property(SPORE_TARGET_BINARY_DIR ${SPORE_TARGET} BINARY_DIR)
 
-
   if (NOT SPORE_META_INPUT_DIRECTORY)
     set(SPORE_META_INPUT_DIRECTORY ${SPORE_TARGET_SOURCE_DIR}/include)
   endif ()
