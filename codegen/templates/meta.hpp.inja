@@ -8,7 +8,6 @@
             namespace {{ class.scope }}
             {
         {% endif %} {# #}
-        {# -- Begin class forward declaration -- #}
         {% if class.is_template or class.is_template_specialization %}
             template < {# #}
                 {% for template_param in class.template_params %}
@@ -24,22 +23,15 @@
                 {% endfor %}
             > {# #}
         {% endif %};
-        {# -- End class forward declaration -- #}
-        {% if class.is_template or class.is_template_specialization %}
-            template < {# #}
-                {% for template_param in class.template_params %}
-                    {{ template_param.type }} {{ template_param.name }} {% if not loop.is_last %}, {% endif %}
-                {% endfor %}
-            > {# #}
-        {% endif %}
-        {% if class.is_template or class.is_template_specialization %}
-            template < {# #}
-                {% for template_param in class.template_params %}
-                    {{ template_param.type }} {{ template_param.name }} {% if not loop.is_last %}, {% endif %}
-                {% endfor %}
-            > {# #}
-        {% endif %}
-        template <typename func_t>
+
+        template < {# #}
+            {% if class.is_template or class.is_template_specialization %}
+                    {% for template_param in class.template_params %}
+                        {{ template_param.type }} {{ template_param.name }}, {# #}
+                    {% endfor %}
+            {% endif %}
+            typename func_t
+        > {# #}
         constexpr auto with_meta_type(meta_adl<{{ class.full_name }}>, func_t&& func);
         {% if truthy(class.scope) %}
             }
