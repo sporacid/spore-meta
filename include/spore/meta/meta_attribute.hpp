@@ -1,6 +1,6 @@
 #pragma once
 
-#include "spore/meta/meta_truthy.hpp"
+#include "spore/meta/meta_string.hpp"
 
 #include <cstddef>
 #include <type_traits>
@@ -10,13 +10,8 @@ namespace spore
     template <std::size_t name_v, typename value_t>
     struct meta_attribute
     {
-        const char name[name_v];
+        meta_string<name_v> name;
         value_t value;
-
-        constexpr bool is_truthy() const
-        {
-            return meta_truthy<value_t>::is_truthy(value);
-        }
     };
 
     template <std::size_t name_v, typename value_t>

@@ -3,6 +3,7 @@
 #include "spore/meta/meta_attribute.hpp"
 #include "spore/meta/meta_tuple.hpp"
 #include "spore/meta/meta_type_ref.hpp"
+#include "spore/meta/meta_string.hpp"
 
 #include <cstddef>
 #include <type_traits>
@@ -14,7 +15,7 @@ namespace spore
     {
         using value_type = value_t;
 
-        const char name[name_v];
+        meta_string<name_v> name;
         meta_type_ref<value_t> type;
         meta_tuple<attributes_t...> attributes;
     };

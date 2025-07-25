@@ -31,15 +31,17 @@ namespace spore::examples::json
 
             if constexpr (meta::is_valid<attribute>())
             {
-                if (attribute.is_truthy())
+                if (meta::is_truthy(attribute.value))
                 {
                     if constexpr (std::convertible_to<decltype(attribute.value), std::string_view>)
                     {
-                        json[attribute.value] = field_v.get(value);
+                        const std::string_view name = attribute.value;
+                        json[name] = field_v.get(value);
                     }
                     else
                     {
-                        json[field_v.name] = field_v.get(value);
+                        const std::string_view name = field_v.name;
+                        json[name] = field_v.get(value);
                     }
                 }
             }
@@ -59,15 +61,17 @@ namespace spore::examples::json
 
             if constexpr (meta::is_valid<attribute>())
             {
-                if (attribute.is_truthy())
+                if (meta::is_truthy(attribute.value))
                 {
                     if constexpr (std::convertible_to<decltype(attribute.value), std::string_view>)
                     {
-                        json[attribute.value].get_to(field_v.get(value));
+                        const std::string_view name = attribute.value;
+                        json[name].get_to(field_v.get(value));
                     }
                     else
                     {
-                        json[field_v.name].get_to(field_v.get(value));
+                        const std::string_view name = field_v.name;
+                        json[name].get_to(field_v.get(value));
                     }
                 }
             }

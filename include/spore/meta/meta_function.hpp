@@ -5,6 +5,7 @@
 #include "spore/meta/meta_function_traits.hpp"
 #include "spore/meta/meta_tuple.hpp"
 #include "spore/meta/meta_utils.hpp"
+#include "spore/meta/meta_string.hpp"
 
 #include <cstddef>
 #include <type_traits>
@@ -20,7 +21,7 @@ namespace spore
         using return_type = typename meta_function_traits<function_t>::return_type;
         using args_type = typename meta_function_traits<function_t>::args_type;
 
-        const char name[name_v];
+        meta_string<name_v> name;
         function_t function;
         meta_tuple<arguments_t...> arguments;
         meta_tuple<attributes_t...> attributes;

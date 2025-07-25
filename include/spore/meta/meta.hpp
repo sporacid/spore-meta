@@ -6,6 +6,7 @@
 #include "spore/meta/meta_type.hpp"
 
 #include <concepts>
+#include <string>
 #include <string_view>
 
 namespace spore
@@ -52,17 +53,17 @@ namespace spore
         }
 
         template <meta_enabled value_t>
-        consteval std::string_view get_name()
+        consteval any_meta_string auto get_name()
         {
             constexpr meta_type type = get_type<value_t>();
             return type.name;
         }
 
-        template <auto object_v>
-        consteval std::string_view get_name() requires has_meta_name<object_v>
-        {
-            return object_v.name;
-        }
+       // template <auto object_v>
+       // consteval std::string_view get_name() requires has_meta_name<object_v>
+       // {
+       //     return object_v.name;
+       // }
 
         template <meta_type_enabled value_t, typename func_t>
         constexpr meta_result auto for_each_base(func_t&& func)

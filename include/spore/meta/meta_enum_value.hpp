@@ -2,6 +2,7 @@
 
 #include "spore/meta/meta_attribute.hpp"
 #include "spore/meta/meta_tuple.hpp"
+#include "spore/meta/meta_string.hpp"
 
 #include <cstddef>
 #include <type_traits>
@@ -11,7 +12,7 @@ namespace spore
     template <std::size_t name_v, typename value_t, any_meta_attribute... attributes_t>
     struct meta_enum_value
     {
-        const char name[name_v];
+        meta_string<name_v> name;
         value_t value;
         meta_tuple<attributes_t...> attributes;
     };
