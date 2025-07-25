@@ -31,7 +31,7 @@ namespace spore::examples::json
 
             if constexpr (meta::is_valid<attribute>())
             {
-                if (meta::is_truthy(attribute.value))
+                if constexpr (meta::is_truthy(attribute.value))
                 {
                     if constexpr (std::convertible_to<decltype(attribute.value), std::string_view>)
                     {
@@ -61,7 +61,7 @@ namespace spore::examples::json
 
             if constexpr (meta::is_valid<attribute>())
             {
-                if (meta::is_truthy(attribute.value))
+                if constexpr (meta::is_truthy(attribute.value))
                 {
                     if constexpr (std::convertible_to<decltype(attribute.value), std::string_view>)
                     {

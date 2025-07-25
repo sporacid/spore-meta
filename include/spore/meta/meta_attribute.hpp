@@ -20,7 +20,7 @@ namespace spore
 
     template <std::size_t name_v, std::size_t value_v>
     meta_attribute(const char (&)[name_v], const char (&)[value_v])
-        -> meta_attribute<name_v, const char[value_v]>;
+        -> meta_attribute<name_v, meta_string<value_v>>;
 
     template <typename>
     struct is_meta_attribute : std::false_type
