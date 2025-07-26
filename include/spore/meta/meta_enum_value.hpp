@@ -18,7 +18,7 @@ namespace spore
     };
 
     template <std::size_t name_v, typename value_t, any_meta_attribute... attributes_t>
-    meta_enum_value(const char (&)[name_v], value_t, meta_tuple<attributes_t...>)
+    meta_enum_value(meta_string<name_v>, value_t, meta_tuple<attributes_t...>)
         -> meta_enum_value<name_v, value_t, attributes_t...>;
 
     template <typename>

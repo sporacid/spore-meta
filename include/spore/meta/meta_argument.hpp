@@ -20,10 +20,6 @@ namespace spore
         meta_tuple<attributes_t...> attributes;
     };
 
-    template <std::size_t name_v, typename value_t, any_meta_attribute... attributes_t>
-    meta_argument(const char (&)[name_v], meta_type_ref<value_t>, meta_tuple<attributes_t...>)
-        -> meta_argument<name_v, value_t, attributes_t...>;
-
     template <typename>
     struct is_meta_argument : std::false_type
     {

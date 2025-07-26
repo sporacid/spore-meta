@@ -58,7 +58,7 @@ namespace spore
         any_meta_constructor... constructors_t,
         any_meta_attribute... attributes_t>
     meta_type(
-        const char (&)[name_v],
+        meta_string<name_v>,
         meta_tuple<bases_t...>,
         meta_tuple<fields_t...>,
         meta_tuple<functions_t...>,

@@ -37,7 +37,7 @@ namespace spore
     };
 
     template <std::size_t name_v, typename field_t, any_meta_attribute... attributes_t>
-    meta_field(const char (&)[name_v], field_t, meta_tuple<attributes_t...>)
+    meta_field(meta_string<name_v>, field_t, meta_tuple<attributes_t...>)
         -> meta_field<name_v, field_t, attributes_t...>;
 
     template <typename>

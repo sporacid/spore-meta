@@ -20,7 +20,7 @@
             using namespace spore;
 
             constexpr meta_type type {
-                .name = "{{ class.full_name }}", // TODO @sporacid generate better name
+                .name = meta_string {"{{ class.full_name }}"}, // TODO @sporacid generate better name
                 .bases = meta_tuple {
                     {% for base in class.bases %}
                         meta_base {
@@ -37,10 +37,10 @@
                         {% endif %}
                         {% if meta_field_enabled and field.flags.public %}
                             meta_field {
-                                .name = "{{ field.name }}",
+                                .name = meta_string {"{{ field.name }}"},
                                 .field = &{{ class.full_name }}::{{ field.name }},
                                 .attributes = meta_tuple {
-                                    {{ include("templates/meta_attribute.inja", field.attributes) }}
+                                    {{ include("templates/meta_attribute.inja", field.attributes) }} {# #}
                                 },
                             },
                         {% endif %}
@@ -55,22 +55,21 @@
                         {% endif %}
                         {% if meta_function_enabled and function.flags.public %}
                             meta_function {
-                                .name = "{{ function.name }}",
+                                .name = meta_string {"{{ function.name }}"},
                                 .function = &{{ class.full_name }}::{{ function.name }},
                                 .arguments = meta_tuple {
                                     {% for argument in function.arguments %}
                                         meta_argument {
-                                            .name = "{{ argument.name }}",
-                                            {# .default_value = {% if argument.default_value != "" %} {{ argument.default_value }} {% else %} std::nullopt {% endif %},#}
+                                            .name = meta_string {"{{ argument.name }}"},
                                             .type = meta_type_ref<{{ argument.type.name }}>{},
                                             .attributes = meta_tuple {
-                                                {{ include("templates/meta_attribute.inja", argument.attributes) }}
+                                                {{ include("templates/meta_attribute.inja", argument.attributes) }} {# #}
                                             },
                                         },
                                     {% endfor %} {# #}
                                 },
                                 .attributes = meta_tuple {
-                                    {{ include("templates/meta_attribute.inja", function.attributes) }}
+                                    {{ include("templates/meta_attribute.inja", function.attributes) }} {# #}
                                 },
                             },
                         {% endif %}
@@ -99,24 +98,24 @@
                                 .arguments = meta_tuple {
                                     {% for argument in constructor.arguments %}
                                         meta_argument {
-                                            .name = "{{ argument.name }}",
+                                            .name = meta_string {"{{ argument.name }}"},
                                             {# .default_value = {% if argument.default_value != "" %} {{ argument.default_value }} {% else %} std::nullopt {% endif %}, #}
                                             .type = meta_type_ref<{{ argument.type.name }}>{},
                                             .attributes = meta_tuple {
-                                                {{ include("templates/meta_attribute.inja", argument.attributes) }}
+                                                {{ include("templates/meta_attribute.inja", argument.attributes) }} {# #}
                                             },
                                         },
                                     {% endfor %} {# #}
                                 },
                                 .attributes = meta_tuple {
-                                    {{ include("templates/meta_attribute.inja", constructor.attributes) }}
+                                    {{ include("templates/meta_attribute.inja", constructor.attributes) }} {# #}
                                 },
                             },
                         {% endif %}
                     {% endfor %}
                 },
                 .attributes = meta_tuple {
-                    {{ include("templates/meta_attribute.inja", class.attributes) }}
+                    {{ include("templates/meta_attribute.inja", class.attributes) }} {# #}
                 },
             };
 
@@ -139,21 +138,21 @@
             using namespace spore;
 
             constexpr meta_enum enum_ {
-                .name = "{{ enum.full_name }}",
+                .name = meta_string {"{{ enum.full_name }}"},
                 .type = meta_type_ref<{{ enum.base.name }}>{},
                 .values = meta_tuple {
                 {% for value in enum.values %}
                     meta_enum_value {
-                        .name = "{{ value.name }}",
+                        .name = meta_string {"{{ value.name }}"},
                         .value = static_cast<{{ enum.base.name }}>({{ enum.full_name }}::{{ value.name }}),
                         .attributes = meta_tuple {
-                            {{ include("templates/meta_attribute.inja", value.attributes) }}
+                            {{ include("templates/meta_attribute.inja", value.attributes) }} {# #}
                         },
                     },
                 {% endfor %}
                 },
                 .attributes = meta_tuple {
-                    {{ include("templates/meta_attribute.inja", enum.attributes) }}
+                    {{ include("templates/meta_attribute.inja", enum.attributes) }} {# #}
                 },
             };
 

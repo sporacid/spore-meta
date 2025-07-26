@@ -35,7 +35,7 @@ namespace spore
     };
 
     template <std::size_t name_v, typename function_t, any_meta_argument... arguments_t, any_meta_attribute... attributes_t>
-    meta_function(const char (&)[name_v], function_t, meta_tuple<arguments_t...>, meta_tuple<attributes_t...>)
+    meta_function(meta_string<name_v>, function_t, meta_tuple<arguments_t...>, meta_tuple<attributes_t...>)
         -> meta_function<name_v, function_t, meta_tuple<arguments_t...>, meta_tuple<attributes_t...>>;
 
     template <typename>

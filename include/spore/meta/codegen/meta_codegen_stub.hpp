@@ -16,7 +16,7 @@ namespace spore::meta
     constexpr auto with_meta_type(meta_adl<value_t>, func_t&& func)
     {
         constexpr meta_type type {
-            .name = "",
+            .name = meta_string<0> {},
             .bases = meta_tuple {},
             .fields = meta_tuple {},
             .functions = meta_tuple {},
@@ -31,7 +31,7 @@ namespace spore::meta
     constexpr auto with_meta_enum(meta_adl<value_t>, func_t&& func)
     {
         constexpr meta_enum enum_ {
-            .name = "",
+            .name = meta_string<0> {},
             .type = meta_type_ref<std::underlying_type_t<value_t>> {},
             .values = meta_tuple {},
             .attributes = meta_tuple {},

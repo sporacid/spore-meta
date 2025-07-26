@@ -14,10 +14,6 @@ namespace spore
         meta_type_ref<value_t> type;
     };
 
-    template <typename value_t>
-    meta_base(meta_type_ref<value_t>)
-        -> meta_base<value_t>;
-
     template <typename>
     struct is_meta_base : std::false_type
     {

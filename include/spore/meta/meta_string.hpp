@@ -15,10 +15,17 @@ namespace spore
 
         constexpr meta_string(const char (&other_chars)[size_v])
         {
+            *this = other_chars;
+        }
+
+        constexpr meta_string& operator=(const char (&other_chars)[size_v])
+        {
             for (std::size_t index = 0; index < size_v; ++index)
             {
                 chars[index] = other_chars[index];
             }
+
+            return *this;
         }
 
         constexpr auto begin() const
@@ -84,9 +91,9 @@ namespace spore
         }
     };
 
-    template <std::size_t size_v>
-    meta_string(const char (&string)[size_v])
-        -> meta_string<size_v>;
+    // template <std::size_t size_v>
+    // meta_string(const char (&string)[size_v])
+    //     -> meta_string<size_v>;
 
     template <typename stream_t, std::size_t size_v>
     constexpr stream_t& operator<<(stream_t& stream, const meta_string<size_v>& string)
