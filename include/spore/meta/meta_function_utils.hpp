@@ -4,7 +4,7 @@
 #include <tuple>
 #include <type_traits>
 
-namespace spore::meta::utils
+namespace spore::meta::functions
 {
     namespace detail
     {

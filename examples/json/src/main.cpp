@@ -4,7 +4,7 @@
 
 #include "spore/meta/codegen/meta_codegen_detail.hpp"
 #include "spore/meta/codegen/meta_codegen_utils.hpp"
-#include "spore/meta/meta_name.hpp"
+#include "spore/meta/meta_type_utils.hpp"
 
 int main()
 {

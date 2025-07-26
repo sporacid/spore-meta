@@ -3,7 +3,7 @@
 #include "spore/meta/meta_enabled.hpp"
 #include "spore/meta/meta_string.hpp"
 
-namespace spore::meta::utils
+namespace spore::meta::types
 {
     namespace detail
     {
@@ -253,30 +253,4 @@ namespace spore::meta::utils
             return detail::to_string_impl<value_v>();
         }
     }
-
-    // template <typename value_t>
-    // consteval any_meta_string auto to_string(value_t&& value)
-    // {
-    //     return detail::to_string_impl(std::forward<value_t>(value));
-    // }
-
-    // template <typename value_t>
-    // consteval any_meta_string auto get_type_param_name()
-    // {
-    //     return detail::meta_type_name_impl<value_t>::get();
-    // }
-    //
-    // template <auto value_v>
-    // consteval any_meta_string auto get_value_param_name()
-    // {
-    //     if constexpr (any_meta_type_ref<decltype(value_v)>)
-    //     {
-    //         using value_t = typename decltype(value_v)::value_type;
-    //         return detail::meta_type_name_impl<value_t>::get();
-    //     }
-    //     else
-    //     {
-    //         return detail::meta_value_name_impl<value_v>::get();
-    //     }
-    // }
 }

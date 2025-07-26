@@ -3,8 +3,8 @@
 #include "spore/meta/meta_argument.hpp"
 #include "spore/meta/meta_attribute.hpp"
 #include "spore/meta/meta_constructor_traits.hpp"
+#include "spore/meta/meta_function_utils.hpp"
 #include "spore/meta/meta_tuple.hpp"
-#include "spore/meta/meta_utils.hpp"
 
 #include <type_traits>
 
@@ -24,10 +24,10 @@ namespace spore
         meta_tuple<attributes_t...> attributes;
 
         template <typename... args_t>
-        constexpr void construct(this_type& self, args_t&&... args) const
+        constexpr void construct(this_type& this_, args_t&&... args) const
         {
-            meta::utils::check_is_assignable<std::tuple<args_t&&...>, args_type>();
-            std::apply(constructor, std::tie(self, std::forward<args_t>(args)...));
+            meta::functions::check_is_assignable<std::tuple<args_t&&...>, args_type>();
+            std::apply(constructor, std::tie(this_, std::forward<args_t>(args)...));
         }
     };
 

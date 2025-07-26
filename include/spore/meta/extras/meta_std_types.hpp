@@ -1,9 +1,9 @@
 #pragma once
 
-#include "spore/meta/codegen/meta_codegen_detail.hpp"
+#include "spore/meta/extras/meta_macro_helpers.hpp"
 #include "spore/meta/meta_adl.hpp"
-#include "spore/meta/meta_name.hpp"
 #include "spore/meta/meta_type.hpp"
+#include "spore/meta/meta_type_utils.hpp"
 
 #include <array>
 #include <bitset>
@@ -12,55 +12,22 @@
 #include <functional>
 #include <list>
 #include <map>
+#include <memory>
 #include <optional>
 #include <set>
 #include <stack>
 #include <string>
 #include <string_view>
+#include <tuple>
 #include <unordered_map>
 #include <unordered_set>
+#include <variant>
 #include <vector>
-
-#define SPORE_META_NUM_ARGS(...) SPORE_META_NUM_ARGS_(__VA_ARGS__, 8, 7, 6, 5, 4, 3, 2, 1, 0)
-#define SPORE_META_NUM_ARGS_(_8, _7, _6, _5, _4, _3, _2, _1, N, ...) N
-
-#define SPORE_META_CONCAT(A, B) SPORE_META_CONCAT_(A, B)
-#define SPORE_META_CONCAT_(A, B) A##B
-
-#define SPORE_META_FOR_N(Num, Macro, ...) SPORE_META_CONCAT(SPORE_META_FOR_, Num)(Macro, __VA_ARGS__)
-#define SPORE_META_FOR(Macro, ...) SPORE_META_FOR_N(SPORE_META_NUM_ARGS(__VA_ARGS__), Macro, __VA_ARGS__)
-
-#define SPORE_META_FOR_1(Macro, Value, ...) Macro(0, Value)
-#define SPORE_META_FOR_2(Macro, Value, ...) Macro(1, Value) SPORE_META_FOR_1(Macro, __VA_ARGS__)
-#define SPORE_META_FOR_3(Macro, Value, ...) Macro(2, Value) SPORE_META_FOR_2(Macro, __VA_ARGS__)
-#define SPORE_META_FOR_4(Macro, Value, ...) Macro(3, Value) SPORE_META_FOR_3(Macro, __VA_ARGS__)
-#define SPORE_META_FOR_5(Macro, Value, ...) Macro(4, Value) SPORE_META_FOR_4(Macro, __VA_ARGS__)
-#define SPORE_META_FOR_6(Macro, Value, ...) Macro(5, Value) SPORE_META_FOR_5(Macro, __VA_ARGS__)
-#define SPORE_META_FOR_7(Macro, Value, ...) Macro(6, Value) SPORE_META_FOR_6(Macro, __VA_ARGS__)
-#define SPORE_META_FOR_8(Macro, Value, ...) Macro(7, Value) SPORE_META_FOR_7(Macro, __VA_ARGS__)
-
-#define SPORE_META_BOOL(Value) SPORE_META_CONCAT(SPORE_META_BOOL_, Value)
-#define SPORE_META_BOOL_0 0
-#define SPORE_META_BOOL_1 1
-#define SPORE_META_BOOL_2 1
-#define SPORE_META_BOOL_3 1
-#define SPORE_META_BOOL_4 1
-#define SPORE_META_BOOL_5 1
-#define SPORE_META_BOOL_6 1
-#define SPORE_META_BOOL_7 1
-
-#define SPORE_META_IF_0(True, False) False
-#define SPORE_META_IF_1(True, False) True
-#define SPORE_META_IF_(Bool, True, False) SPORE_META_CONCAT(SPORE_META_IF_, Bool)(True, False)
-#define SPORE_META_IF(Condition, True, False) SPORE_META_IF_(SPORE_META_CONCAT(SPORE_META_BOOL_, Condition), True, False)
-
-#define SPORE_META_EMPTY()
-#define SPORE_META_COMMA() ,
 
 #define SPORE_META_TEMPLATE_PARAM(Index, Value) Value _t##Index,
 #define SPORE_META_TEMPLATE_PARAM_NAME(Index, Value) _t##Index SPORE_META_IF(Index, SPORE_META_COMMA, SPORE_META_EMPTY)()
 #define SPORE_META_TEMPLATE_PARAM_STRING(Index, Value)        \
-    , spore::meta::utils::to_string<_t##Index>(), meta_string \
+    , spore::meta::types::to_string<_t##Index>(), meta_string \
     {                                                         \
         SPORE_META_IF(Index, ", ", "")                        \
     }
@@ -98,78 +65,76 @@
         };                                                                                                                    \
                                                                                                                               \
         return func.template operator()<type>();                                                                              \
-    };
+    }
 
 namespace spore
 {
-    SPORE_META_DEFINE_STD_TYPE(char8_t);
-    SPORE_META_DEFINE_STD_TYPE(char16_t);
-    SPORE_META_DEFINE_STD_TYPE(char32_t);
-    SPORE_META_DEFINE_STD_TYPE(wchar_t);
+    SPORE_META_DEFINE_STD_TYPE(char8_t)
+    SPORE_META_DEFINE_STD_TYPE(char16_t)
+    SPORE_META_DEFINE_STD_TYPE(char32_t)
+    SPORE_META_DEFINE_STD_TYPE(wchar_t)
 
-    SPORE_META_DEFINE_STD_TYPE(std::double_t);
-    SPORE_META_DEFINE_STD_TYPE(std::float_t);
-    SPORE_META_DEFINE_STD_TYPE(std::int8_t);
-    SPORE_META_DEFINE_STD_TYPE(std::int16_t);
-    SPORE_META_DEFINE_STD_TYPE(std::int32_t);
-    SPORE_META_DEFINE_STD_TYPE(std::int64_t);
-    SPORE_META_DEFINE_STD_TYPE(std::uint8_t);
-    SPORE_META_DEFINE_STD_TYPE(std::uint16_t);
-    SPORE_META_DEFINE_STD_TYPE(std::uint32_t);
-    SPORE_META_DEFINE_STD_TYPE(std::uint64_t);
-    SPORE_META_DEFINE_STD_TYPE(std::string);
-    SPORE_META_DEFINE_STD_TYPE(std::string_view);
-    SPORE_META_DEFINE_STD_TYPE(std::wstring);
-    SPORE_META_DEFINE_STD_TYPE(std::wstring_view);
-    SPORE_META_DEFINE_STD_TYPE(std::nullptr_t);
-    SPORE_META_DEFINE_STD_TYPE(std::byte);
+    SPORE_META_DEFINE_STD_TYPE(std::double_t)
+    SPORE_META_DEFINE_STD_TYPE(std::float_t)
+    SPORE_META_DEFINE_STD_TYPE(std::int8_t)
+    SPORE_META_DEFINE_STD_TYPE(std::int16_t)
+    SPORE_META_DEFINE_STD_TYPE(std::int32_t)
+    SPORE_META_DEFINE_STD_TYPE(std::int64_t)
+    SPORE_META_DEFINE_STD_TYPE(std::uint8_t)
+    SPORE_META_DEFINE_STD_TYPE(std::uint16_t)
+    SPORE_META_DEFINE_STD_TYPE(std::uint32_t)
+    SPORE_META_DEFINE_STD_TYPE(std::uint64_t)
+    SPORE_META_DEFINE_STD_TYPE(std::string)
+    SPORE_META_DEFINE_STD_TYPE(std::string_view)
+    SPORE_META_DEFINE_STD_TYPE(std::wstring)
+    SPORE_META_DEFINE_STD_TYPE(std::wstring_view)
+    SPORE_META_DEFINE_STD_TYPE(std::nullptr_t)
+    SPORE_META_DEFINE_STD_TYPE(std::byte)
 
-    SPORE_META_DEFINE_STD_TEMPLATE(std::allocator, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::array, typename, std::size_t);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::basic_string, typename, typename, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::basic_string_view, typename, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::bitset, std::size_t);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::char_traits, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::deque, typename, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::divides, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::equal_to, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::function, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::greater, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::greater_equal, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::hash, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::less, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::less_equal, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::list, typename, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::map, typename, typename, typename, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::minus, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::multimap, typename, typename, typename, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::multiplies, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::multiset, typename, typename, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::not_equal_to, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::optional, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::pair, typename, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::plus, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::set, typename, typename, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::stack, typename, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::unordered_map, typename, typename, typename, typename, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::unordered_set, typename, typename, typename, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::vector, typename, typename);
+    SPORE_META_DEFINE_STD_TEMPLATE(std::allocator, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::array, typename, std::size_t)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::basic_string, typename, typename, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::basic_string_view, typename, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::bitset, std::size_t)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::char_traits, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::deque, typename, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::divides, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::equal_to, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::function, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::greater, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::greater_equal, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::hash, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::less, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::less_equal, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::list, typename, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::map, typename, typename, typename, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::minus, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::multimap, typename, typename, typename, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::multiplies, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::multiset, typename, typename, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::not_equal_to, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::optional, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::pair, typename, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::plus, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::set, typename, typename, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::stack, typename, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::unordered_map, typename, typename, typename, typename, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::unordered_set, typename, typename, typename, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::vector, typename, typename)
 
-    // TODO @sporacid Implement variadic parameters
+    SPORE_META_DEFINE_STD_TEMPLATE(std::tuple, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::tuple, typename, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::tuple, typename, typename, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::tuple, typename, typename, typename, typename, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::tuple, typename, typename, typename, typename, typename, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::tuple, typename, typename, typename, typename, typename, typename, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::tuple, typename, typename, typename, typename, typename, typename, typename, typename)
 
-    SPORE_META_DEFINE_STD_TEMPLATE(std::tuple, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::tuple, typename, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::tuple, typename, typename, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::tuple, typename, typename, typename, typename, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::tuple, typename, typename, typename, typename, typename, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::tuple, typename, typename, typename, typename, typename, typename, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::tuple, typename, typename, typename, typename, typename, typename, typename, typename);
-
-    SPORE_META_DEFINE_STD_TEMPLATE(std::variant, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::variant, typename, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::variant, typename, typename, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::variant, typename, typename, typename, typename, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::variant, typename, typename, typename, typename, typename, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::variant, typename, typename, typename, typename, typename, typename, typename);
-    SPORE_META_DEFINE_STD_TEMPLATE(std::variant, typename, typename, typename, typename, typename, typename, typename, typename);
+    SPORE_META_DEFINE_STD_TEMPLATE(std::variant, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::variant, typename, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::variant, typename, typename, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::variant, typename, typename, typename, typename, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::variant, typename, typename, typename, typename, typename, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::variant, typename, typename, typename, typename, typename, typename, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::variant, typename, typename, typename, typename, typename, typename, typename, typename)
 }
