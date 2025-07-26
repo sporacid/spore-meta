@@ -36,5 +36,7 @@ int main()
     std::cout << meta::utils::to_string<volatile const std::array<message, 32>*&&>() << std::endl;
     std::cout << meta::utils::to_string<volatile const std::function<void(int, float)>*&&>() << std::endl;
     std::cout << meta::utils::to_string<void (&)(int, float)>() << std::endl;
+    std::cout << meta::utils::to_string<std::map<int, std::string>>() << std::endl;
+    std::cout << meta::utils::to_string<std::pair<const int, std::string>>() << std::endl;
     return 0;
 }

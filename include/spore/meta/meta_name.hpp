@@ -50,7 +50,7 @@ namespace spore::meta::utils
         // }
 
         template <std::integral auto value_v>
-        consteval any_meta_string auto to_string_impl() requires(not std::same_as<char, decltype(value_v)>)
+        consteval any_meta_string auto to_string_impl()
         {
             using value_t = decltype(value_v);
 
