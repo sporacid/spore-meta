@@ -12,7 +12,7 @@
 
 namespace spore
 {
-    template <std::size_t name_v, typename...>
+    template <std::size_t name_v, typename function_t, any_meta_tuple arguments_t, any_meta_tuple attributes_t>
     struct meta_function;
 
     template <std::size_t name_v, typename function_t, any_meta_argument... arguments_t, any_meta_attribute... attributes_t>

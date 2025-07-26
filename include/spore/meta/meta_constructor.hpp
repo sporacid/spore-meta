@@ -10,7 +10,7 @@
 
 namespace spore
 {
-    template <typename...>
+    template <typename constructor_t, any_meta_tuple arguments_t, any_meta_tuple attributes_t>
     struct meta_constructor;
 
     template <typename constructor_t, any_meta_argument... arguments_t, any_meta_attribute... attributes_t>
@@ -31,9 +31,9 @@ namespace spore
         }
     };
 
-    template <typename constructor_t, any_meta_argument... arguments_t, any_meta_attribute... attributes_t>
-    meta_constructor(constructor_t, meta_tuple<arguments_t...>, meta_tuple<attributes_t...>)
-        -> meta_constructor<constructor_t, meta_tuple<arguments_t...>, meta_tuple<attributes_t...>>;
+   template <typename constructor_t, any_meta_argument... arguments_t, any_meta_attribute... attributes_t>
+   meta_constructor(constructor_t, meta_tuple<arguments_t...>, meta_tuple<attributes_t...>)
+       -> meta_constructor<constructor_t, meta_tuple<arguments_t...>, meta_tuple<attributes_t...>>;
 
     template <typename>
     struct is_meta_constructor : std::false_type

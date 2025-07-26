@@ -17,10 +17,6 @@ namespace spore
         meta_tuple<attributes_t...> attributes;
     };
 
-    template <std::size_t name_v, typename value_t, any_meta_attribute... attributes_t>
-    meta_enum_value(meta_string<name_v>, value_t, meta_tuple<attributes_t...>)
-        -> meta_enum_value<name_v, value_t, attributes_t...>;
-
     template <typename>
     struct is_meta_enum_value : std::false_type
     {

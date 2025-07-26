@@ -36,7 +36,7 @@ int main()
         constexpr auto display_attr = meta::find_attribute<value_v>(
             []<meta_attribute attribute_v> { return std::string_view(attribute_v.name) == "display"; });
 
-        if constexpr (meta::is_valid<display_attr>())
+        if constexpr (meta::is_valid(display_attr))
         {
             std::cout << "  " << value_v.value << ": " << display_attr.value << std::endl;
         }
