@@ -32,9 +32,17 @@ int main()
         std::cout << field_v.name << ": " << field_v.get(parsed) << std::endl;
     });
 
-    // auto value = "std::vector" + meta::codegen::detail::get_param_names<meta_type_ref<std::int64_t> {}, meta_type_ref<std::allocator<std::int64_t>> {}>();
+    constexpr auto wtf = meta::codegen::detail::meta_name_impl<const message&>::get();
 
-    constexpr auto name2 = meta::get_name<std::uint8_t>();
+    constexpr auto wtd = meta::strings::concat(meta_string {"avc"}, meta_string {"123"}, meta_string{ "trololol"});
+
+    // constexpr auto name1 = "std::vector" +
+    //                        meta::codegen::detail::get_param_names<meta_type_ref<std::int64_t> {}, meta_type_ref<std::allocator<std::int64_t>> {}>();
+    //
+    // constexpr auto name2 = "std::array" +
+    //                        meta::codegen::detail::get_param_names<meta_type_ref<std::int64_t> {}, std::size_t {64}>();
+    //
+    // constexpr auto name3 = meta::get_name<std::uint8_t>();
 
     // constexpr auto name = ""; // meta::codegen::get_name("std::vector", "std::int64_t", "std::allocator<std::int64_t>");
     // meta::codegen::get_name("std::vector",

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string_view>
+#include <tuple>
 #include <type_traits>
 
 namespace spore
@@ -32,12 +33,12 @@ namespace spore
 
         constexpr bool empty() const
         {
-            return size_v == 0;
+            return size_v > 1;
         }
 
         constexpr std::size_t size() const
         {
-            return size_v;
+            return size_v - 1;
         }
 
         constexpr const char* data() const
@@ -47,7 +48,7 @@ namespace spore
 
         constexpr std::string_view get() const
         {
-            return std::string_view(chars);
+            return std::string_view(chars, size_v - 1);
         }
 
         constexpr operator std::string_view() const
@@ -108,4 +109,42 @@ namespace spore
 
     template <typename value_t>
     concept any_meta_string = is_meta_string_v<value_t>;
+
+    namespace meta::strings
+    {
+        namespace detail
+        {
+            template <std::size_t index_v, std::size_t offset_v, std::size_t size_v, std::size_t... other_sizes_v>
+            constexpr void concat_impl(meta_string<size_v>& string, const meta_string<other_sizes_v>&... other_strings)
+            {
+                if constexpr (index_v < sizeof...(other_strings))
+                {
+                    std::tuple tuple = std::tie(other_strings...);
+
+                    const any_meta_string auto& other_string = std::get<index_v>(tuple);
+
+                    constexpr std::array other_sizes {(other_sizes_v - 1)...};
+
+                    for (std::size_t index = 0; index < other_sizes[index_v]; ++index)
+                    {
+                        string.chars[offset_v + index] = other_string.chars[index];
+                    }
+
+                    concat_impl<index_v + 1, offset_v + other_sizes[index_v]>(string, other_strings...);
+                }
+            }
+        }
+
+        template <std::size_t... sizes_v>
+        constexpr any_meta_string auto concat(const meta_string<sizes_v>&... other_strings)
+        {
+            constexpr std::size_t size = (1ULL + ... + (sizes_v - 1));
+
+            meta_string<size> string;
+
+            detail::concat_impl<0, 0>(string, other_strings...);
+
+            return string;
+        }
+    }
 }
