@@ -1,8 +1,9 @@
 #pragma once
 
+#include "spore/meta/codegen/meta_codegen_detail.hpp"
 #include "spore/meta/meta_adl.hpp"
 #include "spore/meta/meta_type.hpp"
-#include "spore/meta/codegen/meta_codegen_detail.hpp"
+#include "spore/meta/meta_name.hpp"
 
 #include <cstdint>
 #include <deque>
@@ -47,8 +48,8 @@
 
 #define SPORE_META_IF_0(True, False) False
 #define SPORE_META_IF_1(True, False) True
-#define SPORE_META_IF_BOOL(Bool, True, False) SPORE_META_CONCAT(SPORE_META_IF_, Bool)(True, False)
-#define SPORE_META_IF(Condition, True, False) SPORE_META_IF_BOOL(SPORE_META_CONCAT(SPORE_META_BOOL_, Condition), True, False)
+#define SPORE_META_IF_(Bool, True, False) SPORE_META_CONCAT(SPORE_META_IF_, Bool)(True, False)
+#define SPORE_META_IF(Condition, True, False) SPORE_META_IF_(SPORE_META_CONCAT(SPORE_META_BOOL_, Condition), True, False)
 
 #define SPORE_META_DEFINE_STD_TYPE(Name)                                \
     template <typename func_t>                                          \
@@ -71,7 +72,11 @@
 
 #define SPORE_META_TEMPLATE_PARAM(Index, Value) Value _t##Index,
 #define SPORE_META_TEMPLATE_PARAM_NAME(Index, Value) _t##Index SPORE_META_IF(Index, SPORE_META_COMMA, SPORE_META_EMPTY)()
-#define SPORE_META_TEMPLATE_PARAM_STRING(Index, Value) , spore::meta::codegen::detail::meta_name_impl<_t##Index>::get(), meta_string{ SPORE_META_IF(Index, ", ", "")}
+#define SPORE_META_TEMPLATE_PARAM_STRING(Index, Value)                            \
+    , spore::meta::utils::to_string<_t##Index>(), meta_string \
+    {                                                                             \
+        SPORE_META_IF(Index, ", ", "")                                            \
+    }
 
 #define SPORE_META_DEFINE_STD_TEMPLATE(Name, ...)                                                                             \
     template <SPORE_META_FOR(SPORE_META_TEMPLATE_PARAM, __VA_ARGS__) typename func_t>                                         \
@@ -94,28 +99,40 @@
 
 namespace spore
 {
+    SPORE_META_DEFINE_STD_TYPE(char8_t);
+    SPORE_META_DEFINE_STD_TYPE(char16_t);
+    SPORE_META_DEFINE_STD_TYPE(char32_t);
+    SPORE_META_DEFINE_STD_TYPE(wchar_t);
+
     SPORE_META_DEFINE_STD_TYPE(std::double_t);
     SPORE_META_DEFINE_STD_TYPE(std::float_t);
     SPORE_META_DEFINE_STD_TYPE(std::int8_t);
     SPORE_META_DEFINE_STD_TYPE(std::int16_t);
     SPORE_META_DEFINE_STD_TYPE(std::int32_t);
     SPORE_META_DEFINE_STD_TYPE(std::int64_t);
-    SPORE_META_DEFINE_STD_TYPE(std::string);
-    SPORE_META_DEFINE_STD_TYPE(std::string_view);
     SPORE_META_DEFINE_STD_TYPE(std::uint8_t);
     SPORE_META_DEFINE_STD_TYPE(std::uint16_t);
     SPORE_META_DEFINE_STD_TYPE(std::uint32_t);
     SPORE_META_DEFINE_STD_TYPE(std::uint64_t);
+    SPORE_META_DEFINE_STD_TYPE(std::string);
+    SPORE_META_DEFINE_STD_TYPE(std::string_view);
+    SPORE_META_DEFINE_STD_TYPE(std::wstring);
+    SPORE_META_DEFINE_STD_TYPE(std::wstring_view);
+    SPORE_META_DEFINE_STD_TYPE(std::nullptr_t);
+    SPORE_META_DEFINE_STD_TYPE(std::byte);
 
     SPORE_META_DEFINE_STD_TEMPLATE(std::allocator, typename);
+    SPORE_META_DEFINE_STD_TEMPLATE(std::optional, typename);
     SPORE_META_DEFINE_STD_TEMPLATE(std::basic_string, typename, typename);
     SPORE_META_DEFINE_STD_TEMPLATE(std::basic_string_view, typename, typename);
     SPORE_META_DEFINE_STD_TEMPLATE(std::char_traits, typename);
     SPORE_META_DEFINE_STD_TEMPLATE(std::deque, typename, typename);
     SPORE_META_DEFINE_STD_TEMPLATE(std::equal_to, typename);
     SPORE_META_DEFINE_STD_TEMPLATE(std::greater, typename);
+    SPORE_META_DEFINE_STD_TEMPLATE(std::greater_equal, typename);
     SPORE_META_DEFINE_STD_TEMPLATE(std::hash, typename);
     SPORE_META_DEFINE_STD_TEMPLATE(std::less, typename);
+    SPORE_META_DEFINE_STD_TEMPLATE(std::less_equal, typename);
     // SPORE_META_DEFINE_STD_TEMPLATE(std::map, typename, typename, typename, typename);
     // SPORE_META_DEFINE_STD_TEMPLATE(std::multimap, typename, typename, typename, typename);
     SPORE_META_DEFINE_STD_TEMPLATE(std::multiset, typename, typename, typename);
@@ -128,7 +145,7 @@ namespace spore
     SPORE_META_DEFINE_STD_TEMPLATE(std::list, typename, typename);
     SPORE_META_DEFINE_STD_TEMPLATE(std::function, typename);
 
-    // SPORE_META_DEFINE_STD_TEMPLATE(std::array, typename, std::size_t);
+    SPORE_META_DEFINE_STD_TEMPLATE(std::array, typename, std::size_t);
 
     // TODO @sporacid Implement variadic parameters
 

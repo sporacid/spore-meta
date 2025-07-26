@@ -13,17 +13,33 @@ namespace spore
 
         constexpr meta_string() = default;
 
-        constexpr meta_string(const char (&other_chars)[size_v])
+        template <std::size_t other_size_v>
+        constexpr meta_string(const char (&other_chars)[other_size_v])
         {
             *this = other_chars;
         }
 
-        constexpr meta_string& operator=(const char (&other_chars)[size_v])
+        template <std::size_t other_size_v>
+        constexpr meta_string(const meta_string<other_size_v>& other)
         {
-            for (std::size_t index = 0; index < size_v; ++index)
+            *this = other.chars;
+        }
+
+        template <std::size_t other_size_v>
+        constexpr meta_string& operator=(const meta_string<other_size_v>& other)
+        {
+            return operator=(other.chars);
+        }
+
+        template <std::size_t other_size_v>
+        constexpr meta_string& operator=(const char (&other_chars)[other_size_v])
+        {
+            for (std::size_t index = 0; index < other_size_v && index < size_v; ++index)
             {
                 chars[index] = other_chars[index];
             }
+
+            chars[size_v - 1] = '\0';
 
             return *this;
         }
@@ -152,6 +168,13 @@ namespace spore
             detail::concat_impl<0, 0>(string, other_strings...);
 
             return string;
+        }
+
+        template <std::size_t new_size_v, std::size_t size_v>
+        constexpr any_meta_string auto resize(const meta_string<size_v>& string)
+        {
+            meta_string<new_size_v> new_string {string};
+            return new_string;
         }
     }
 }

@@ -39,7 +39,7 @@ if (SPORE_WITH_STD_TYPES)
   )
 
   install(
-    FILES "${PROJECT_SOURCE_DIR}/include/spore/meta/extra/meta_std_types.hpp"
+    FILES "${PROJECT_SOURCE_DIR}/include/spore/meta/extras/meta_std_types.hpp"
     DESTINATION "${CMAKE_INSTALL_PREFIX}/include/spore/meta/extra"
   )
 endif ()

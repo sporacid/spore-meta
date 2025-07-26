@@ -4,6 +4,7 @@
 
 #include "spore/meta/codegen/meta_codegen_detail.hpp"
 #include "spore/meta/codegen/meta_codegen_utils.hpp"
+#include "spore/meta/meta_name.hpp"
 
 int main()
 {
@@ -31,26 +32,11 @@ int main()
         std::cout << field_v.name << ": " << field_v.get(parsed) << std::endl;
     });
 
-    constexpr meta_string wtf = meta::codegen::detail::meta_name_impl<const std::vector<message>&>::get();
+    // constexpr meta_string wtf = meta::codegen::detail::meta_name_impl<const std::vector<message>&>::get();
+    // std::cout << wtf << std::endl;
 
-    // constexpr auto wtf = meta::codegen::detail::meta_name_impl<const message&>::get();
-//
-    // constexpr auto wtd = meta::strings::concat(meta_string {"avc"}, meta_string {"123"}, meta_string{ "trololol"});
-
-    // constexpr auto name1 = "std::vector" +
-    //                        meta::codegen::detail::get_param_names<meta_type_ref<std::int64_t> {}, meta_type_ref<std::allocator<std::int64_t>> {}>();
-    //
-    // constexpr auto name2 = "std::array" +
-    //                        meta::codegen::detail::get_param_names<meta_type_ref<std::int64_t> {}, std::size_t {64}>();
-    //
-    // constexpr auto name3 = meta::get_name<std::uint8_t>();
-
-    // constexpr auto name = ""; // meta::codegen::get_name("std::vector", "std::int64_t", "std::allocator<std::int64_t>");
-    // meta::codegen::get_name("std::vector",
-    //      meta::codegen::get_param_name<std::int64_t>(),
-    //      meta::codegen::get_param_name<std::allocator<std::int64_t>>());
-
-    // constexpr auto str = meta::codegen::utils::to_string<1234>();
-
+    std::cout << meta::utils::to_string<const std::vector<message>&>() << std::endl;
+    std::cout << meta::utils::to_string<volatile const std::array<message, 32>*&&>() << std::endl;
+    std::cout << meta::utils::to_string<volatile const std::function<void(int, float)>*&&>() << std::endl;
     return 0;
 }
