@@ -129,6 +129,11 @@ namespace spore
             return get() == other;
         }
 
+        constexpr bool operator==(const char* other) const
+        {
+            return get() == std::string_view(other);
+        }
+
         constexpr bool operator<(const meta_string& other) const
         {
             return get() < other.get();
@@ -137,6 +142,11 @@ namespace spore
         constexpr bool operator<(const std::string_view& other) const
         {
             return get() < other;
+        }
+
+        constexpr bool operator<(const char* other) const
+        {
+            return get() < std::string_view(other);
         }
     };
 

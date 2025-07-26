@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.20)
 option(SPORE_WITH_EXAMPLES "Whether to build examples" ON)
 option(SPORE_WITH_STD_TYPES "Whether to include std types" ON)
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 20)
 
 if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/VERSION)
   file(READ ${CMAKE_CURRENT_SOURCE_DIR}/VERSION SPORE_VERSION)

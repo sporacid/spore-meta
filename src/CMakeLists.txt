@@ -12,6 +12,11 @@ target_include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/../include
 )
 
+target_compile_options(
+  ${TARGET_NAME} INTERFACE
+  "$<$<CXX_COMPILER_ID:MSVC>:/Zc:preprocessor>"
+)
+
 include(GNUInstallDirs)
 
 install(
@@ -33,9 +38,8 @@ install(
 
 if (SPORE_WITH_STD_TYPES)
   target_compile_definitions(
-    ${TARGET_NAME}
-    INTERFACE
-      SPORE_WITH_STD_TYPES
+    ${TARGET_NAME} INTERFACE
+    SPORE_WITH_STD_TYPES
   )
 
   install(

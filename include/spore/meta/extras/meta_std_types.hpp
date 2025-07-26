@@ -5,12 +5,14 @@
 #include "spore/meta/meta_name.hpp"
 #include "spore/meta/meta_type.hpp"
 
+#include <array>
 #include <bitset>
 #include <cstdint>
 #include <deque>
 #include <functional>
 #include <list>
 #include <map>
+#include <optional>
 #include <set>
 #include <stack>
 #include <string>

@@ -26,14 +26,14 @@ namespace spore::examples::json
         using namespace spore;
 
         const auto func = [&]<meta_field field_v> {
-            constexpr auto predicate = []<meta_attribute attribute_v> { return attribute_v.name.get() == "json"; };
+            constexpr auto predicate = []<meta_attribute attribute_v> { return attribute_v.name == "json"; };
             constexpr auto attribute = meta::find_attribute<field_v>(predicate);
 
             if constexpr (meta::is_valid(attribute))
             {
                 if constexpr (meta::is_truthy(attribute.value))
                 {
-                    if constexpr (std::convertible_to<decltype(attribute.value), std::string_view>)
+                    if constexpr (any_meta_string<value_t>)
                     {
                         const std::string_view name = attribute.value;
                         json[name] = field_v.get(value);
@@ -56,14 +56,14 @@ namespace spore::examples::json
         using namespace spore;
 
         const auto func = [&]<meta_field field_v> {
-            constexpr auto predicate = []<meta_attribute attribute_v> { return attribute_v.name.get() == "json"; };
+            constexpr auto predicate = []<meta_attribute attribute_v> { return attribute_v.name == "json"; };
             constexpr auto attribute = meta::find_attribute<field_v>(predicate);
 
             if constexpr (meta::is_valid(attribute))
             {
                 if constexpr (meta::is_truthy(attribute.value))
                 {
-                    if constexpr (std::convertible_to<decltype(attribute.value), std::string_view>)
+                    if constexpr (any_meta_string<value_t>)
                     {
                         const std::string_view name = attribute.value;
                         json[name].get_to(field_v.get(value));
