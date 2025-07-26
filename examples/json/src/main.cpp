@@ -4,7 +4,6 @@
 
 #include "spore/meta/codegen/meta_codegen_detail.hpp"
 #include "spore/meta/codegen/meta_codegen_utils.hpp"
-#include "spore/meta/extra/meta_std_types.hpp"
 
 int main()
 {
@@ -27,8 +26,6 @@ int main()
 
     std::cout << std::endl;
     std::cout << "Parsed: " << std::endl;
-
-    static_assert(meta_type_enabled<message>);
 
     meta::for_each_field<message>([&]<meta_field field_v> {
         std::cout << field_v.name << ": " << field_v.get(parsed) << std::endl;

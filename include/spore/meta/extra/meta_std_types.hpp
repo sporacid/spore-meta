@@ -2,6 +2,7 @@
 
 #include "spore/meta/meta_adl.hpp"
 #include "spore/meta/meta_type.hpp"
+#include "spore/meta/codegen/meta_codegen_detail.hpp"
 
 #include <cstdint>
 #include <deque>
