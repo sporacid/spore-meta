@@ -36,30 +36,14 @@ namespace spore::meta::types
             return meta_string {"void"};
         }
 
-        // template <char char_v>
-        // consteval any_meta_string auto to_string_impl()
-        // {
-        //     constexpr char chars[] = {'\'', char_v, '\'', '\0'};
-        //     return meta_string {chars};
-        // }
-
-        // template <std::size_t size_v, char chars_v[size_v]>
-        // consteval any_meta_string auto to_string_impl()
-        // {
-        //     return meta_string {chars_v};
-        // }
-
         template <std::integral auto value_v>
         consteval any_meta_string auto to_string_impl()
         {
             using value_t = decltype(value_v);
 
-            if constexpr (std::is_signed_v<value_t>)
+            if constexpr (std::is_signed_v<value_t> and value_v < 0)
             {
-                if constexpr (value_v < 0)
-                {
-                    return strings::concat(meta_string {"-"}, to_string_impl<-value_v>());
-                }
+                return meta_string {"-"} + to_string_impl<-value_v>();
             }
             else if constexpr (value_v == 0)
             {
@@ -74,7 +58,7 @@ namespace spore::meta::types
 
                 if constexpr (remainder > 0)
                 {
-                    return strings::concat(to_string_impl<remainder>(), meta_string {chars});
+                    return to_string_impl<remainder>() + meta_string {chars};
                 }
                 else
                 {
@@ -104,15 +88,15 @@ namespace spore::meta::types
 
             if constexpr (std::is_const_v<value_t> and std::is_volatile_v<value_t>)
             {
-                return strings::concat(meta_string {"const volatile "}, base_name);
+                return meta_string {"const volatile "} + base_name;
             }
             else if constexpr (std::is_const_v<value_t>)
             {
-                return strings::concat(meta_string {"const "}, base_name);
+                return meta_string {"const "} + base_name;
             }
             else if constexpr (std::is_volatile_v<value_t>)
             {
-                return strings::concat(meta_string {"volatile "}, base_name);
+                return meta_string {"volatile "} + base_name;
             }
             else
             {
@@ -123,114 +107,99 @@ namespace spore::meta::types
         template <typename value_t>
         consteval any_meta_string auto to_string_impl(const meta_type_ref<value_t&>)
         {
-            return strings::concat(to_string_impl(meta_type_ref<value_t> {}), meta_string {"&"});
+            return to_string_impl(meta_type_ref<value_t> {}) + meta_string {"&"};
         }
 
         template <typename value_t>
         consteval any_meta_string auto to_string_impl(const meta_type_ref<value_t&&>)
         {
-            return strings::concat(to_string_impl(meta_type_ref<value_t> {}), meta_string {"&&"});
+            return to_string_impl(meta_type_ref<value_t> {}) + meta_string {"&&"};
         }
 
         template <typename value_t>
         consteval any_meta_string auto to_string_impl(const meta_type_ref<value_t*>)
         {
-            return strings::concat(to_string_impl(meta_type_ref<value_t> {}), meta_string {"*"});
+            return to_string_impl(meta_type_ref<value_t> {}) + meta_string {"*"};
         }
 
         template <typename value_t>
         consteval any_meta_string auto to_string_impl(const meta_type_ref<value_t[]>)
         {
-            return strings::concat(to_string_impl(meta_type_ref<value_t> {}), meta_string {"[]"});
+            return to_string_impl(meta_type_ref<value_t> {}) + meta_string {"[]"};
         }
 
         template <typename value_t, std::size_t size_v>
         consteval any_meta_string auto to_string_impl(const meta_type_ref<value_t[size_v]>)
         {
-            return strings::concat(
-                to_string_impl(meta_type_ref<value_t> {}),
-                meta_string {"["},
-                to_string_impl<size_v>(),
-                meta_string {"]"});
+            return to_string_impl(meta_type_ref<value_t> {}) + meta_string {"["} + to_string_impl<size_v>() + meta_string {"]"};
         }
 
         template <typename return_t, typename... args_t>
         consteval any_meta_string auto to_string_impl(const meta_type_ref<return_t(args_t...)>)
         {
+            constexpr any_meta_string auto return_ = to_string_impl(meta_type_ref<return_t> {});
+
             if constexpr (sizeof...(args_t) > 0)
             {
-                constexpr any_meta_string auto args = strings::concat(
-                    strings::concat(to_string_impl(meta_type_ref<args_t> {}), meta_string {", "})...);
+                constexpr any_meta_string auto args = (to_string_impl(meta_type_ref<args_t> {}) + ... + meta_string {", "});
 
-                return strings::concat(
-                    to_string_impl(meta_type_ref<return_t> {}),
-                    meta_string {"("},
-                    args.template resize<args.capacity() - 2>(),
-                    meta_string {")"});
+                return return_ + meta_string {"("} + args.template resize<args.capacity() - 2>() + meta_string {")"};
             }
             else
             {
-                return strings::concat(to_string_impl(meta_type_ref<return_t> {}), meta_string {"()"});
+                return return_ + meta_string {"()"};
             }
         }
 
         template <typename return_t, typename... args_t>
         consteval any_meta_string auto to_string_impl(const meta_type_ref<return_t (*)(args_t...)>)
         {
-            constexpr any_meta_string auto prefix = strings::concat(
-                to_string_impl(meta_type_ref<return_t> {}), meta_string {"(*)("});
+            constexpr any_meta_string auto return_ = to_string_impl(meta_type_ref<return_t> {});
 
             if constexpr (sizeof...(args_t) > 0)
             {
-                constexpr any_meta_string auto args = strings::concat(
-                    strings::concat(to_string_impl(meta_type_ref<args_t> {}), meta_string {", "})...);
+                constexpr any_meta_string auto args = (to_string_impl(meta_type_ref<args_t> {}) + ... + meta_string {", "});
 
-                return strings::concat(prefix, args.template resize<args.capacity() - 2>(), meta_string {")"});
+                return return_ + meta_string {"(*)("} + args.template resize<args.capacity() - 2>() + meta_string {")"};
             }
             else
             {
-                return strings::concat(prefix, meta_string {"()"});
+                return return_ + meta_string {"(*)()"};
             }
         }
 
         template <typename return_t, typename... args_t>
         consteval any_meta_string auto to_string_impl(const meta_type_ref<return_t (&)(args_t...)>)
         {
-            constexpr any_meta_string auto prefix = strings::concat(
-                to_string_impl(meta_type_ref<return_t> {}), meta_string {"(&)("});
+            constexpr any_meta_string auto return_ = to_string_impl(meta_type_ref<return_t> {});
 
             if constexpr (sizeof...(args_t) > 0)
             {
-                constexpr any_meta_string auto args = strings::concat(
-                    strings::concat(to_string_impl(meta_type_ref<args_t> {}), meta_string {", "})...);
+                constexpr any_meta_string auto args = (to_string_impl(meta_type_ref<args_t> {}) + ... + meta_string {", "});
 
-                return strings::concat(prefix, args.template resize<args.capacity() - 2>(), meta_string {")"});
+                return return_ + meta_string {"(&)("} + args.template resize<args.capacity() - 2>() + meta_string {")"};
             }
             else
             {
-                return strings::concat(prefix, meta_string {"()"});
+                return return_ + meta_string {"(&)()"};
             }
         }
 
         template <typename this_t, typename return_t, typename... args_t>
         consteval any_meta_string auto to_string_impl(const meta_type_ref<return_t (this_t::*)(args_t...)>)
         {
-            constexpr any_meta_string auto prefix = strings::concat(
-                to_string_impl(meta_type_ref<return_t> {}),
-                meta_string {"("},
-                to_string_impl(meta_type_ref<this_t> {}),
-                meta_string {"::*)("});
+            constexpr any_meta_string auto return_ = to_string_impl(meta_type_ref<return_t> {});
+            constexpr any_meta_string auto this_ = to_string_impl(meta_type_ref<this_t> {});
 
             if constexpr (sizeof...(args_t) > 0)
             {
-                constexpr any_meta_string auto args = strings::concat(
-                    strings::concat(to_string_impl(meta_type_ref<args_t> {}), meta_string {", "})...);
+                constexpr any_meta_string auto args = (to_string_impl(meta_type_ref<args_t> {}) + ... + meta_string {", "});
 
-                return strings::concat(prefix, args.template resize<args.capacity() - 2>(), meta_string {")"});
+                return return_ + meta_string {"("} + this_ + meta_string {"::*)("} + args.template resize<args.capacity() - 2>() + meta_string {")"};
             }
             else
             {
-                return strings::concat(prefix, meta_string {")"});
+                return return_ + meta_string {"("} + this_ + meta_string {"::*)()"};
             }
         }
     }
@@ -252,5 +221,23 @@ namespace spore::meta::types
         {
             return detail::to_string_impl<value_v>();
         }
+    }
+
+    template <meta_string separator, typename... values_t>
+    consteval any_meta_string auto to_string()
+    {
+        constexpr any_meta_string auto joined = ((meta::types::to_string<values_t>() + separator) + ...);
+        constexpr std::size_t new_size = joined.capacity() - separator.size();
+
+        return joined.template resize<new_size>();
+    }
+
+    template <meta_string separator, auto... values_v>
+    consteval any_meta_string auto to_string()
+    {
+        constexpr any_meta_string auto joined = ((meta::types::to_string<values_v>() + separator) + ...);
+        constexpr std::size_t new_size = joined.capacity() - separator.size();
+
+        return joined.template resize<new_size>();
     }
 }

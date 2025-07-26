@@ -27,7 +27,7 @@
 #define SPORE_META_TEMPLATE_PARAM(Index, Value) Value _t##Index,
 #define SPORE_META_TEMPLATE_PARAM_NAME(Index, Value) _t##Index SPORE_META_IF(Index, SPORE_META_COMMA, SPORE_META_EMPTY)()
 #define SPORE_META_TEMPLATE_PARAM_STRING(Index, Value)        \
-    , spore::meta::types::to_string<_t##Index>(), meta_string \
+    +spore::meta::types::to_string<_t##Index>() + meta_string \
     {                                                         \
         SPORE_META_IF(Index, ", ", "")                        \
     }
@@ -48,23 +48,20 @@
         return func.template operator()<type>();                        \
     }
 
-#define SPORE_META_DEFINE_STD_TEMPLATE(Name, ...)                                                                             \
-    template <SPORE_META_FOR(SPORE_META_TEMPLATE_PARAM, __VA_ARGS__) typename func_t>                                         \
-    constexpr auto with_meta_type(meta_adl<Name<SPORE_META_FOR(SPORE_META_TEMPLATE_PARAM_NAME, __VA_ARGS__)>>, func_t&& func) \
-    {                                                                                                                         \
-        constexpr meta_type type {                                                                                            \
-            .name = meta::strings::concat(                                                                                    \
-                meta_string {#Name},                                                                                          \
-                meta_string {"<"} SPORE_META_FOR(SPORE_META_TEMPLATE_PARAM_STRING, __VA_ARGS__),                              \
-                meta_string {">"}),                                                                                           \
-            .bases = meta_tuple {},                                                                                           \
-            .fields = meta_tuple {},                                                                                          \
-            .functions = meta_tuple {},                                                                                       \
-            .constructors = meta_tuple {},                                                                                    \
-            .attributes = meta_tuple {},                                                                                      \
-        };                                                                                                                    \
-                                                                                                                              \
-        return func.template operator()<type>();                                                                              \
+#define SPORE_META_DEFINE_STD_TEMPLATE(Name, ...)                                                                                              \
+    template <SPORE_META_FOR(SPORE_META_TEMPLATE_PARAM, __VA_ARGS__) typename func_t>                                                          \
+    constexpr auto with_meta_type(meta_adl<Name<SPORE_META_FOR(SPORE_META_TEMPLATE_PARAM_NAME, __VA_ARGS__)>>, func_t&& func)                  \
+    {                                                                                                                                          \
+        constexpr meta_type type {                                                                                                             \
+            .name = meta_string {#Name} + meta_string {"<"} SPORE_META_FOR(SPORE_META_TEMPLATE_PARAM_STRING, __VA_ARGS__) + meta_string {">"}, \
+            .bases = meta_tuple {},                                                                                                            \
+            .fields = meta_tuple {},                                                                                                           \
+            .functions = meta_tuple {},                                                                                                        \
+            .constructors = meta_tuple {},                                                                                                     \
+            .attributes = meta_tuple {},                                                                                                       \
+        };                                                                                                                                     \
+                                                                                                                                               \
+        return func.template operator()<type>();                                                                                               \
     }
 
 namespace spore

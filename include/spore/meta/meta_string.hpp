@@ -45,32 +45,6 @@ namespace spore
 
         constexpr std::size_t size() const
         {
-            // std::size_t index = capacity_v - 1;
-            //
-            // while (index > 0 && chars[size_v - index] == '\0')
-            // {
-            //     --index;
-            // }
-            //
-            // return size_v - index;
-            // for (std::size_t index = 0; index < size_v; ++index)
-            // {
-            //     if (chars[size_v - index] == '\0')
-            //     {
-            //         return index;
-            //     }
-            // }
-
-            // for (std::size_t index = 0; index < size_v; ++index)
-            // {
-            //     if (chars[index] == '\0')
-            //     {
-            //         return index;
-            //     }
-            // }
-            //
-            // return size_v;
-
             return capacity_v - 1;
         }
 
@@ -154,12 +128,6 @@ namespace spore
     meta_string(const char (&string)[capacity_v])
         -> meta_string<capacity_v>;
 
-    template <typename stream_t, std::size_t capacity_v>
-    constexpr stream_t& operator<<(stream_t& stream, const meta_string<capacity_v>& string)
-    {
-        return stream << string.get();
-    }
-
     template <typename>
     struct is_meta_string : std::false_type
     {
@@ -175,6 +143,32 @@ namespace spore
 
     template <typename value_t>
     concept any_meta_string = is_meta_string_v<value_t>;
+
+    template <std::size_t capacity_v, std::size_t other_capacity_v>
+    constexpr any_meta_string auto operator+(const meta_string<capacity_v>& string, const meta_string<other_capacity_v>& other_string)
+    {
+        meta_string<capacity_v + other_capacity_v - 1> new_string;
+
+        for (std::size_t index = 0; index < string.size(); ++index)
+        {
+            new_string[index] = string[index];
+        }
+
+        for (std::size_t index = 0; index < other_string.size(); ++index)
+        {
+            new_string[index + string.size()] = other_string[index];
+        }
+
+        new_string[capacity_v + other_capacity_v - 2] = '\0';
+
+        return new_string;
+    }
+
+    template <typename stream_t, std::size_t capacity_v>
+    constexpr stream_t& operator<<(stream_t& stream, const meta_string<capacity_v>& string)
+    {
+        return stream << string.get();
+    }
 
     namespace meta::strings
     {
