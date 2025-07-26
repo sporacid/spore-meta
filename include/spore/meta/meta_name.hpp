@@ -130,7 +130,7 @@ namespace spore::meta::utils
                 return strings::concat(
                     to_string_impl(meta_type_ref<return_t> {}),
                     meta_string {"("},
-                    meta_string<args.size() - 2>(args),
+                    args.template resize<args.capacity() - 2>(),
                     meta_string {")"});
                 // return strings::concat(
                 // to_string_impl(meta_type_ref<return_t> {}), meta_string {"()"}

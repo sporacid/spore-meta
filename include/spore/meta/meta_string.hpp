@@ -13,33 +13,17 @@ namespace spore
 
         constexpr meta_string() = default;
 
-        template <std::size_t other_size_v>
-        constexpr meta_string(const char (&other_chars)[other_size_v])
+        constexpr meta_string(const char (&other_chars)[size_v])
         {
             *this = other_chars;
         }
 
-        template <std::size_t other_size_v>
-        constexpr meta_string(const meta_string<other_size_v>& other)
+        constexpr meta_string& operator=(const char (&other_chars)[size_v])
         {
-            *this = other.chars;
-        }
-
-        template <std::size_t other_size_v>
-        constexpr meta_string& operator=(const meta_string<other_size_v>& other)
-        {
-            return operator=(other.chars);
-        }
-
-        template <std::size_t other_size_v>
-        constexpr meta_string& operator=(const char (&other_chars)[other_size_v])
-        {
-            for (std::size_t index = 0; index < other_size_v && index < size_v; ++index)
+            for (std::size_t index = 0; index < size_v; ++index)
             {
                 chars[index] = other_chars[index];
             }
-
-            chars[size_v - 1] = '\0';
 
             return *this;
         }
@@ -64,9 +48,29 @@ namespace spore
             return size_v - 1;
         }
 
+        constexpr std::size_t capacity() const
+        {
+            return size_v;
+        }
+
         constexpr const char* data() const
         {
             return std::data(chars);
+        }
+
+        template <std::size_t new_size_v>
+        constexpr meta_string<new_size_v> resize() const
+        {
+            char new_chars[new_size_v];
+
+            for (std::size_t index = 0; index < size_v && index < new_size_v; ++index)
+            {
+                new_chars[index] = chars[index];
+            }
+
+            new_chars[new_size_v - 1] = '\0';
+
+            return meta_string<new_size_v> {new_chars};
         }
 
         constexpr std::string_view get() const
