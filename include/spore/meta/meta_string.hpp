@@ -91,9 +91,9 @@ namespace spore
         }
     };
 
-    // template <std::size_t size_v>
-    // meta_string(const char (&string)[size_v])
-    //     -> meta_string<size_v>;
+    template <std::size_t size_v>
+    meta_string(const char (&string)[size_v])
+        -> meta_string<size_v>;
 
     template <typename stream_t, std::size_t size_v>
     constexpr stream_t& operator<<(stream_t& stream, const meta_string<size_v>& string)

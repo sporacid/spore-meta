@@ -84,13 +84,14 @@ namespace spore
         any_meta_function... functions_t,
         any_meta_constructor... constructors_t,
         any_meta_attribute... attributes_t>
-    struct is_meta_type<meta_type<
-        name_v,
-        meta_tuple<bases_t...>,
-        meta_tuple<fields_t...>,
-        meta_tuple<functions_t...>,
-        meta_tuple<constructors_t...>,
-        meta_tuple<attributes_t...>>> : std::true_type
+    struct is_meta_type<
+        meta_type<
+            name_v,
+            meta_tuple<bases_t...>,
+            meta_tuple<fields_t...>,
+            meta_tuple<functions_t...>,
+            meta_tuple<constructors_t...>,
+            meta_tuple<attributes_t...>>> : std::true_type
     {
     };
 

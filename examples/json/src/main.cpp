@@ -34,7 +34,7 @@ int main()
         std::cout << field_v.name << ": " << field_v.get(parsed) << std::endl;
     });
 
-    constexpr auto wtf = meta::codegen::detail::meta_name_impl<const std::vector<message>&>::get();
+    constexpr meta_string wtf = meta::codegen::detail::meta_name_impl<const std::vector<message>&>::get();
 
     // constexpr auto wtf = meta::codegen::detail::meta_name_impl<const message&>::get();
 //
