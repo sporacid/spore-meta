@@ -32,11 +32,9 @@ int main()
         std::cout << field_v.name << ": " << field_v.get(parsed) << std::endl;
     });
 
-    // constexpr meta_string wtf = meta::codegen::detail::meta_name_impl<const std::vector<message>&>::get();
-    // std::cout << wtf << std::endl;
-
     std::cout << meta::utils::to_string<const std::vector<message>&>() << std::endl;
     std::cout << meta::utils::to_string<volatile const std::array<message, 32>*&&>() << std::endl;
     std::cout << meta::utils::to_string<volatile const std::function<void(int, float)>*&&>() << std::endl;
+    std::cout << meta::utils::to_string<void (&)(int, float)>() << std::endl;
     return 0;
 }

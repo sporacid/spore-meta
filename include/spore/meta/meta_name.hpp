@@ -36,43 +36,55 @@ namespace spore::meta::utils
             return meta_string {"void"};
         }
 
-        template <std::integral value_t>
-        consteval any_meta_string auto to_string_impl(const value_t value)
+        // template <char char_v>
+        // consteval any_meta_string auto to_string_impl()
+        // {
+        //     constexpr char chars[] = {'\'', char_v, '\'', '\0'};
+        //     return meta_string {chars};
+        // }
+
+        // template <std::size_t size_v, char chars_v[size_v]>
+        // consteval any_meta_string auto to_string_impl()
+        // {
+        //     return meta_string {chars_v};
+        // }
+
+        template <std::integral auto value_v>
+        consteval any_meta_string auto to_string_impl() requires(not std::same_as<char, decltype(value_v)>)
         {
-            meta_string<16> string;
+            using value_t = decltype(value_v);
 
-            value_t value_copy = value;
-
-            std::size_t size = 0;
-
-            if (value_copy == 0)
+            if constexpr (std::is_signed_v<value_t>)
             {
-                string[0] = '0';
-            }
-            else if (value_copy < 0)
-            {
-                string[0] = '-';
-                size = 1;
-                value_copy *= -1;
-            }
-
-            while (value_copy > 0)
-            {
-                for (std::size_t index = 0; index < size; ++index)
+                if constexpr (value_v < 0)
                 {
-                    string[index + 1] = string[index];
+                    return strings::concat(meta_string {"-"}, to_string_impl<-value_v>());
                 }
-
-                string[0] = '0' + value_copy % 10;
-                value_copy /= 10;
-                ++size;
             }
+            else if constexpr (value_v == 0)
+            {
+                return meta_string {"0"};
+            }
+            else
+            {
+                constexpr value_t digit = value_v % 10;
+                constexpr value_t remainder = value_v / 10;
 
-            return string;
+                constexpr char chars[] = {static_cast<char>('0' + digit), '\0'};
+
+                if constexpr (remainder > 0)
+                {
+                    return strings::concat(to_string_impl<remainder>(), meta_string {chars});
+                }
+                else
+                {
+                    return meta_string {chars};
+                }
+            }
         }
 
-        template <std::floating_point value_t>
-        consteval any_meta_string auto to_string_impl(const value_t value)
+        template <std::floating_point auto value_v>
+        consteval any_meta_string auto to_string_impl()
         {
             return meta_string {"0.0"};
         }
@@ -138,19 +150,13 @@ namespace spore::meta::utils
             return strings::concat(
                 to_string_impl(meta_type_ref<value_t> {}),
                 meta_string {"["},
-                to_string_impl(size_v),
+                to_string_impl<size_v>(),
                 meta_string {"]"});
         }
 
         template <typename return_t, typename... args_t>
         consteval any_meta_string auto to_string_impl(const meta_type_ref<return_t(args_t...)>)
         {
-            // constexpr any_meta_string auto prefix = strings::concat(
-            //     to_string_impl(meta_type_ref<return_t> {}), meta_string {"("});
-            //
-            // constexpr any_meta_string auto args = strings::concat(
-            //     strings::concat(to_string_impl(meta_type_ref<args_t> {}), meta_string {", "})...);
-
             if constexpr (sizeof...(args_t) > 0)
             {
                 constexpr any_meta_string auto args = strings::concat(
@@ -161,43 +167,72 @@ namespace spore::meta::utils
                     meta_string {"("},
                     args.template resize<args.capacity() - 2>(),
                     meta_string {")"});
-                // return strings::concat(
-                // to_string_impl(meta_type_ref<return_t> {}), meta_string {"()"}
             }
             else
             {
                 return strings::concat(to_string_impl(meta_type_ref<return_t> {}), meta_string {"()"});
             }
-            // return strings::concat(
-            //     to_string_impl(meta_type_ref<return_t> {}),
-            //     meta_string {"("},
-            //     (strings::concat(to_string_impl(meta_type_ref<args_t> {}), meta_string {", "}))...,
-            //     meta_string {")"});
         }
 
-        // template <typename value_t>
-        // struct meta_type_name_impl;
-        //
-        // template <auto value_v>
-        // struct meta_value_name_impl;
-        //
-        // template <auto value_v>
-        // requires std::integral<decltype(value_v)> struct meta_value_name_impl
-        // {
-        //     static consteval any_meta_string auto get()
-        //     {
-        //         return "0";
-        //     }
-        // };
-        //
-        // template <auto value_v>
-        // requires std::floating_point<decltype(value_v)> struct meta_value_name_impl
-        // {
-        //     static consteval any_meta_string auto get()
-        //     {
-        //         return "0.0";
-        //     }
-        // };
+        template <typename return_t, typename... args_t>
+        consteval any_meta_string auto to_string_impl(const meta_type_ref<return_t (*)(args_t...)>)
+        {
+            constexpr any_meta_string auto prefix = strings::concat(
+                to_string_impl(meta_type_ref<return_t> {}), meta_string {"(*)("});
+
+            if constexpr (sizeof...(args_t) > 0)
+            {
+                constexpr any_meta_string auto args = strings::concat(
+                    strings::concat(to_string_impl(meta_type_ref<args_t> {}), meta_string {", "})...);
+
+                return strings::concat(prefix, args.template resize<args.capacity() - 2>(), meta_string {")"});
+            }
+            else
+            {
+                return strings::concat(prefix, meta_string {"()"});
+            }
+        }
+
+        template <typename return_t, typename... args_t>
+        consteval any_meta_string auto to_string_impl(const meta_type_ref<return_t (&)(args_t...)>)
+        {
+            constexpr any_meta_string auto prefix = strings::concat(
+                to_string_impl(meta_type_ref<return_t> {}), meta_string {"(&)("});
+
+            if constexpr (sizeof...(args_t) > 0)
+            {
+                constexpr any_meta_string auto args = strings::concat(
+                    strings::concat(to_string_impl(meta_type_ref<args_t> {}), meta_string {", "})...);
+
+                return strings::concat(prefix, args.template resize<args.capacity() - 2>(), meta_string {")"});
+            }
+            else
+            {
+                return strings::concat(prefix, meta_string {"()"});
+            }
+        }
+
+        template <typename this_t, typename return_t, typename... args_t>
+        consteval any_meta_string auto to_string_impl(const meta_type_ref<return_t (this_t::*)(args_t...)>)
+        {
+            constexpr any_meta_string auto prefix = strings::concat(
+                to_string_impl(meta_type_ref<return_t> {}),
+                meta_string {"("},
+                to_string_impl(meta_type_ref<this_t> {}),
+                meta_string {"::*)("});
+
+            if constexpr (sizeof...(args_t) > 0)
+            {
+                constexpr any_meta_string auto args = strings::concat(
+                    strings::concat(to_string_impl(meta_type_ref<args_t> {}), meta_string {", "})...);
+
+                return strings::concat(prefix, args.template resize<args.capacity() - 2>(), meta_string {")"});
+            }
+            else
+            {
+                return strings::concat(prefix, meta_string {")"});
+            }
+        }
     }
 
     template <typename value_t>
@@ -209,14 +244,21 @@ namespace spore::meta::utils
     template <auto value_v>
     consteval any_meta_string auto to_string()
     {
-        return detail::to_string_impl(value_v);
+        if constexpr (any_meta_type_ref<decltype(value_v)>)
+        {
+            return detail::to_string_impl(value_v);
+        }
+        else
+        {
+            return detail::to_string_impl<value_v>();
+        }
     }
 
-    template <typename value_t>
-    consteval any_meta_string auto to_string(value_t&& value)
-    {
-        return detail::to_string_impl(std::forward<value_t>(value));
-    }
+    // template <typename value_t>
+    // consteval any_meta_string auto to_string(value_t&& value)
+    // {
+    //     return detail::to_string_impl(std::forward<value_t>(value));
+    // }
 
     // template <typename value_t>
     // consteval any_meta_string auto get_type_param_name()
