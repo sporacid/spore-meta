@@ -26,20 +26,22 @@ namespace spore::meta::codegen::detail
     {
         static consteval any_meta_string auto get()
         {
+            constexpr any_meta_string auto base_name = meta_name_impl<std::remove_cv_t<value_t>>::get();
+
             if constexpr (std::is_const_v<value_t>)
             {
                 if constexpr (std::is_volatile_v<value_t>)
                 {
-                    return strings::concat(meta_string {"const volatile "}, meta_name_impl<std::remove_cv_t<value_t>>::get());
+                    return strings::concat(meta_string {"const volatile "}, base_name);
                 }
                 else
                 {
-                    return strings::concat(meta_string {"const "}, meta_name_impl<std::remove_cv_t<value_t>>::get());
+                    return strings::concat(meta_string {"const "}, base_name);
                 }
             }
             else if constexpr (std::is_volatile_v<value_t>)
             {
-                return strings::concat(meta_string {"volatile "}, meta_name_impl<std::remove_cv_t<value_t>>::get());
+                return strings::concat(meta_string {"volatile "}, base_name);
             }
             else
             {

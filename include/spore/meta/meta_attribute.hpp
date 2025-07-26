@@ -14,6 +14,10 @@ namespace spore
         value_t value;
     };
 
+    template <std::size_t name_v, typename value_t>
+    meta_attribute(meta_string<name_v>, value_t)
+        -> meta_attribute<name_v, value_t>;
+
     template <typename>
     struct is_meta_attribute : std::false_type
     {

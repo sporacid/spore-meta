@@ -2,8 +2,8 @@
 
 #include "spore/meta/meta_attribute.hpp"
 #include "spore/meta/meta_field_traits.hpp"
-#include "spore/meta/meta_tuple.hpp"
 #include "spore/meta/meta_string.hpp"
+#include "spore/meta/meta_tuple.hpp"
 
 #include <cstddef>
 #include <type_traits>
@@ -35,6 +35,10 @@ namespace spore
             return self.*field;
         }
     };
+
+    template <std::size_t name_v, typename field_t, any_meta_attribute... attributes_t>
+    meta_field(meta_string<name_v>, field_t, meta_tuple<attributes_t...>)
+        -> meta_field<name_v, field_t, attributes_t...>;
 
     template <typename>
     struct is_meta_field : std::false_type

@@ -28,13 +28,17 @@ int main()
     std::cout << std::endl;
     std::cout << "Parsed: " << std::endl;
 
+    static_assert(meta_type_enabled<message>);
+
     meta::for_each_field<message>([&]<meta_field field_v> {
         std::cout << field_v.name << ": " << field_v.get(parsed) << std::endl;
     });
 
-    constexpr auto wtf = meta::codegen::detail::meta_name_impl<const message&>::get();
+    constexpr auto wtf = meta::codegen::detail::meta_name_impl<const std::vector<message>&>::get();
 
-    constexpr auto wtd = meta::strings::concat(meta_string {"avc"}, meta_string {"123"}, meta_string{ "trololol"});
+    // constexpr auto wtf = meta::codegen::detail::meta_name_impl<const message&>::get();
+//
+    // constexpr auto wtd = meta::strings::concat(meta_string {"avc"}, meta_string {"123"}, meta_string{ "trololol"});
 
     // constexpr auto name1 = "std::vector" +
     //                        meta::codegen::detail::get_param_names<meta_type_ref<std::int64_t> {}, meta_type_ref<std::allocator<std::int64_t>> {}>();
