@@ -34,7 +34,7 @@ int main()
 
     meta::for_each_value<hello_world_enum>([]<meta_enum_value value_v> {
         constexpr auto display_attr = meta::find_attribute<value_v>(
-            []<meta_attribute attribute_v> { return std::string_view(attribute_v.name) == "display"; });
+            []<meta_attribute attribute_v> { return attribute_v.name.get() == "display"; });
 
         if constexpr (meta::is_valid(display_attr))
         {

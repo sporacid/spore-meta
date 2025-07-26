@@ -40,12 +40,38 @@ namespace spore
 
         constexpr bool empty() const
         {
-            return size_v > 1;
+            return size_v > 0 && chars[0] != '\0';
         }
 
         constexpr std::size_t size() const
         {
-            return size_v - 1;
+            // std::size_t index = size_v - 1;
+//
+            // while (index > 0 && chars[size_v - index] == '\0')
+            // {
+            //     --index;
+            // }
+//
+            // return size_v - index;
+            // for (std::size_t index = 0; index < size_v; ++index)
+            // {
+            //     if (chars[size_v - index] == '\0')
+            //     {
+            //         return index;
+            //     }
+            // }
+
+            for (std::size_t index = 0; index < size_v; ++index)
+            {
+                if (chars[index] == '\0')
+                {
+                    return index;
+                }
+            }
+
+            return size_v;
+
+            // return size_v - 1;
         }
 
         constexpr std::size_t capacity() const
@@ -75,12 +101,17 @@ namespace spore
 
         constexpr std::string_view get() const
         {
-            return std::string_view(chars, size_v - 1);
+            return std::string_view(chars);
         }
 
         constexpr operator std::string_view() const
         {
             return get();
+        }
+
+        constexpr char& operator[](const std::size_t index)
+        {
+            return chars[index];
         }
 
         constexpr char operator[](const std::size_t index) const

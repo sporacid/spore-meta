@@ -26,7 +26,7 @@ namespace spore::examples::json
         using namespace spore;
 
         const auto func = [&]<meta_field field_v> {
-            constexpr auto predicate = []<meta_attribute attribute_v> { return std::string_view(attribute_v.name) == "json"; };
+            constexpr auto predicate = []<meta_attribute attribute_v> { return attribute_v.name.get() == "json"; };
             constexpr auto attribute = meta::find_attribute<field_v>(predicate);
 
             if constexpr (meta::is_valid(attribute))
@@ -56,7 +56,7 @@ namespace spore::examples::json
         using namespace spore;
 
         const auto func = [&]<meta_field field_v> {
-            constexpr auto predicate = []<meta_attribute attribute_v> { return std::string_view(attribute_v.name) == "json"; };
+            constexpr auto predicate = []<meta_attribute attribute_v> { return attribute_v.name.get() == "json"; };
             constexpr auto attribute = meta::find_attribute<field_v>(predicate);
 
             if constexpr (meta::is_valid(attribute))

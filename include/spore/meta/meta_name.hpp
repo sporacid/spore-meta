@@ -39,7 +39,36 @@ namespace spore::meta::utils
         template <std::integral value_t>
         consteval any_meta_string auto to_string_impl(const value_t value)
         {
-            return meta_string {"0"};
+            meta_string<16> string;
+
+            value_t value_copy = value;
+
+            std::size_t size = 0;
+
+            if (value_copy == 0)
+            {
+                string[0] = '0';
+            }
+            else if (value_copy < 0)
+            {
+                string[0] = '-';
+                size = 1;
+                value_copy *= -1;
+            }
+
+            while (value_copy > 0)
+            {
+                for (std::size_t index = 0; index < size; ++index)
+                {
+                    string[index + 1] = string[index];
+                }
+
+                string[0] = '0' + value_copy % 10;
+                value_copy /= 10;
+                ++size;
+            }
+
+            return string;
         }
 
         template <std::floating_point value_t>
