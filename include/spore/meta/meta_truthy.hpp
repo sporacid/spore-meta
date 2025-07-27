@@ -1,8 +1,10 @@
 #pragma once
 
+#include <algorithm>
+#include <cctype>
 #include <concepts>
 #include <limits>
-#include <string>
+#include <string_view>
 
 namespace spore
 {
@@ -50,7 +52,16 @@ namespace spore
         {
             constexpr char false_string[] = "false";
             constexpr auto predicate = [](const char c1, const char c2) { return std::tolower(c1) == std::tolower(c2); };
-            return not value.empty() and not std::equal(value.begin(), value.end(), false_string, predicate);
+            return not value.empty() and not std::ranges::equal(value, false_string, predicate);
         }
     };
+
+    namespace meta
+    {
+        template <typename value_t>
+        constexpr bool is_truthy(const value_t& value)
+        {
+            return meta_truthy<value_t>::is_truthy(value);
+        }
+    }
 }
