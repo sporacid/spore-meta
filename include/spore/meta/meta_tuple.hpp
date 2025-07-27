@@ -76,6 +76,9 @@ namespace spore
     template <typename value_t>
     concept any_meta_tuple = is_meta_tuple_v<value_t>;
 
+    template <typename value_t>
+    concept meta_tuple_convertible = is_meta_tuple_v<std::decay_t<value_t>>;
+
     namespace meta::tuples
     {
         namespace detail
@@ -121,7 +124,7 @@ namespace spore
                     {
                         if constexpr (is_constexpr_invocable<std::decay_t<func_t>, value>())
                         {
-                            constexpr meta_result auto result = std::decay_t<func_t>{}.template operator()<value>();
+                            constexpr meta_result auto result = std::decay_t<func_t> {}.template operator()<value>();
 
                             if constexpr (is_meta_continue_v<result_t>)
                             {
@@ -168,7 +171,7 @@ namespace spore
 
                     if constexpr (detail::is_constexpr_invocable<std::decay_t<predicate_t>, value>())
                     {
-                        if constexpr (std::decay_t<predicate_t>{}.template operator()<value>())
+                        if constexpr (std::decay_t<predicate_t> {}.template operator()<value>())
                         {
                             return value;
                         }

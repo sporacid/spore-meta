@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spore/meta/meta_attribute.hpp"
+#include "spore/meta/meta_string.hpp"
 #include "spore/meta/meta_tuple.hpp"
 #include "spore/meta/meta_type_ref.hpp"
 
@@ -14,13 +15,13 @@ namespace spore
     {
         using value_type = value_t;
 
-        const char name[name_v];
+        meta_string<name_v> name;
         meta_type_ref<value_t> type;
         meta_tuple<attributes_t...> attributes;
     };
 
     template <std::size_t name_v, typename value_t, any_meta_attribute... attributes_t>
-    meta_argument(const char (&)[name_v], meta_type_ref<value_t>, meta_tuple<attributes_t...>)
+    meta_argument(meta_string<name_v>, meta_type_ref<value_t>, meta_tuple<attributes_t...>)
         -> meta_argument<name_v, value_t, attributes_t...>;
 
     template <typename>
