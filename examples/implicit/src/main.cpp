@@ -11,14 +11,14 @@ int main()
 
     std::cout << "For each fields: " << std::endl;
 
-    meta::for_each_field<my_struct>([&]<meta_field field_v> {
+    meta::for_each_field(s, [&]<meta_field field_v> {
         std::cout << "  " << field_v.name << ": " << field_v.get(s) << std::endl;
     });
 
     std::cout << std::endl;
     std::cout << "For each functions: " << std::endl;
 
-    meta::for_each_function<my_struct>([&]<meta_function function_v> {
+    meta::for_each_function(s, [&]<meta_function function_v> {
         std::cout << "  " << function_v.name << ": " << function_v.invoke(s) << std::endl;
     });
 
