@@ -1,6 +1,6 @@
 # What is Spore Meta
 
-`spore-meta` is a C++23, header-only library to define compile-time reflection metadata for any given type. The library
+`spore-meta` is a C++20, header-only library to define compile-time reflection metadata for any given type. The library
 is optionally integrated with [spore-codegen](https://github.com/sporacid/spore-codegen) to automatically generate the
 reflection
 metadata via `libclang` and with CMake to run the code generation automatically when building a target.
