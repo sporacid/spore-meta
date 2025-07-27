@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spore/meta/meta_attribute.hpp"
+#include "spore/meta/meta_string.hpp"
 #include "spore/meta/meta_tuple.hpp"
 
 #include <cstddef>
@@ -11,13 +12,13 @@ namespace spore
     template <std::size_t name_v, typename value_t, any_meta_attribute... attributes_t>
     struct meta_enum_value
     {
-        const char name[name_v];
+        meta_string<name_v> name;
         value_t value;
         meta_tuple<attributes_t...> attributes;
     };
 
     template <std::size_t name_v, typename value_t, any_meta_attribute... attributes_t>
-    meta_enum_value(const char (&)[name_v], value_t, meta_tuple<attributes_t...>)
+    meta_enum_value(meta_string<name_v>, value_t, meta_tuple<attributes_t...>)
         -> meta_enum_value<name_v, value_t, attributes_t...>;
 
     template <typename>

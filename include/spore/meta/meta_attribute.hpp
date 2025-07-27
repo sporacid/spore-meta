@@ -1,5 +1,7 @@
 #pragma once
 
+#include "spore/meta/meta_string.hpp"
+
 #include <cstddef>
 #include <type_traits>
 
@@ -8,17 +10,13 @@ namespace spore
     template <std::size_t name_v, typename value_t>
     struct meta_attribute
     {
-        const char name[name_v];
+        meta_string<name_v> name;
         value_t value;
     };
 
     template <std::size_t name_v, typename value_t>
-    meta_attribute(const char (&)[name_v], value_t)
+    meta_attribute(meta_string<name_v>, value_t)
         -> meta_attribute<name_v, value_t>;
-
-    template <std::size_t name_v, std::size_t value_v>
-    meta_attribute(const char (&)[name_v], const char (&)[value_v])
-        -> meta_attribute<name_v, const char[value_v]>;
 
     template <typename>
     struct is_meta_attribute : std::false_type

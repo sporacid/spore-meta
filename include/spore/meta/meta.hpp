@@ -10,9 +10,6 @@
 
 namespace spore
 {
-    template <typename value_t>
-    concept meta_tuple_convertible = is_meta_tuple_v<std::decay_t<value_t>>;
-
     // clang-format off
     template <auto object_v>
     concept has_meta_attributes = requires
@@ -29,7 +26,7 @@ namespace spore
     template <auto object_v>
     concept has_meta_name = requires
     {
-        { object_v.name } -> std::convertible_to<std::string_view>;
+        { object_v.name } -> meta_string_convertible;
     };
     // clang-format on
 
@@ -52,14 +49,14 @@ namespace spore
         }
 
         template <meta_enabled value_t>
-        consteval std::string_view get_name()
+        consteval any_meta_string auto get_name()
         {
             constexpr meta_type type = get_type<value_t>();
             return type.name;
         }
 
         template <auto object_v>
-        consteval std::string_view get_name() requires has_meta_name<object_v>
+        consteval any_meta_string auto get_name() requires has_meta_name<object_v>
         {
             return object_v.name;
         }
