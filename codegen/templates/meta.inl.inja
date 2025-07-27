@@ -112,7 +112,6 @@
                                     {% for argument in constructor.arguments %}
                                         meta_argument {
                                             .name = meta_string {"{{ argument.name }}"},
-                                            {# .default_value = {% if argument.default_value != "" %} {{ argument.default_value }} {% else %} std::nullopt {% endif %}, #}
                                             .type = meta_type_ref<{{ argument.type.name }}>{},
                                             .attributes = meta_tuple {
                                                 {{ include("templates/meta_attribute.inja", argument.attributes) }} {# #}
