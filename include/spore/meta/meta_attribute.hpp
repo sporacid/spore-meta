@@ -1,7 +1,5 @@
 #pragma once
 
-#include "spore/meta/meta_truthy.hpp"
-
 #include <cstddef>
 #include <type_traits>
 

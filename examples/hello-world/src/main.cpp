@@ -10,7 +10,7 @@ int main()
     std::cout << "For each fields: " << std::endl;
 
     hello_world_fields from_fields;
-    meta::for_each_field<hello_world_fields>([&]<meta_field field_v> {
+    meta::for_each_field(from_fields, [&]<meta_field field_v> {
         std::cout << "  " << field_v.name << ": " << field_v.get(from_fields) << std::endl;
     });
 
@@ -18,7 +18,7 @@ int main()
     std::cout << "For each functions: " << std::endl;
 
     hello_world_functions from_functions;
-    meta::for_each_function<hello_world_functions>([&]<meta_function function_v> {
+    meta::for_each_function(from_functions, [&]<meta_function function_v> {
         std::cout << "  " << function_v.name << ": " << function_v.invoke(from_functions) << std::endl;
     });
 
