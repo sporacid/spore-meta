@@ -22,6 +22,24 @@ namespace spore::meta::types
 
     namespace detail
     {
+        template <std::integral value_t>
+        constexpr any_meta_string auto integer_literal = meta_string {""};
+
+        template <>
+        constexpr any_meta_string auto integer_literal<unsigned int> = meta_string {"U"};
+
+        template <>
+        constexpr any_meta_string auto integer_literal<long int> = meta_string {"L"};
+
+        template <>
+        constexpr any_meta_string auto integer_literal<long long int> = meta_string {"LL"};
+
+        template <>
+        constexpr any_meta_string auto integer_literal<unsigned long int> = meta_string {"UL"};
+
+        template <>
+        constexpr any_meta_string auto integer_literal<unsigned long long int> = meta_string {"ULL"};
+
         template <typename value_t>
         concept cv_qualified = std::is_const_v<value_t> or std::is_volatile_v<value_t>;
 
@@ -92,6 +110,26 @@ namespace spore::meta::types
             }
         }
 
+        template <std::integral auto value_v, std::uint8_t... digits_v>
+        consteval auto to_digits_impl(std::integer_sequence<std::uint8_t, digits_v...> = {})
+        {
+            if constexpr (value_v < 0)
+            {
+                return to_digits_impl<-value_v, digits_v...>();
+            }
+            else if constexpr (value_v > 0)
+            {
+                constexpr std::uint8_t digit = static_cast<std::uint8_t>(value_v % 10);
+                constexpr std::integral auto remainder = value_v / 10;
+
+                return to_digits_impl<remainder, digit, digits_v...>();
+            }
+            else
+            {
+                return std::integer_sequence<std::uint8_t, digits_v...> {};
+            }
+        }
+
         template <std::integral auto value_v>
         consteval any_meta_string auto to_string_impl()
         {
@@ -99,7 +137,7 @@ namespace spore::meta::types
 
             if constexpr (std::is_same_v<char, value_t> or std::is_same_v<unsigned char, value_t>)
             {
-                constexpr char chars[] {'\'', value_v, '\'', '\0'};
+                constexpr char chars[] {'\'', static_cast<char>(value_v), '\'', '\0'};
                 return meta_string {chars};
             }
             else if constexpr (std::is_signed_v<value_t> and value_v < 0)
@@ -108,7 +146,20 @@ namespace spore::meta::types
             }
             else if constexpr (value_v == 0)
             {
-                return meta_string {"0"};
+                return "0" + integer_literal<value_t>;
+            }
+            else
+            {
+                constexpr auto func = []<std::uint8_t... digits_v>(std::integer_sequence<std::uint8_t, digits_v...>) {
+                    return (meta_string {{'0' + digits_v, '\0'}} + ... + "") + integer_literal<value_t>;
+                };
+
+                return func(to_digits_impl<value_v>());
+            }
+#if 0
+            else if constexpr (value_v == 0)
+            {
+                return "0" + integer_literal<value_t>;
             }
             else
             {
@@ -119,13 +170,21 @@ namespace spore::meta::types
 
                 if constexpr (remainder > 0)
                 {
-                    return to_string_impl<remainder>() + chars;
+                    if constexpr (remainder < 10)
+                    {
+                        return to_string_impl<remainder>() + chars + integer_literal<value_t>;
+                    }
+                    else
+                    {
+                        return to_string_impl<remainder>() + chars;
+                    }
                 }
                 else
                 {
                     return meta_string {chars};
                 }
             }
+#endif
         }
 
         template <meta_string value_v>

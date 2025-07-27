@@ -28,5 +28,9 @@ int main()
         std::cout << field_v.name << ": " << field_v.get(parsed) << std::endl;
     });
 
+    std::cout << meta::types::to_string<", ", 0, 42, 42ULL, 42LL, 42L, 42U, 12471284184712947194ULL, -124124142LL, 'a', 'b'>() << std::endl;
+    constexpr auto a = meta::types::detail::to_digits<4124124>();
+    constexpr auto b  = meta::types::detail::to_digits<-4124124>();
+
     return 0;
 }
