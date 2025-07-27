@@ -7,6 +7,7 @@
 
 #include <array>
 #include <bitset>
+#include <cstddef>
 #include <cstdint>
 #include <deque>
 #include <functional>
@@ -27,7 +28,7 @@
 
 #define SPORE_META_TEMPLATE_PARAM(Index, Value) Value _t##Index,
 #define SPORE_META_TEMPLATE_PARAM_NAME(Index, Value) _t##Index SPORE_META_IF(Index, SPORE_META_COMMA, SPORE_META_EMPTY)()
-#define SPORE_META_TEMPLATE_PARAM_STRING(Index, Value) +spore::meta::types::to_string<_t##Index>() SPORE_META_IF(Index, + ", ", )
+#define SPORE_META_TEMPLATE_PARAM_STRING(Index, Value) +spore::meta::types::to_string<_t##Index>() SPORE_META_IF(Index, +", ", )
 
 #define SPORE_META_DEFINE_STD_TYPE(Name)                                \
     template <typename func_t>                                          \

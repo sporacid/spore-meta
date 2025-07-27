@@ -3,6 +3,7 @@
 #include "spore/meta/meta_enabled.hpp"
 #include "spore/meta/meta_string.hpp"
 
+#include <optional>
 #include <tuple>
 
 namespace spore::meta::types
@@ -96,7 +97,7 @@ namespace spore::meta::types
         {
             using value_t = decltype(value_v);
 
-            if constexpr (std::is_same_v<char, value_t>)
+            if constexpr (std::is_same_v<char, value_t> or std::is_same_v<unsigned char, value_t>)
             {
                 constexpr char chars[] {'\'', value_v, '\'', '\0'};
                 return meta_string {chars};
@@ -222,6 +223,23 @@ namespace spore::meta::types
         {
             return to_string<return_t>() + "(" + to_string<this_t>() + "::*)(" + to_string<", ", args_t...>() + ")";
         }
+
+        template <std::size_t index_v, std::size_t capacity_v>
+        constexpr std::size_t to_hash_impl(const meta_string<capacity_v>& string, std::size_t hash = 14695981039346656037ull)
+        {
+            // From https://github.com/foonathan/string_id
+
+            if constexpr (index_v < meta_string<capacity_v>::size())
+            {
+                constexpr std::size_t fnv_prime = 1099511628211ull;
+                const std::size_t new_hash = (hash ^ string[index_v]) * fnv_prime;
+                return to_hash_impl<index_v + 1>(string, new_hash);
+            }
+            else
+            {
+                return hash;
+            }
+        }
     }
 
     template <typename value_t>
@@ -253,5 +271,11 @@ namespace spore::meta::types
     consteval any_meta_string auto to_string()
     {
         return detail::to_string_impl<0, separator, values_v...>();
+    }
+
+    template <std::size_t size_v>
+    constexpr std::size_t to_hash(const meta_string<size_v>& string)
+    {
+        return detail::to_hash_impl<0>(string);
     }
 }
