@@ -24,10 +24,11 @@
                     .name = meta_string {"{{ class.scope }}::{{ class.name }}<"}
                     {% for template_param in class.template_params %}
                         {% if template_param.is_variadic %}
-                            + meta::types::to_string<meta_string{", "}, {{ template_param.name }}...>()
+                            + meta::types::to_string<", ", {{ template_param.name }}...>()
                         {% else %}
-                            + meta::types::to_string<{{ template_param.name }}>() + meta_string{", "}
+                            + meta::types::to_string<{{ template_param.name }}>()
                         {% endif %}
+                        {% if not loop.is_last %} + ", " {% endif %}
                     {% endfor %}
                         + meta_string {">"},
                 {% else %}

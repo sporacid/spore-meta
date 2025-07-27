@@ -27,7 +27,19 @@ namespace spore
                 chars[index] = other_chars[index];
             }
 
+            chars[capacity_v - 1] = '\0';
+
             return *this;
+        }
+
+        constexpr char at(const std::size_t index) const
+        {
+            return chars[index];
+        }
+
+        constexpr char& at(const std::size_t index)
+        {
+            return chars[index];
         }
 
         constexpr auto begin() const
@@ -40,17 +52,17 @@ namespace spore
             return std::end(chars);
         }
 
-        constexpr bool empty() const
+        static constexpr bool empty()
         {
-            return capacity_v > 0 && chars[0] != '\0';
+            return capacity_v > 1;
         }
 
-        constexpr std::size_t size() const
+        static constexpr std::size_t size()
         {
             return capacity_v - 1;
         }
 
-        constexpr std::size_t capacity() const
+        static constexpr std::size_t capacity()
         {
             return capacity_v;
         }
@@ -58,21 +70,6 @@ namespace spore
         constexpr const char* data() const
         {
             return std::data(chars);
-        }
-
-        template <std::size_t new_capacity_v>
-        constexpr meta_string<new_capacity_v> resize() const
-        {
-            char new_chars[new_capacity_v];
-
-            for (std::size_t index = 0; index < capacity_v && index < new_capacity_v; ++index)
-            {
-                new_chars[index] = chars[index];
-            }
-
-            new_chars[new_capacity_v - 1] = '\0';
-
-            return meta_string<new_capacity_v> {new_chars};
         }
 
         constexpr std::string_view get() const
@@ -87,12 +84,12 @@ namespace spore
 
         constexpr char& operator[](const std::size_t index)
         {
-            return chars[index];
+            return at(index);
         }
 
         constexpr char operator[](const std::size_t index) const
         {
-            return chars[index];
+            return at(index);
         }
 
         constexpr bool operator==(const meta_string& other) const
@@ -166,47 +163,21 @@ namespace spore
         return new_string;
     }
 
+    template <std::size_t capacity_v, std::size_t other_capacity_v>
+    constexpr any_meta_string auto operator+(const meta_string<capacity_v>& string, const char (&other_string)[other_capacity_v])
+    {
+        return string + meta_string {other_string};
+    }
+
+    template <std::size_t capacity_v, std::size_t other_capacity_v>
+    constexpr any_meta_string auto operator+(const char (&string)[capacity_v], const meta_string<other_capacity_v>& other_string)
+    {
+        return meta_string {string} + other_string;
+    }
+
     template <typename stream_t, std::size_t capacity_v>
     constexpr stream_t& operator<<(stream_t& stream, const meta_string<capacity_v>& string)
     {
         return stream << string.get();
-    }
-
-    namespace meta::strings
-    {
-        namespace detail
-        {
-            template <std::size_t index_v, std::size_t offset_v, std::size_t capacity_v, std::size_t... other_capacities_v>
-            constexpr void concat_impl(meta_string<capacity_v>& string, const meta_string<other_capacities_v>&... other_strings)
-            {
-                if constexpr (index_v < sizeof...(other_strings))
-                {
-                    std::tuple tuple = std::tie(other_strings...);
-
-                    const any_meta_string auto& other_string = std::get<index_v>(tuple);
-
-                    constexpr std::array other_sizes {(other_capacities_v - 1)...};
-
-                    for (std::size_t index = 0; index < other_sizes[index_v]; ++index)
-                    {
-                        string.chars[offset_v + index] = other_string.chars[index];
-                    }
-
-                    concat_impl<index_v + 1, offset_v + other_sizes[index_v]>(string, other_strings...);
-                }
-            }
-        }
-
-        template <std::size_t... capacities_v>
-        constexpr any_meta_string auto concat(const meta_string<capacities_v>&... other_strings)
-        {
-            constexpr std::size_t size = (1ULL + ... + (capacities_v - 1));
-
-            meta_string<size> string;
-
-            detail::concat_impl<0, 0>(string, other_strings...);
-
-            return string;
-        }
     }
 }
