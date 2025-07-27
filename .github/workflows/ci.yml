@@ -18,7 +18,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get -qq update &&
-          sudo apt-get install -y build-essential libtbb-dev ninja-build
+          sudo apt-get install -y build-essential libtbb-dev ninja-build jq
       - name: Install LLVM
         run: |
           wget https://apt.llvm.org/llvm.sh &&
@@ -40,16 +40,30 @@ jobs:
           buildPreset: 'ninja-vcpkg-release'
           testPreset: 'ninja-vcpkg-test-release'
           testPresetAdditionalArgs: "['--output-on-failure','--verbose']"
+      - name: Set Version
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "SPORE_VERSION=$(bash .github/scripts/get_version.sh)" >> $GITHUB_ENV
       - name: Tag Version
         if: github.ref == 'refs/heads/main'
         run: |
           git config user.name "${GITHUB_ACTOR}" &&
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com" &&
-          VERSION=$(bash .github/scripts/get_version.sh) &&
-          $(echo -n $VERSION > VERSION) &&
-          git checkout -B releases/v${VERSION%.*.*} &&
+          $(echo -n $SPORE_VERSION > VERSION) &&
+          git checkout -B releases/v${SPORE_VERSION%.*.*} &&
           git add VERSION &&
-          git commit -m "chore: Update version to v$VERSION" &&
-          git tag -af v$VERSION -m "Auto-generated semantic tag v$VERSION" &&
-          git push --set-upstream origin releases/v${VERSION%.*.*} --force &&
-          git push origin v$VERSION --force
+          git commit -m "chore: Update version to v$SPORE_VERSION" &&
+          git tag -af v$SPORE_VERSION -m "Auto-generated semantic tag v$SPORE_VERSION" &&
+          git push --set-upstream origin releases/v${SPORE_VERSION%.*.*} --force &&
+          git push origin v$SPORE_VERSION --force
+      - name: Checkout Vcpkg Repository
+        if: github.ref == 'refs/heads/main'
+        uses: actions/checkout@v2
+        with:
+          repository: sporacid/spore-vcpkg
+          path: .spore-vcpkg
+          fetch-depth: 0
+      - name: Update Vcpkg
+        if: github.ref == 'refs/heads/main'
+        run: |
+          sh .spore-vcpkg/scripts/update-version.sh spore-meta $SPORE_VERSION $(git rev-list -n 1 v$SPORE_VERSION)
