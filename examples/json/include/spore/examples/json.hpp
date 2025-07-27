@@ -8,11 +8,6 @@
 
 namespace spore::examples::json
 {
-    template <typename _t0, typename _t1, std::size_t _size_v, typename... _ts>
-    struct SPORE_META_TYPE() message_template
-    {
-    };
-
     struct SPORE_META_TYPE() message
     {
         SPORE_META_FIELD(json = "identifier")

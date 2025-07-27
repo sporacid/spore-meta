@@ -22,24 +22,6 @@ namespace spore::meta::types
 
     namespace detail
     {
-        template <std::integral value_t>
-        constexpr any_meta_string auto integer_literal = meta_string {""};
-
-        template <>
-        constexpr any_meta_string auto integer_literal<unsigned int> = meta_string {"U"};
-
-        template <>
-        constexpr any_meta_string auto integer_literal<long int> = meta_string {"L"};
-
-        template <>
-        constexpr any_meta_string auto integer_literal<long long int> = meta_string {"LL"};
-
-        template <>
-        constexpr any_meta_string auto integer_literal<unsigned long int> = meta_string {"UL"};
-
-        template <>
-        constexpr any_meta_string auto integer_literal<unsigned long long int> = meta_string {"ULL"};
-
         template <typename value_t>
         concept cv_qualified = std::is_const_v<value_t> or std::is_volatile_v<value_t>;
 
@@ -146,20 +128,7 @@ namespace spore::meta::types
             }
             else if constexpr (value_v == 0)
             {
-                return "0" + integer_literal<value_t>;
-            }
-            else
-            {
-                constexpr auto func = []<std::uint8_t... digits_v>(std::integer_sequence<std::uint8_t, digits_v...>) {
-                    return (meta_string {{'0' + digits_v, '\0'}} + ... + "") + integer_literal<value_t>;
-                };
-
-                return func(to_digits_impl<value_v>());
-            }
-#if 0
-            else if constexpr (value_v == 0)
-            {
-                return "0" + integer_literal<value_t>;
+                return meta_string {"0"};
             }
             else
             {
@@ -170,21 +139,13 @@ namespace spore::meta::types
 
                 if constexpr (remainder > 0)
                 {
-                    if constexpr (remainder < 10)
-                    {
-                        return to_string_impl<remainder>() + chars + integer_literal<value_t>;
-                    }
-                    else
-                    {
-                        return to_string_impl<remainder>() + chars;
-                    }
+                    return to_string_impl<remainder>() + chars;
                 }
                 else
                 {
                     return meta_string {chars};
                 }
             }
-#endif
         }
 
         template <meta_string value_v>
