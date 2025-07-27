@@ -23,16 +23,16 @@ namespace spore
 
     namespace meta
     {
-        template <auto value_v>
-        consteval bool is_valid()
+        template <typename value_t>
+        consteval bool is_valid(value_t&&)
         {
-            return not is_meta_invalid_v<decltype(value_v)>;
+            return not is_meta_invalid_v<std::decay_t<value_t>>;
         }
 
-        template <auto value_v>
-        consteval bool is_invalid()
+        template <typename value_t>
+        consteval bool is_invalid(value_t&&)
         {
-            return is_meta_invalid_v<decltype(value_v)>;
+            return is_meta_invalid_v<std::decay_t<value_t>>;
         }
     }
 }

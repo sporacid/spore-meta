@@ -12,11 +12,6 @@ namespace spore
     {
         const char name[name_v];
         value_t value;
-
-        constexpr bool is_truthy() const
-        {
-            return meta_truthy<value_t>::is_truthy(value);
-        }
     };
 
     template <std::size_t name_v, typename value_t>
