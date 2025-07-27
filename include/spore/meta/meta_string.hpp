@@ -9,6 +9,8 @@ namespace spore
     template <std::size_t capacity_v>
     struct meta_string
     {
+        static_assert(capacity_v > 0);
+
         char chars[capacity_v] {};
 
         constexpr meta_string() = default;

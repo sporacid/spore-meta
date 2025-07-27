@@ -1,6 +1,6 @@
 #pragma once
 
-#include "spore/meta/extras/meta_macro_helpers.hpp"
+#include "spore/meta/extras/meta_detail_macros.hpp"
 #include "spore/meta/meta_adl.hpp"
 #include "spore/meta/meta_type.hpp"
 #include "spore/meta/meta_type_utils.hpp"
@@ -23,6 +23,7 @@
 #include <unordered_set>
 #include <variant>
 #include <vector>
+#include <queue>
 
 #define SPORE_META_TEMPLATE_PARAM(Index, Value) Value _t##Index,
 #define SPORE_META_TEMPLATE_PARAM_NAME(Index, Value) _t##Index SPORE_META_IF(Index, SPORE_META_COMMA, SPORE_META_EMPTY)()
@@ -113,6 +114,8 @@ namespace spore
     SPORE_META_DEFINE_STD_TEMPLATE(std::optional, typename)
     SPORE_META_DEFINE_STD_TEMPLATE(std::pair, typename, typename)
     SPORE_META_DEFINE_STD_TEMPLATE(std::plus, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::priority_queue, typename, typename, typename)
+    SPORE_META_DEFINE_STD_TEMPLATE(std::queue, typename, typename)
     SPORE_META_DEFINE_STD_TEMPLATE(std::set, typename, typename, typename)
     SPORE_META_DEFINE_STD_TEMPLATE(std::stack, typename, typename)
     SPORE_META_DEFINE_STD_TEMPLATE(std::unordered_map, typename, typename, typename, typename, typename)
