@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
-option(SPORE_BUILD_EXAMPLES "Whether to build examples" ON)
+option(SPORE_WITH_EXAMPLES "Whether to build examples" ON)
+option(SPORE_WITH_STD_TYPES "Whether to include std types" ON)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -19,6 +20,6 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 add_subdirectory(src)
 
-if (SPORE_BUILD_EXAMPLES)
+if (SPORE_WITH_EXAMPLES)
   add_subdirectory(examples)
 endif ()
