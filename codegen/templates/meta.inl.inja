@@ -20,7 +20,20 @@
             using namespace spore;
 
             constexpr meta_type type {
-                .name = meta_string {"{{ class.full_name }}"}, // TODO @sporacid generate better name
+                {% if class.is_template or class.is_template_specialization %}
+                    .name = meta_string {"{{ class.scope }}::{{ class.name }}<"}
+                    {% for template_param in class.template_params %}
+                        {% if template_param.is_variadic %}
+                            + meta::strings::to_string_zz<", ", {{ template_param.name }}...>()
+                        {% else %}
+                            + meta::strings::to_string_zz<{{ template_param.name }}>()
+                        {% endif %}
+                        {% if not loop.is_last %} + ", " {% endif %}
+                    {% endfor %}
+                        + meta_string {">"},
+                {% else %}
+                    .name = meta_string {"{{ class.full_name }}"},
+                {% endif %}
                 .bases = meta_tuple {
                     {% for base in class.bases %}
                         meta_base {
