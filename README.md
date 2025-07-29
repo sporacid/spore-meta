@@ -344,7 +344,7 @@ matching structure will be returned. If no structure match the predicate, `meta_
 
 ```cpp
 constexpr auto predicate = []<meta_field field_v> {
-   return std::string_view(field_v.name) == "i";
+   return field_v.name == "i";
 };
 
 constexpr auto field = meta::find_field<my_struct>(predicate);
@@ -365,7 +365,7 @@ will be returned instead.
 ```cpp
 std::string name = "i";
 const auto predicate = [&]<meta_field field_v> {
-   return std::string_view(field_v.name) == name;
+   return field_v.name == name;
 };
 
 const std::variant field = meta::find_field<my_struct>(predicate);
