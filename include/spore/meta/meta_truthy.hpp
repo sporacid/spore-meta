@@ -50,7 +50,7 @@ namespace spore
     {
         static constexpr bool is_truthy(const std::string_view value)
         {
-            constexpr char false_string[] = "false";
+            constexpr char false_string[] {'f', 'a', 'l', 's', 'e'};
             constexpr auto predicate = [](const char c1, const char c2) { return std::tolower(c1) == std::tolower(c2); };
             return not value.empty() and not std::ranges::equal(value, false_string, predicate);
         }
