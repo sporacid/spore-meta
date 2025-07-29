@@ -3,9 +3,9 @@
 #include "spore/meta/meta_argument.hpp"
 #include "spore/meta/meta_attribute.hpp"
 #include "spore/meta/meta_function_traits.hpp"
+#include "spore/meta/meta_function_utils.hpp"
 #include "spore/meta/meta_string.hpp"
 #include "spore/meta/meta_tuple.hpp"
-#include "spore/meta/meta_utils.hpp"
 
 #include <cstddef>
 #include <type_traits>
@@ -29,7 +29,7 @@ namespace spore
         template <typename... args_t>
         constexpr return_type invoke(args_t&&... args) const
         {
-            meta::utils::check_is_assignable<std::tuple<args_t&&...>, args_type>();
+            meta::functions::check_assignable<std::tuple<args_t&&...>, args_type>();
             return std::apply(function, std::tie(std::forward<args_t>(args)...));
         }
     };
