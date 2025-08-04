@@ -9,9 +9,9 @@
     {% if meta_type_enabled and class.definition and not class.nested %}
         template < {# #}
             {% if class.is_template or class.is_template_specialization %}
-                    {% for template_param in class.template_params %}
-                        {{ template_param.type }} {{ template_param.name }}, {# #}
-                    {% endfor %}
+                {% for template_param in class.template_params %}
+                    {{ template_param.type }} {{ template_param.name }}, {# #}
+                {% endfor %}
             {% endif %}
             typename func_t
         > {# #}
@@ -69,8 +69,46 @@
                         {% if meta_function_enabled and function.flags.public %}
                             meta_function {
                                 .name = meta_string {"{{ function.name }}"},
-                                .function = &{{ class.full_name }}::{{ function.name }},
+                                .function = [] {# #}
+                                {% if function.is_template %}
+                                    < {# #}
+                                      {% for template_param in function.template_params %}
+                                          {{ template_param.type }} {{ template_param.name }} {% if not loop.is_last %} , {% endif %} {# #}
+                                      {% endfor %}
+                                    > {# #}
+                                {% endif %}
+                                ({# #}
+                                    {% if not function.flags.static %}
+                                        {% if function.flags.const %} const {% endif %}
+                                        {{ class.full_name }}& this_
+                                        {% if length(function.arguments) > 0 %} , {% endif %}
+                                    {% endif %}
+                                    {% for argument in function.arguments %}
+                                        {{ argument.type.name }} {% if argument.is_variadic %} ... {% endif %} {{ " " }} {{ argument.name }}
+                                        {% if not loop.is_last %} , {% endif %}
+                                    {% endfor %} {# #}
+                                ) {
+                                    return
+                                    {% if function.flags.static %}
+                                        {{ class.full_name }}::{{ function.name }} {# #}
+                                    {% else %}
+                                        this_.{{ function.name }} {# #}
+                                    {% endif %}
+                                    ( {# #}
+                                        {% for argument in function.arguments %} {# #}
+                                            {{ argument.name }} {% if argument.is_variadic %} ... {% endif %} ,
+                                        {% endfor %}
+                                    );
+                                },
+                                .return_type = meta_type_ref<{{ function.return_type.name }}> {},
                                 .arguments = meta_tuple {
+                                    {% if not function.flags.static %}
+                                        meta_argument {
+                                            .name = meta_string {"this"},
+                                            .type = meta_type_ref<{% if function.flags.const %} const {% endif %} {{ class.full_name }}&>{},
+                                            .attributes = meta_tuple {},
+                                        },
+                                    {% endif %}
                                     {% for argument in function.arguments %}
                                         meta_argument {
                                             .name = meta_string {"{{ argument.name }}"},
@@ -97,17 +135,26 @@
                         {% endif %}
                         {% if meta_constructor_enabled and constructor.flags.public %}
                             meta_constructor {
-                                .constructor = +[]({{ class.full_name }}& value {# #}
+                                .constructor = [] {# #}
+                                {% if constructor.is_template %}
+                                    < {# #}
+                                      {% for template_param in constructor.template_params %}
+                                          {{ template_param.type }} {{ template_param.name }} {% if not loop.is_last %} , {% endif %} {# #}
+                                      {% endfor %}
+                                    > {# #}
+                                {% endif %}
+                                ({{ class.full_name }}& this_ {# #}
                                     {% for argument in constructor.arguments %}
                                         , {{ argument.type.name }} {{ argument.name }}
                                     {% endfor %} {# #}
                                 ) {
-                                    new (&value) {{ class.full_name }} {
+                                    new (&this_) {{ class.full_name }} {
                                         {% for argument in constructor.arguments %} {# #}
                                             {{ argument.name }} {% if argument.is_variadic %} ... {% endif %} ,
                                         {% endfor %}
                                     };
                                 },
+                                .this_type = meta_type_ref<{{ class.full_name }}> {},
                                 .arguments = meta_tuple {
                                     {% for argument in constructor.arguments %}
                                         meta_argument {
