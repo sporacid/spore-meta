@@ -99,7 +99,7 @@
                             meta_constructor {
                                 .constructor = +[]({{ class.full_name }}& value {# #}
                                     {% for argument in constructor.arguments %}
-                                        , {{ argument.type.name }} {% if argument.is_variadic %} ... {% endif %} {{ " " }} {{ argument.name }}
+                                        , {{ argument.type.name }} {{ argument.name }}
                                     {% endfor %} {# #}
                                 ) {
                                     new (&value) {{ class.full_name }} {

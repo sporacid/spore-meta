@@ -3,7 +3,7 @@
     {
       "kind": "git",
       "repository": "https://github.com/sporacid/spore-vcpkg",
-      "baseline": "9d60254cfe9ded3639a17bc326e8d72c2124fab7",
+      "baseline": "d511f6e7de6056da3d8d92eea16694653c17f9a6",
       "packages": [
         "spore-codegen"
       ]
