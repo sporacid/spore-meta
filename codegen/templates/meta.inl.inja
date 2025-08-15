@@ -1,5 +1,7 @@
 #pragma once
 
+#include "spore/meta/meta_placeholder.hpp"
+
 {% for class in classes %}
     {% if truthy($.user_data, "implicit_types") %}
         {% set meta_type_enabled = not existsIn(class.attributes, "_spore_meta_type") or truthy(class.attributes, "_spore_meta_type") %}
@@ -72,9 +74,9 @@
                                 .function = [] {# #}
                                 {% if function.is_template %}
                                     < {# #}
-                                      {% for template_param in function.template_params %}
-                                          {{ template_param.type }} {{ template_param.name }} {% if not loop.is_last %} , {% endif %} {# #}
-                                      {% endfor %}
+                                    {% for template_param in function.template_params %}
+                                        {{ template_param.type }} {{ template_param.name }} {% if not loop.is_last %} , {% endif %} {# #}
+                                    {% endfor %}
                                     > {# #}
                                 {% endif %}
                                 ({# #}
@@ -90,17 +92,47 @@
                                 ) {
                                     return
                                     {% if function.flags.static %}
-                                        {{ class.full_name }}::{{ function.name }} {# #}
+                                        {{ class.full_name }}::{% if function.is_template %} template {% endif %}{{ function.name }} {# #}
                                     {% else %}
-                                        this_.{{ function.name }} {# #}
+                                        this_.{% if function.is_template %} template {% endif %}{{ function.name }} {# #}
+                                    {% endif %}
+                                    {% if function.is_template %}
+                                        < {# #}
+                                        {% for template_param in function.template_params %}
+                                            {{ template_param.name }}
+                                            {% if template_param.is_variadic %} ... {% endif %}
+                                            {% if not loop.is_last %} , {% endif %}
+                                        {% endfor %}
+                                        > {# #}
                                     {% endif %}
                                     ( {# #}
                                         {% for argument in function.arguments %} {# #}
-                                            {{ argument.name }} {% if argument.is_variadic %} ... {% endif %} ,
+                                            {{ argument.name }} {% if argument.is_variadic %} ... {% endif %}
+                                            {% if not loop.is_last %} , {% endif %}
                                         {% endfor %}
                                     );
                                 },
-                                .return_type = meta_type_ref<{{ function.return_type.name }}> {},
+                                {% set return_placeholder = false %}
+                                {% for template_param in function.template_params %}
+                                    {% if contains(function.return_type.name, template_param.name) %}
+                                        {% set return_placeholder = true %}
+                                        {#
+                                        {% if starts_with(template_param.type, "typename") %}
+                                            {% set return_placeholder = format("meta_type_placeholder<{}>", template_param.is_variadic) %}
+                                        {% else %}
+                                            {% set return_placeholder = format("meta_value_placeholder<{}, {}>", template_param.type, template_param.is_variadic) %}
+                                        {% endif %}
+                                        #}
+                                    {% endif %}
+                                {% endfor %}
+                                .return_type = meta_type_ref< {# #}
+                                    {% if truthy(return_placeholder) %}
+                                        meta_placeholder
+                                        {# {{ return_placeholder }} #}
+                                    {% else %}
+                                        {{ function.return_type.name }}
+                                    {% endif %}
+                                >{},
                                 .arguments = meta_tuple {
                                     {% if not function.flags.static %}
                                         meta_argument {
@@ -110,9 +142,29 @@
                                         },
                                     {% endif %}
                                     {% for argument in function.arguments %}
+                                        {% set argument_placeholder = false %}
+                                        {% for template_param in function.template_params %}
+                                            {% if contains(argument.type.name, template_param.name) %}
+                                                {% set argument_placeholder = true %}
+                                                {#
+                                                {% if starts_with(template_param.type, "typename") %}
+                                                    {% set argument_placeholder = format("meta_type_placeholder<{}>", template_param.is_variadic) %}
+                                                {% else %}
+                                                    {% set argument_placeholder = format("meta_value_placeholder<{}, {}>", template_param.type, template_param.is_variadic) %}
+                                                {% endif %}
+                                                #}
+                                            {% endif %}
+                                        {% endfor %}
                                         meta_argument {
                                             .name = meta_string {"{{ argument.name }}"},
-                                            .type = meta_type_ref<{{ argument.type.name }}>{},
+                                            .type = meta_type_ref< {# #}
+                                                {% if truthy(argument_placeholder) %}
+                                                    meta_placeholder
+                                                    {# {{ argument_placeholder }} #}
+                                                {% else %}
+                                                    {{ argument.type.name }}
+                                                {% endif %}
+                                            >{},
                                             .attributes = meta_tuple {
                                                 {{ include("templates/meta_attribute.inja", argument.attributes) }} {# #}
                                             },
@@ -157,9 +209,30 @@
                                 .this_type = meta_type_ref<{{ class.full_name }}> {},
                                 .arguments = meta_tuple {
                                     {% for argument in constructor.arguments %}
+                                        {% set argument_placeholder = false %}
+                                        {% for template_param in constructor.template_params %}
+                                            {% if contains(argument.type.name, template_param.name) %}
+                                                {% set argument_placeholder = true %}
+                                                {# {% set placeholder = true %} #}
+                                                {#
+                                                {% if starts_with(template_param.type, "typename") %}
+                                                    {% set argument_placeholder = format("meta_type_placeholder<{}>", template_param.is_variadic) %}
+                                                {% else %}
+                                                    {% set argument_placeholder = format("meta_value_placeholder<{}, {}>", template_param.type, template_param.is_variadic) %}
+                                                {% endif %}
+                                                #}
+                                            {% endif %}
+                                        {% endfor %}
                                         meta_argument {
                                             .name = meta_string {"{{ argument.name }}"},
-                                            .type = meta_type_ref<{{ argument.type.name }}>{},
+                                            .type = meta_type_ref< {# #}
+                                                {% if truthy(argument_placeholder) %}
+                                                    meta_placeholder
+                                                    {# {{ argument_placeholder }} #}
+                                                {% else %}
+                                                    {{ argument.type.name }}
+                                                {% endif %}
+                                            >{},
                                             .attributes = meta_tuple {
                                                 {{ include("templates/meta_attribute.inja", argument.attributes) }} {# #}
                                             },

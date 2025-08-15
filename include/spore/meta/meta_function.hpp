@@ -16,7 +16,7 @@ namespace spore
     template <std::size_t name_v, typename function_t, typename return_t, any_meta_argument... arguments_t, any_meta_attribute... attributes_t>
     struct meta_function<name_v, function_t, return_t, meta_tuple<arguments_t...>, meta_tuple<attributes_t...>>
     {
-        static_assert(std::is_invocable_v<function_t, typename arguments_t::value_type&&...>, "bad function arguments");
+        // static_assert(std::is_invocable_v<function_t, typename arguments_t::value_type&&...>, "bad function arguments");
 
         meta_string<name_v> name;
         function_t function;
@@ -24,15 +24,29 @@ namespace spore
         meta_tuple<arguments_t...> arguments;
         meta_tuple<attributes_t...> attributes;
 
-        constexpr void invoke(return_t& return_, typename arguments_t::value_type&&... args) const
+        // template <typename... params_t, typename... args_t>
+        // constexpr void invoke(auto& return_, args_t&&... args) const
+        // {
+        //     return_ = function.template operator()<params_t...>(std::forward<args_t>(args)...);
+        // }
+
+        template <typename... params_t, typename... args_t>
+        constexpr auto invoke(args_t&&... args) const
         {
-            return_ = function(std::forward<typename arguments_t::value_type>(args)...);
+            return function.template operator()<params_t...>(std::forward<args_t>(args)...);
         }
 
-        constexpr return_t invoke(typename arguments_t::value_type&&... args) const
-        {
-            return function(std::forward<typename arguments_t::value_type>(args)...);
-        }
+        //        template <typename... params_t>
+        //        constexpr void invoke(return_t& return_, typename arguments_t::value_type&&... args) const
+        //        {
+        //            return_ = function.template operator()<params_t...>(std::forward<typename arguments_t::value_type>(args)...);
+        //        }
+        //
+        //        template <typename... params_t>
+        //        constexpr return_t invoke(typename arguments_t::value_type&&... args) const
+        //        {
+        //            return function.template operator()<params_t...>(std::forward<typename arguments_t::value_type>(args)...);
+        //        }
     };
 
     template <std::size_t name_v, typename function_t, typename return_t, any_meta_argument... arguments_t, any_meta_attribute... attributes_t>
