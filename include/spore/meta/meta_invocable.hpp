@@ -16,17 +16,17 @@ namespace spore
     //     static constexpr auto value = value_v;
     // };
 
-    template <typename value_t>
-    struct meta_value_param
-    {
-    };
+    // template <typename value_t>
+    // struct meta_value_param
+    // {
+    // };
+//
+    // struct meta_type_param
+    // {
+    // };
 
-    struct meta_type_param
-    {
-    };
-
-    template <typename value_t>
-    struct meta_invocable_param;
+//    template <typename value_t>
+//    struct meta_invocable_param;
 
 //    template <auto value_v>
 //    struct meta_invocable_param<meta_constant<value_v>>
@@ -68,25 +68,25 @@ namespace spore
 //        }
 //    };
 
-    template <typename func_t, any_meta_tuple params_t>
-    struct meta_invocable3;
-
-    template <typename func_t, typename... params_t>
-    struct meta_invocable3<func_t, meta_tuple<params_t...>>
-    {
-        func_t func;
-        meta_tuple<params_t...> params;
-
-        template <typename... in_params_t, typename... args_t>
-        constexpr auto invoke(args_t&&... args) const
-        {
-            return func.template operator()<in_params_t...>(std::forward<args_t>(args)...);
-        }
-    };
-
-    template <typename func_t, typename... params_t>
-    meta_invocable3(func_t, meta_tuple<params_t...>)
-        -> meta_invocable3<func_t, meta_tuple<params_t...>>;
+//    template <typename func_t, any_meta_tuple params_t>
+//    struct meta_invocable3;
+//
+//    template <typename func_t, typename... params_t>
+//    struct meta_invocable3<func_t, meta_tuple<params_t...>>
+//    {
+//        func_t func;
+//        meta_tuple<params_t...> params;
+//
+//        template <typename... in_params_t, typename... args_t>
+//        constexpr auto invoke(args_t&&... args) const
+//        {
+//            return func.template operator()<in_params_t...>(std::forward<args_t>(args)...);
+//        }
+//    };
+//
+//    template <typename func_t, typename... params_t>
+//    meta_invocable3(func_t, meta_tuple<params_t...>)
+//        -> meta_invocable3<func_t, meta_tuple<params_t...>>;
 
     //    template <typename func_t, typename... params_t>
     //    struct meta_invocable

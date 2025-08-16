@@ -112,10 +112,10 @@
                                         {% endfor %}
                                     );
                                 },
-                                {% set return_placeholder = false %}
+                                {% set return_param_index = -1 %}
                                 {% for template_param in function.template_params %}
                                     {% if contains(function.return_type.name, template_param.name) %}
-                                        {% set return_placeholder = true %}
+                                        {% set return_param_index = loop.index %}
                                         {#
                                         {% if starts_with(template_param.type, "typename") %}
                                             {% set return_placeholder = format("meta_type_placeholder<{}>", template_param.is_variadic) %}
@@ -126,8 +126,8 @@
                                     {% endif %}
                                 {% endfor %}
                                 .return_type = meta_type_ref< {# #}
-                                    {% if truthy(return_placeholder) %}
-                                        meta_placeholder
+                                    {% if return_param_index >= 0 %}
+                                        meta_param_ref<{{ return_param_index }}>
                                         {# {{ return_placeholder }} #}
                                     {% else %}
                                         {{ function.return_type.name }}
@@ -142,10 +142,10 @@
                                         },
                                     {% endif %}
                                     {% for argument in function.arguments %}
-                                        {% set argument_placeholder = false %}
+                                        {% set argument_param_index = -1 %}
                                         {% for template_param in function.template_params %}
                                             {% if contains(argument.type.name, template_param.name) %}
-                                                {% set argument_placeholder = true %}
+                                                {% set argument_param_index = loop.index %}
                                                 {#
                                                 {% if starts_with(template_param.type, "typename") %}
                                                     {% set argument_placeholder = format("meta_type_placeholder<{}>", template_param.is_variadic) %}
@@ -158,8 +158,8 @@
                                         meta_argument {
                                             .name = meta_string {"{{ argument.name }}"},
                                             .type = meta_type_ref< {# #}
-                                                {% if truthy(argument_placeholder) %}
-                                                    meta_placeholder
+                                                {% if argument_param_index >= 0 %}
+                                                    meta_param_ref<{{ argument_param_index }}>
                                                     {# {{ argument_placeholder }} #}
                                                 {% else %}
                                                     {{ argument.type.name }}
@@ -170,6 +170,15 @@
                                             },
                                         },
                                     {% endfor %} {# #}
+                                },
+                                .params = meta_tuple {
+                                    {% for template_param in function.template_params %}
+                                        meta_type_param {
+                                            .name = meta_string {"{{ template_param.name }}"},
+                                            .type = meta_string {"{{ template_param.type }}"},
+                                            .variadic = {{ template_param.is_variadic }},
+                                        },
+                                    {% endfor %}
                                 },
                                 .attributes = meta_tuple {
                                     {{ include("templates/meta_attribute.inja", function.attributes) }} {# #}
