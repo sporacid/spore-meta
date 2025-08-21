@@ -18,7 +18,7 @@
         constexpr auto {{ class.scope }}::with_meta_type(spore::meta_adl<{{ class.full_name }}>, func_t&& func)
         {
             using namespace spore;
-
+            using this_t = {{ class.full_name }};
             constexpr meta_type type {
                 {% if class.is_template or class.is_template_specialization %}
                     .name = meta_string {"{{ class.scope }}::{{ class.name }}<"}
@@ -51,7 +51,7 @@
                         {% if meta_field_enabled and field.flags.public %}
                             meta_field {
                                 .name = meta_string {"{{ field.name }}"},
-                                .field = &{{ class.full_name }}::{{ field.name }},
+                                .field = &this_t::{{ field.name }},
                                 .attributes = meta_tuple {
                                     {{ include("templates/meta_attribute.inja", field.attributes) }} {# #}
                                 },
@@ -69,17 +69,112 @@
                         {% if meta_function_enabled and function.flags.public %}
                             meta_function {
                                 .name = meta_string {"{{ function.name }}"},
-                                .function = &{{ class.full_name }}::{{ function.name }},
+                                .function = [] {# #}
+                                    {% if function.is_template %}
+                                        < {# #}
+                                        {% for template_param in function.template_params %}
+                                            {% if template_param.kind == "non_type" %}
+                                                any_meta_constant<{{ template_param.type }}>
+                                            {% else %}
+                                                {{ template_param.type }}
+                                            {% endif %}
+                                            {{ template_param.name }} {# #}
+                                            {% if not loop.is_last %} , {% endif %} {# #}
+                                        {% endfor %}
+                                        > {# #}
+                                    {% endif %}
+                                    ({# #}
+                                        {% if not function.flags.static %}
+                                            {% if function.flags.const %} const {% endif %}
+                                            this_t& this_
+                                            {% if length(function.arguments) > 0 %} , {% endif %}
+                                        {% endif %}
+                                        {% for argument in function.arguments %}
+                                            {{ argument.type.name }} {% if argument.is_variadic %} ... {% endif %} {{ " " }} {{ argument.name }}
+                                            {% if not loop.is_last %} , {% endif %}
+                                        {% endfor %} {# #}
+                                    ) {
+                                        return
+                                        {% if function.flags.static %} this_t:: {% else %} this_. {% endif %}
+                                        {% if function.is_template %} template {% endif %} {{ function.name }}
+                                        {% if function.is_template %}
+                                            < {# #}
+                                            {% for template_param in function.template_params %}
+                                                {{ template_param.name }}
+                                                {% if template_param.kind == "non_type" %}
+                                                    ::value
+                                                {% endif %}
+                                                {% if template_param.is_variadic %} ... {% endif %}
+                                                {% if not loop.is_last %} , {% endif %}
+                                            {% endfor %}
+                                            > {# #}
+                                        {% endif %}
+                                        ( {# #}
+                                            {% for argument in function.arguments %} {# #}
+                                                std::forward<{{ argument.type.name }}>({{ argument.name }}) {% if argument.is_variadic %} ... {% endif %}
+                                                {% if not loop.is_last %} , {% endif %}
+                                            {% endfor %}
+                                        );
+                                    },
+                                {% set return_param_index = -1 %}
+                                {% for template_param in function.template_params %}
+                                    {% if contains(function.return_type.name, template_param.name) %}
+                                        {% set return_param_index = loop.index %}
+                                    {% endif %}
+                                {% endfor %}
+                                .return_type = meta_type_ref< {# #}
+                                    {% if return_param_index >= 0 %}
+                                        meta_parameter_ref<{{ return_param_index }}>
+                                    {% else %}
+                                        {{ function.return_type.name }}
+                                    {% endif %}
+                                >{},
                                 .arguments = meta_tuple {
+                                    {% if not function.flags.static %}
+                                        meta_argument {
+                                            .name = meta_string {"this"},
+                                            .type = meta_type_ref<{% if function.flags.const %} const {% endif %} this_t&>{},
+                                            .attributes = meta_tuple {},
+                                        },
+                                    {% endif %}
                                     {% for argument in function.arguments %}
+                                        {% set argument_param_index = -1 %}
+                                        {% for template_param in function.template_params %}
+                                            {% if contains(argument.type.name, template_param.name) %}
+                                                {% set argument_param_index = loop.index %}
+                                            {% endif %}
+                                        {% endfor %}
                                         meta_argument {
                                             .name = meta_string {"{{ argument.name }}"},
-                                            .type = meta_type_ref<{{ argument.type.name }}>{},
+                                            .type = meta_type_ref< {# #}
+                                                {% if argument_param_index >= 0 %}
+                                                    meta_parameter_ref<{{ argument_param_index }}>
+                                                {% else %}
+                                                    {{ argument.type.name }}
+                                                {% endif %}
+                                            >{},
                                             .attributes = meta_tuple {
                                                 {{ include("templates/meta_attribute.inja", argument.attributes) }} {# #}
                                             },
                                         },
                                     {% endfor %} {# #}
+                                },
+                                .parameters = meta_tuple {
+                                    {% for template_param in function.template_params %}
+                                        {% if template_param.kind == "type" %}
+                                            meta_type_parameter {
+                                                .name = meta_string {"{{ template_param.name }}"},
+                                                .type = meta_string {"{{ template_param.type }}"},
+                                                .variadic = {{ template_param.is_variadic }},
+                                            },
+                                        {% else if template_param.kind == "non_type" %}
+                                            meta_value_parameter {
+                                                .name = meta_string {"{{ template_param.name }}"},
+                                                .type = meta_type_ref<{{ template_param.type }}>{},
+                                                .variadic = {{ template_param.is_variadic }},
+                                            },
+                                        {% endif %}
+                                    {% endfor %}
                                 },
                                 .attributes = meta_tuple {
                                     {{ include("templates/meta_attribute.inja", function.attributes) }} {# #}
@@ -97,27 +192,60 @@
                         {% endif %}
                         {% if meta_constructor_enabled and constructor.flags.public %}
                             meta_constructor {
-                                .constructor = +[]({{ class.full_name }}& value {# #}
+                                .constructor = [] {# #}
+                                {% if constructor.is_template %}
+                                    < {# #}
+                                    {% for template_param in constructor.template_params %}
+                                        {{ template_param.type }} {{ template_param.name }} {# #}
+                                        {% if not loop.is_last %} , {% endif %} {# #}
+                                    {% endfor %}
+                                    > {# #}
+                                {% endif %}
+                                ( {# #}
                                     {% for argument in constructor.arguments %}
-                                        , {{ argument.type.name }} {{ argument.name }}
+                                        {{ argument.type.name }} {% if argument.is_variadic %} ... {% endif %} {{ " " }} {{ argument.name }}
+                                        {% if not loop.is_last %} , {% endif %} {# #}
                                     {% endfor %} {# #}
                                 ) {
-                                    new (&value) {{ class.full_name }} {
+                                    return this_t {
                                         {% for argument in constructor.arguments %} {# #}
-                                            {{ argument.name }} {% if argument.is_variadic %} ... {% endif %} ,
+                                            std::forward<{{ argument.type.name }}>({{ argument.name }})
+                                            {% if argument.is_variadic %} ... {% endif %} ,
                                         {% endfor %}
                                     };
                                 },
+                                .this_type = meta_type_ref<this_t>{},
                                 .arguments = meta_tuple {
                                     {% for argument in constructor.arguments %}
+                                        {% set argument_param_index = -1 %}
+                                        {% for template_param in constructor.template_params %}
+                                            {% if contains(argument.type.name, template_param.name) %}
+                                                {% set argument_param_index = loop.index %}
+                                            {% endif %}
+                                        {% endfor %}
                                         meta_argument {
                                             .name = meta_string {"{{ argument.name }}"},
-                                            .type = meta_type_ref<{{ argument.type.name }}>{},
+                                            .type = meta_type_ref< {# #}
+                                                {% if argument_param_index >= 0 %}
+                                                    meta_parameter_ref<{{ argument_param_index }}>
+                                                {% else %}
+                                                    {{ argument.type.name }}
+                                                {% endif %}
+                                            >{},
                                             .attributes = meta_tuple {
                                                 {{ include("templates/meta_attribute.inja", argument.attributes) }} {# #}
                                             },
                                         },
-                                    {% endfor %} {# #}
+                                    {% endfor %}
+                                },
+                                .parameters = meta_tuple {
+                                    {% for template_param in constructor.template_params %}
+                                        meta_type_parameter {
+                                            .name = meta_string {"{{ template_param.name }}"},
+                                            .type = meta_string {"{{ template_param.type }}"},
+                                            .variadic = {{ template_param.is_variadic }},
+                                        },
+                                    {% endfor %}
                                 },
                                 .attributes = meta_tuple {
                                     {{ include("templates/meta_attribute.inja", constructor.attributes) }} {# #}
@@ -148,7 +276,7 @@
         constexpr auto {{ enum.scope }}::with_meta_enum(spore::meta_adl<{{ enum.full_name }}>, func_t&& func)
         {
             using namespace spore;
-
+            using this_t = {{ enum.full_name }};
             constexpr meta_enum enum_ {
                 .name = meta_string{ "{{ enum.full_name }}" },
                 .type = meta_type_ref<{{ enum.base.name }}>{},
@@ -156,7 +284,7 @@
                 {% for value in enum.values %}
                     meta_enum_value {
                         .name = meta_string {"{{ value.name }}"},
-                        .value = static_cast<{{ enum.base.name }}>({{ enum.full_name }}::{{ value.name }}),
+                        .value = static_cast<{{ enum.base.name }}>(this_t::{{ value.name }}),
                         .attributes = meta_tuple {
                             {{ include("templates/meta_attribute.inja", value.attributes) }}
                         },

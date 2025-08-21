@@ -55,7 +55,7 @@ namespace spore
     SPORE_META_DEFINE_TYPE(std::wstring_view)
     SPORE_META_DEFINE_TYPE(std::nullptr_t)
     SPORE_META_DEFINE_TYPE(std::byte)
-    SPORE_META_DEFINE_TYPE(std::filesystem::path);
+    SPORE_META_DEFINE_TYPE(std::filesystem::path)
 
     SPORE_META_DEFINE_TEMPLATE_TYPE(std::allocator, typename)
     SPORE_META_DEFINE_TEMPLATE_TYPE(std::array, typename, std::size_t)
