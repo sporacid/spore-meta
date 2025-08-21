@@ -241,7 +241,7 @@
         constexpr auto {{ enum.scope }}::with_meta_enum(spore::meta_adl<{{ enum.full_name }}>, func_t&& func)
         {
             using namespace spore;
-
+            using this_t = {{ enum.full_name }};
             constexpr meta_enum enum_ {
                 .name = meta_string{ "{{ enum.full_name }}" },
                 .type = meta_type_ref<{{ enum.base.name }}>{},
@@ -249,7 +249,7 @@
                 {% for value in enum.values %}
                     meta_enum_value {
                         .name = meta_string {"{{ value.name }}"},
-                        .value = static_cast<{{ enum.base.name }}>({{ enum.full_name }}::{{ value.name }}),
+                        .value = static_cast<{{ enum.base.name }}>(this_t::{{ value.name }}),
                         .attributes = meta_tuple {
                             {{ include("templates/meta_attribute.inja", value.attributes) }}
                         },
