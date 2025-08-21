@@ -81,6 +81,7 @@ function(spore_add_meta SPORE_TARGET)
       implicit_fields=$<IF:$<BOOL:${SPORE_META_IMPLICIT_FIELDS}>,true,false>
       implicit_functions=$<IF:$<BOOL:${SPORE_META_IMPLICIT_FUNCTIONS}>,true,false>
       implicit_constructors=$<IF:$<BOOL:${SPORE_META_IMPLICIT_CONSTRUCTORS}>,true,false>
+    REFORMAT
   )
 
   get_target_property(SPORE_TARGET_TYPE ${SPORE_TARGET} TYPE)
