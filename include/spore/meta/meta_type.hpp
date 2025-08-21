@@ -13,7 +13,13 @@
 
 namespace spore
 {
-    template <std::size_t name_v, typename...>
+    template <
+        std::size_t name_v,
+        any_meta_tuple bases_t,
+        any_meta_tuple fields_t,
+        any_meta_tuple functions_t,
+        any_meta_tuple constructors_t,
+        any_meta_tuple attributes_t>
     struct meta_type;
 
     template <
@@ -37,17 +43,6 @@ namespace spore
         meta_tuple<functions_t...> functions;
         meta_tuple<constructors_t...> constructors;
         meta_tuple<attributes_t...> attributes;
-    };
-
-    template <std::size_t name_v>
-    struct meta_type<name_v>
-    {
-        meta_string<name_v> name;
-        meta_tuple<> bases;
-        meta_tuple<> fields;
-        meta_tuple<> functions;
-        meta_tuple<> constructors;
-        meta_tuple<> attributes;
     };
 
     template <
