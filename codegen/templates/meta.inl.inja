@@ -118,7 +118,7 @@
                                 {% endfor %}
                                 .return_type = meta_type_ref< {# #}
                                     {% if return_param_index >= 0 %}
-                                        meta_param_ref<{{ return_param_index }}>
+                                        meta_placeholder
                                     {% else %}
                                         {{ function.return_type.name }}
                                     {% endif %}
@@ -142,7 +142,7 @@
                                             .name = meta_string {"{{ argument.name }}"},
                                             .type = meta_type_ref< {# #}
                                                 {% if argument_param_index >= 0 %}
-                                                    meta_param_ref<{{ argument_param_index }}>
+                                                    meta_placeholder
                                                 {% else %}
                                                     {{ argument.type.name }}
                                                 {% endif %}
@@ -152,15 +152,6 @@
                                             },
                                         },
                                     {% endfor %} {# #}
-                                },
-                                .params = meta_tuple {
-                                    {% for template_param in function.template_params %}
-                                        meta_type_param {
-                                            .name = meta_string {"{{ template_param.name }}"},
-                                            .type = meta_string {"{{ template_param.type }}"},
-                                            .variadic = {{ template_param.is_variadic }},
-                                        },
-                                    {% endfor %}
                                 },
                                 .attributes = meta_tuple {
                                     {{ include("templates/meta_attribute.inja", function.attributes) }} {# #}
@@ -178,27 +169,50 @@
                         {% endif %}
                         {% if meta_constructor_enabled and constructor.flags.public %}
                             meta_constructor {
-                                .constructor = +[]({{ class.full_name }}& value {# #}
+                                .constructor = [] {# #}
+                                {% if constructor.is_template %}
+                                    < {# #}
+                                      {% for template_param in constructor.template_params %}
+                                          {{ template_param.type }} {{ template_param.name }}
+                                          {% if not loop.is_last %} , {% endif %} {# #}
+                                      {% endfor %}
+                                    > {# #}
+                                {% endif %}
+                                ( {# #}
                                     {% for argument in constructor.arguments %}
-                                        , {{ argument.type.name }} {{ argument.name }}
+                                        {{ argument.type.name }} {{ argument.name }}
+                                        {% if not loop.is_last %} , {% endif %} {# #}
                                     {% endfor %} {# #}
                                 ) {
-                                    new (&value) {{ class.full_name }} {
+                                    return {{ class.full_name }} {
                                         {% for argument in constructor.arguments %} {# #}
                                             {{ argument.name }} {% if argument.is_variadic %} ... {% endif %} ,
                                         {% endfor %}
                                     };
                                 },
+                                .this_type = meta_type_ref<{{ class.full_name }}>{},
                                 .arguments = meta_tuple {
                                     {% for argument in constructor.arguments %}
+                                        {% set argument_param_index = -1 %}
+                                        {% for template_param in constructor.template_params %}
+                                            {% if contains(argument.type.name, template_param.name) %}
+                                                {% set argument_param_index = loop.index %}
+                                            {% endif %}
+                                        {% endfor %}
                                         meta_argument {
                                             .name = meta_string {"{{ argument.name }}"},
-                                            .type = meta_type_ref<{{ argument.type.name }}>{},
+                                            .type = meta_type_ref< {# #}
+                                                {% if argument_param_index >= 0 %}
+                                                    meta_placeholder
+                                                {% else %}
+                                                    {{ argument.type.name }}
+                                                {% endif %}
+                                            >{},
                                             .attributes = meta_tuple {
                                                 {{ include("templates/meta_attribute.inja", argument.attributes) }} {# #}
                                             },
                                         },
-                                    {% endfor %} {# #}
+                                    {% endfor %}
                                 },
                                 .attributes = meta_tuple {
                                     {{ include("templates/meta_attribute.inja", constructor.attributes) }} {# #}

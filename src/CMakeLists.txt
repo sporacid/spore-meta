@@ -1,18 +1,11 @@
 set(TARGET_NAME ${PROJECT_NAME}.lib)
 
-find_package(boost_preprocessor CONFIG REQUIRED)
-
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/spore/meta/meta_version.hpp.in
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/spore/meta/meta_version.hpp
 )
 
 add_library(${TARGET_NAME} INTERFACE)
-
-target_link_libraries(
-  ${TARGET_NAME} INTERFACE
-  Boost::preprocessor
-)
 
 target_include_directories(
   ${TARGET_NAME} INTERFACE
