@@ -18,7 +18,7 @@
         constexpr auto {{ class.scope }}::with_meta_type(spore::meta_adl<{{ class.full_name }}>, func_t&& func)
         {
             using namespace spore;
-
+            using this_t = {{ class.full_name }};
             constexpr meta_type type {
                 {% if class.is_template or class.is_template_specialization %}
                     .name = meta_string {"{{ class.scope }}::{{ class.name }}<"}
@@ -51,7 +51,7 @@
                         {% if meta_field_enabled and field.flags.public %}
                             meta_field {
                                 .name = meta_string {"{{ field.name }}"},
-                                .field = &{{ class.full_name }}::{{ field.name }},
+                                .field = &this_t::{{ field.name }},
                                 .attributes = meta_tuple {
                                     {{ include("templates/meta_attribute.inja", field.attributes) }} {# #}
                                 },
@@ -80,7 +80,7 @@
                                     ({# #}
                                         {% if not function.flags.static %}
                                             {% if function.flags.const %} const {% endif %}
-                                            {{ class.full_name }}& this_
+                                            this_t& this_
                                             {% if length(function.arguments) > 0 %} , {% endif %}
                                         {% endif %}
                                         {% for argument in function.arguments %}
@@ -89,11 +89,8 @@
                                         {% endfor %} {# #}
                                     ) {
                                         return
-                                        {% if function.flags.static %}
-                                            {{ class.full_name }}::{% if function.is_template %} template {% endif %}{{ function.name }} {# #}
-                                        {% else %}
-                                            this_.{% if function.is_template %} template {% endif %}{{ function.name }} {# #}
-                                        {% endif %}
+                                        {% if function.flags.static %} this_t:: {% else %} this_. {% endif %}
+                                        {% if function.is_template %} template {% endif %} {{ function.name }}
                                         {% if function.is_template %}
                                             < {# #}
                                             {% for template_param in function.template_params %}
@@ -118,7 +115,7 @@
                                 {% endfor %}
                                 .return_type = meta_type_ref< {# #}
                                     {% if return_param_index >= 0 %}
-                                        meta_placeholder
+                                        meta_placeholder<false>
                                     {% else %}
                                         {{ function.return_type.name }}
                                     {% endif %}
@@ -127,7 +124,7 @@
                                     {% if not function.flags.static %}
                                         meta_argument {
                                             .name = meta_string {"this"},
-                                            .type = meta_type_ref<{% if function.flags.const %} const {% endif %} {{ class.full_name }}&>{},
+                                            .type = meta_type_ref<{% if function.flags.const %} const {% endif %} this_t&>{},
                                             .attributes = meta_tuple {},
                                         },
                                     {% endif %}
@@ -142,7 +139,7 @@
                                             .name = meta_string {"{{ argument.name }}"},
                                             .type = meta_type_ref< {# #}
                                                 {% if argument_param_index >= 0 %}
-                                                    meta_placeholder
+                                                    meta_placeholder<{{ argument.is_variadic }}>
                                                 {% else %}
                                                     {{ argument.type.name }}
                                                 {% endif %}
@@ -180,17 +177,18 @@
                                 {% endif %}
                                 ( {# #}
                                     {% for argument in constructor.arguments %}
-                                        {{ argument.type.name }} {{ argument.name }}
+                                        {{ argument.type.name }} {% if argument.is_variadic %} ... {% endif %} {{ " " }} {{ argument.name }}
                                         {% if not loop.is_last %} , {% endif %} {# #}
                                     {% endfor %} {# #}
                                 ) {
-                                    return {{ class.full_name }} {
+                                    return this_t {
                                         {% for argument in constructor.arguments %} {# #}
-                                            {{ argument.name }} {% if argument.is_variadic %} ... {% endif %} ,
+                                            std::forward<{{ argument.type.name }}>({{ argument.name }})
+                                            {% if argument.is_variadic %} ... {% endif %} ,
                                         {% endfor %}
                                     };
                                 },
-                                .this_type = meta_type_ref<{{ class.full_name }}>{},
+                                .this_type = meta_type_ref<this_t>{},
                                 .arguments = meta_tuple {
                                     {% for argument in constructor.arguments %}
                                         {% set argument_param_index = -1 %}
@@ -203,7 +201,7 @@
                                             .name = meta_string {"{{ argument.name }}"},
                                             .type = meta_type_ref< {# #}
                                                 {% if argument_param_index >= 0 %}
-                                                    meta_placeholder
+                                                    meta_placeholder<{{ argument.is_variadic }}>
                                                 {% else %}
                                                     {{ argument.type.name }}
                                                 {% endif %}

@@ -20,7 +20,9 @@ namespace spore::examples::templates
             : value {static_cast<value_t>(std::forward<arg_t>(arg))},
               other_values {static_cast<other_value_t>(std::forward<other_arg_t>(other_args))...}
         {
-            std::cout << "Templated constructor invoked with " << std::to_string(arg) << std::endl;
+            std::cout << "Templated constructor invoked with " << std::to_string(arg);
+            ((std::cout << " and " << std::to_string(other_args)), ...);
+            std::cout << std::endl;
         }
 
         template <typename result_t, typename arg_t>

@@ -6,6 +6,7 @@
 #include "spore/meta/meta_tuple.hpp"
 
 #include <cstddef>
+#include <tuple>
 #include <type_traits>
 
 namespace spore
@@ -26,7 +27,7 @@ namespace spore
         constexpr auto invoke(args_t&&... args) const
         {
             using actual_return_t = decltype(function.operator()(std::forward<args_t>(args)...));
-            meta::functions::check_assignable<std::tuple<args_t&&...>, std::tuple<typename arguments_t::value_type&&...>>();
+            meta::functions::check_assignable<std::tuple<args_t...>, std::tuple<typename arguments_t::value_type...>>();
             meta::functions::check_assignable<std::tuple<actual_return_t>, std::tuple<return_t>>();
             return function.operator()(std::forward<args_t>(args)...);
         }
@@ -35,7 +36,7 @@ namespace spore
         constexpr auto invoke(args_t&&... args) const
         {
             using actual_return_t = decltype(function.template operator()<param_t, params_t...>(std::forward<args_t>(args)...));
-            meta::functions::check_assignable<std::tuple<args_t&&...>, std::tuple<typename arguments_t::value_type&&...>>();
+            meta::functions::check_assignable<std::tuple<args_t...>, std::tuple<typename arguments_t::value_type...>>();
             meta::functions::check_assignable<std::tuple<actual_return_t>, std::tuple<return_t>>();
             return function.template operator()<param_t, params_t...>(std::forward<args_t>(args)...);
         }
@@ -44,7 +45,7 @@ namespace spore
         constexpr auto invoke(args_t&&... args) const
         {
             using actual_return_t = decltype(function.template operator()<param_v, params_v...>(std::forward<args_t>(args)...));
-            meta::functions::check_assignable<std::tuple<args_t&&...>, std::tuple<typename arguments_t::value_type&&...>>();
+            meta::functions::check_assignable<std::tuple<args_t&&...>, std::tuple<typename arguments_t::value_type...>>();
             meta::functions::check_assignable<std::tuple<actual_return_t>, std::tuple<return_t>>();
             return function.template operator()<param_v, params_v...>(std::forward<args_t>(args)...);
         }

@@ -5,6 +5,7 @@
 #include "spore/meta/meta_function_utils.hpp"
 #include "spore/meta/meta_tuple.hpp"
 
+#include <tuple>
 #include <type_traits>
 
 namespace spore
@@ -24,27 +25,9 @@ namespace spore
         constexpr this_t construct(args_t&&... args) const
         {
             using actual_this_t = decltype(constructor.operator()(std::forward<args_t>(args)...));
-            meta::functions::check_assignable<std::tuple<args_t&&...>, std::tuple<typename arguments_t::value_type&&...>>();
+            meta::functions::check_assignable<std::tuple<args_t&&...>, std::tuple<typename arguments_t::value_type...>>();
             meta::functions::check_assignable<std::tuple<actual_this_t>, std::tuple<this_t>>();
             return constructor.operator()(std::forward<args_t>(args)...);
-        }
-
-        template <typename param_t, typename... params_t, typename... args_t>
-        constexpr this_t construct(args_t&&... args) const
-        {
-            using actual_this_t = decltype(constructor.template operator()<param_t, params_t...>(std::forward<args_t>(args)...));
-            meta::functions::check_assignable<std::tuple<args_t&&...>, std::tuple<typename arguments_t::value_type&&...>>();
-            meta::functions::check_assignable<std::tuple<actual_this_t>, std::tuple<this_t>>();
-            return constructor.template operator()<param_t, params_t...>(std::forward<args_t>(args)...);
-        }
-
-        template <auto param_v, auto... params_v, typename... args_t>
-        constexpr this_t construct(args_t&&... args) const
-        {
-            using actual_this_t = decltype(constructor.template operator()<param_v, params_v...>(std::forward<args_t>(args)...));
-            meta::functions::check_assignable<std::tuple<args_t&&...>, std::tuple<typename arguments_t::value_type&&...>>();
-            meta::functions::check_assignable<std::tuple<actual_this_t>, std::tuple<this_t>>();
-            return constructor.template operator()<param_v, params_v...>(std::forward<args_t>(args)...);
         }
     };
 
