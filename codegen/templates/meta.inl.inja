@@ -73,7 +73,13 @@
                                     {% if function.is_template %}
                                         < {# #}
                                         {% for template_param in function.template_params %}
-                                            {{ template_param.type }} {{ template_param.name }} {% if not loop.is_last %} , {% endif %} {# #}
+                                            {% if template_param.kind == "non_type" %}
+                                                any_meta_constant<{{ template_param.type }}>
+                                            {% else %}
+                                                {{ template_param.type }}
+                                            {% endif %}
+                                            {{ template_param.name }} {# #}
+                                            {% if not loop.is_last %} , {% endif %} {# #}
                                         {% endfor %}
                                         > {# #}
                                     {% endif %}
@@ -95,6 +101,9 @@
                                             < {# #}
                                             {% for template_param in function.template_params %}
                                                 {{ template_param.name }}
+                                                {% if template_param.kind == "non_type" %}
+                                                    ::value
+                                                {% endif %}
                                                 {% if template_param.is_variadic %} ... {% endif %}
                                                 {% if not loop.is_last %} , {% endif %}
                                             {% endfor %}
@@ -186,10 +195,10 @@
                                 .constructor = [] {# #}
                                 {% if constructor.is_template %}
                                     < {# #}
-                                      {% for template_param in constructor.template_params %}
-                                          {{ template_param.type }} {{ template_param.name }}
-                                          {% if not loop.is_last %} , {% endif %} {# #}
-                                      {% endfor %}
+                                    {% for template_param in constructor.template_params %}
+                                        {{ template_param.type }} {{ template_param.name }} {# #}
+                                        {% if not loop.is_last %} , {% endif %} {# #}
+                                    {% endfor %}
                                     > {# #}
                                 {% endif %}
                                 ( {# #}

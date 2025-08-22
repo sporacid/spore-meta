@@ -48,6 +48,56 @@ namespace spore
             return sizeof...(parameters_t) > 0;
         }
 
+        template <typename... params_t, typename... args_t>
+        static consteval bool is_invokable_with(meta_type_ref<args_t>...)
+        {
+            if constexpr (any_meta_parameter_ref<return_t>)
+            {
+                if constexpr (sizeof...(params_t) > 0)
+                {
+                    // clang-format off
+                    return requires { std::declval<function_t>().template operator()<params_t...>(std::declval<args_t>()...); };
+                    // clang-format on
+                }
+                else
+                {
+                    // clang-format off
+                    return requires { std::declval<function_t>().operator()(std::declval<args_t>()...); };
+                    // clang-format on
+                }
+            }
+            else
+            {
+                if constexpr (sizeof...(params_t) > 0)
+                {
+                    // clang-format off
+                    return requires { { std::declval<function_t>().template operator()<params_t...>(std::declval<args_t>()...) } -> std::same_as<return_t>; };
+                    // clang-format on
+                }
+                else
+                {
+                    // clang-format off
+                    return requires { { std::declval<function_t>().operator()(std::declval<args_t>()...) } -> std::same_as<return_t>; };
+                    // clang-format on
+                }
+            }
+        }
+
+        template <typename... params_t, typename... args_t>
+        constexpr auto invoke(args_t&&... args) const
+        {
+            static_assert(is_invokable_with<params_t...>(meta_type_ref<args_t&&> {}...));
+
+            if constexpr (sizeof...(params_t) > 0)
+            {
+                return function.template operator()<params_t...>(std::forward<args_t>(args)...);
+            }
+            else
+            {
+                return function.operator()(std::forward<args_t>(args)...);
+            }
+        }
+#if 0
         template <typename... args_t>
         static consteval bool is_invokable_with(meta_type_ref<args_t>...)
         {
@@ -110,6 +160,7 @@ namespace spore
             static_assert(is_invokable_with<param_v, params_v...>(meta_type_ref<args_t&&> {}...));
             return function.template operator()<param_v, params_v...>(std::forward<args_t>(args)...);
         }
+#endif
     };
 
     template <

@@ -32,6 +32,13 @@ namespace spore::examples::templates
             std::cout << "Templated function invoked with " << std::to_string(arg) << std::endl;
             return static_cast<result_t>(arg);
         }
+
+        template <std::size_t index_v>
+        SPORE_META_FUNCTION()
+        void templated_value_function() const
+        {
+            std::cout << "Templated value function invoked with index " << std::to_string(index_v) << std::endl;
+        }
     };
 }
 
