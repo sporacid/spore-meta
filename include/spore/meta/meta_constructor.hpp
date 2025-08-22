@@ -2,7 +2,6 @@
 
 #include "spore/meta/meta_argument.hpp"
 #include "spore/meta/meta_attribute.hpp"
-#include "spore/meta/meta_function_utils.hpp"
 #include "spore/meta/meta_parameter.hpp"
 #include "spore/meta/meta_tuple.hpp"
 
@@ -39,11 +38,17 @@ namespace spore
         }
 
         template <typename... args_t>
+        static constexpr bool is_constructible_with(meta_type_ref<args_t>...)
+        {
+            // clang-format off
+            return requires { { std::declval<constructor_t>().operator()(std::declval<args_t>()...) } -> std::same_as<this_t>; };
+            // clang-format on
+        }
+
+        template <typename... args_t>
         constexpr this_t construct(args_t&&... args) const
         {
-            // using actual_this_t = decltype(constructor.operator()(std::forward<args_t>(args)...));
-            // meta::functions::check_assignable<std::tuple<args_t&&...>, std::tuple<typename arguments_t::value_type...>>(parameters);
-            // meta::functions::check_assignable<std::tuple<actual_this_t>, std::tuple<this_t>>(parameters);
+            static_assert(is_constructible_with(meta_type_ref<args_t&&> {}...));
             return constructor.operator()(std::forward<args_t>(args)...);
         }
     };
