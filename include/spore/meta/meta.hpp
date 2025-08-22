@@ -4,6 +4,7 @@
 #include "spore/meta/meta_enabled.hpp"
 #include "spore/meta/meta_enum.hpp"
 #include "spore/meta/meta_type.hpp"
+#include "spore/meta/meta_type_id.hpp"
 
 #include <concepts>
 #include <string_view>
@@ -46,6 +47,20 @@ namespace spore
             constexpr meta_adl<value_t> adl;
             constexpr auto func = []<meta_enum enum_v> { return enum_v; };
             return with_meta_enum(adl, func);
+        }
+
+        template <meta_type_enabled value_t>
+        consteval meta_type_id get_type_id()
+        {
+            constexpr meta_type_id type_id {get_type<value_t>()};
+            return type_id;
+        }
+
+        template <meta_enum_enabled value_t>
+        consteval meta_type_id get_type_id()
+        {
+            constexpr meta_type_id type_id {get_enum<value_t>()};
+            return type_id;
         }
 
         template <meta_enabled value_t>
