@@ -3,6 +3,7 @@
 #include "spore/meta/meta_argument.hpp"
 #include "spore/meta/meta_attribute.hpp"
 #include "spore/meta/meta_function_utils.hpp"
+#include "spore/meta/meta_parameter.hpp"
 #include "spore/meta/meta_tuple.hpp"
 
 #include <tuple>
@@ -10,38 +11,80 @@
 
 namespace spore
 {
-    template <typename constructor_t, typename this_t, any_meta_tuple arguments_t, any_meta_tuple attributes_t>
+    template <
+        typename constructor_t,
+        typename this_t,
+        any_meta_tuple arguments_t,
+        any_meta_tuple parameters_t,
+        any_meta_tuple attributes_t>
     struct meta_constructor;
 
-    template <typename constructor_t, typename this_t, any_meta_argument... arguments_t, any_meta_attribute... attributes_t>
-    struct meta_constructor<constructor_t, this_t, meta_tuple<arguments_t...>, meta_tuple<attributes_t...>>
+    template <
+        typename constructor_t,
+        typename this_t,
+        any_meta_argument... arguments_t,
+        any_meta_parameter... parameters_t,
+        any_meta_attribute... attributes_t>
+    struct meta_constructor<constructor_t, this_t, meta_tuple<arguments_t...>, meta_tuple<parameters_t...>, meta_tuple<attributes_t...>>
     {
         constructor_t constructor;
         meta_type_ref<this_t> this_type;
         meta_tuple<arguments_t...> arguments;
+        meta_tuple<parameters_t...> parameters;
         meta_tuple<attributes_t...> attributes;
+
+        static constexpr bool is_template()
+        {
+            return sizeof...(parameters_t) > 0;
+        }
 
         template <typename... args_t>
         constexpr this_t construct(args_t&&... args) const
         {
-            using actual_this_t = decltype(constructor.operator()(std::forward<args_t>(args)...));
-            meta::functions::check_assignable<std::tuple<args_t&&...>, std::tuple<typename arguments_t::value_type...>>();
-            meta::functions::check_assignable<std::tuple<actual_this_t>, std::tuple<this_t>>();
+            // using actual_this_t = decltype(constructor.operator()(std::forward<args_t>(args)...));
+            // meta::functions::check_assignable<std::tuple<args_t&&...>, std::tuple<typename arguments_t::value_type...>>(parameters);
+            // meta::functions::check_assignable<std::tuple<actual_this_t>, std::tuple<this_t>>(parameters);
             return constructor.operator()(std::forward<args_t>(args)...);
         }
     };
 
-    template <typename constructor_t, typename this_t, any_meta_argument... arguments_t, any_meta_attribute... attributes_t>
-    meta_constructor(constructor_t, meta_type_ref<this_t>, meta_tuple<arguments_t...>, meta_tuple<attributes_t...>)
-        -> meta_constructor<constructor_t, this_t, meta_tuple<arguments_t...>, meta_tuple<attributes_t...>>;
+    template <
+        typename constructor_t,
+        typename this_t,
+        any_meta_argument... arguments_t,
+        any_meta_parameter... parameters_t,
+        any_meta_attribute... attributes_t>
+    meta_constructor(
+        constructor_t,
+        meta_type_ref<this_t>,
+        meta_tuple<arguments_t...>,
+        meta_tuple<parameters_t...>,
+        meta_tuple<attributes_t...>)
+        -> meta_constructor<
+            constructor_t,
+            this_t,
+            meta_tuple<arguments_t...>,
+            meta_tuple<parameters_t...>,
+            meta_tuple<attributes_t...>>;
 
     template <typename>
     struct is_meta_constructor : std::false_type
     {
     };
 
-    template <typename constructor_t, typename this_t, any_meta_argument... arguments_t, any_meta_attribute... attributes_t>
-    struct is_meta_constructor<meta_constructor<constructor_t, this_t, meta_tuple<arguments_t...>, meta_tuple<attributes_t...>>> : std::true_type
+    template <
+        typename constructor_t,
+        typename this_t,
+        any_meta_argument... arguments_t,
+        any_meta_parameter... parameters_t,
+        any_meta_attribute... attributes_t>
+    struct is_meta_constructor<
+        meta_constructor<
+            constructor_t,
+            this_t,
+            meta_tuple<arguments_t...>,
+            meta_tuple<parameters_t...>,
+            meta_tuple<attributes_t...>>> : std::true_type
     {
     };
 
