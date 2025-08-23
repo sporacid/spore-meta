@@ -12,8 +12,8 @@
 
 namespace spore::meta
 {
-    template <typename value_t, typename func_t>
-    constexpr auto with_meta_type(meta_adl<value_t>, func_t&& func)
+    template <typename value_t>
+    constexpr any_meta_type auto get_meta_type(meta_adl<value_t>)
     {
         constexpr meta_type type {
             .name = meta_string {""},
@@ -25,11 +25,11 @@ namespace spore::meta
             .extensions = meta_tuple {},
         };
 
-        return func.template operator()<type>();
+        return type;
     }
 
-    template <typename value_t, typename func_t>
-    constexpr auto with_meta_enum(meta_adl<value_t>, func_t&& func)
+    template <typename value_t>
+    constexpr any_meta_enum auto get_meta_enum(meta_adl<value_t>)
     {
         constexpr meta_enum enum_ {
             .name = meta_string {""},
@@ -39,6 +39,6 @@ namespace spore::meta
             .extensions = meta_tuple {},
         };
 
-        return func.template operator()<enum_>();
+        return enum_;
     }
 }

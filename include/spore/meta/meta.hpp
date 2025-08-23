@@ -36,17 +36,13 @@ namespace spore
         template <meta_type_enabled value_t>
         consteval any_meta_type auto get_type()
         {
-            constexpr meta_adl<value_t> adl;
-            constexpr auto func = []<meta_type type_v> { return type_v; };
-            return with_meta_type(adl, func);
+            return get_meta_type(meta_adl<value_t> {});
         }
 
         template <meta_enum_enabled value_t>
         consteval any_meta_enum auto get_enum()
         {
-            constexpr meta_adl<value_t> adl;
-            constexpr auto func = []<meta_enum enum_v> { return enum_v; };
-            return with_meta_enum(adl, func);
+            return get_meta_enum(meta_adl<value_t> {});
         }
 
         template <meta_type_enabled value_t>

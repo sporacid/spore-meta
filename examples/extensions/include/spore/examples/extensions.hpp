@@ -12,11 +12,7 @@ namespace spore::examples::extensions
     {
     };
 
-    // inline void draw_widget(widget& widget);
-    inline void draw_widget(widget& value)
-    {
-        std::cout << "Draw widget called with " << meta::get_name<widget>() << std::endl;
-    }
+    inline void draw_widget(widget& value);
 
     struct extension
     {
@@ -47,7 +43,7 @@ namespace spore::examples::extensions
 
 #include SPORE_META_GENERATED("spore/examples/extensions.meta.inl")
 
-//void spore::examples::extensions::draw_widget(widget& value)
-//{
-//    std::cout << "Draw widget called with " << meta::get_name<widget>() << std::endl;
-//}
+void spore::examples::extensions::draw_widget(widget& value)
+{
+    std::cout << "Draw widget called with " << meta::get_name<widget>() << std::endl;
+}
