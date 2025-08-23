@@ -50,6 +50,18 @@ namespace spore
         }
 
         template <meta_type_enabled value_t>
+        consteval any_meta_type auto get_type(const value_t&)
+        {
+            return get_type<value_t>();
+        }
+
+        template <meta_enum_enabled value_t>
+        consteval any_meta_type auto get_enum(const value_t&)
+        {
+            return get_enum<value_t>();
+        }
+
+        template <meta_type_enabled value_t>
         consteval meta_type_id get_type_id()
         {
             constexpr meta_type_id type_id {get_type<value_t>()};
@@ -64,10 +76,29 @@ namespace spore
         }
 
         template <meta_enabled value_t>
+        consteval meta_type_id get_type_id(const value_t&)
+        {
+            return get_type_id<value_t>();
+        }
+
+        template <meta_type_enabled value_t>
         consteval any_meta_string auto get_name()
         {
             constexpr meta_type type = get_type<value_t>();
             return type.name;
+        }
+
+        template <meta_enum_enabled value_t>
+        consteval any_meta_string auto get_name()
+        {
+            constexpr meta_enum enum_ = get_enum<value_t>();
+            return enum_.name;
+        }
+
+        template <meta_enabled value_t>
+        consteval any_meta_string auto get_name(const value_t&)
+        {
+            return get_name<value_t>();
         }
 
         template <auto object_v>
@@ -118,6 +149,13 @@ namespace spore
             return tuples::for_each<type.attributes>(std::forward<func_t>(func));
         }
 
+        template <meta_enabled value_t, typename func_t>
+        constexpr meta_result auto for_each_extension(func_t&& func)
+        {
+            constexpr meta_type type = get_type<value_t>();
+            return tuples::for_each<type.extensions>(std::forward<func_t>(func));
+        }
+
         template <meta_type_enabled value_t, typename func_t>
         constexpr meta_result auto for_each_base(const value_t&, func_t&& func)
         {
@@ -152,6 +190,12 @@ namespace spore
         constexpr meta_result auto for_each_attribute(const value_t&, func_t&& func)
         {
             return for_each_attribute<value_t>(std::forward<func_t>(func));
+        }
+
+        template <meta_enabled value_t, typename func_t>
+        constexpr meta_result auto for_each_extension(const value_t&, func_t&& func)
+        {
+            return for_each_extension<value_t>(std::forward<func_t>(func));
         }
 
         template <auto object_v, typename func_t>
@@ -208,6 +252,13 @@ namespace spore
             return tuples::find<type.attributes>(std::forward<predicate_t>(predicate));
         }
 
+        template <meta_enabled value_t, typename predicate_t>
+        constexpr auto find_extension(predicate_t&& predicate)
+        {
+            constexpr meta_type type = get_type<value_t>();
+            return tuples::find<type.extensions>(std::forward<predicate_t>(predicate));
+        }
+
         template <meta_type_enabled value_t, typename predicate_t>
         constexpr auto find_base(const value_t&, predicate_t&& predicate)
         {
@@ -242,6 +293,12 @@ namespace spore
         constexpr auto find_attribute(const value_t&, predicate_t&& predicate)
         {
             return find_attribute<value_t>(std::forward<predicate_t>(predicate));
+        }
+
+        template <meta_enabled value_t, typename predicate_t>
+        constexpr auto find_extension(const value_t&, predicate_t&& predicate)
+        {
+            return find_extension<value_t>(std::forward<predicate_t>(predicate));
         }
 
         template <auto object_v, typename predicate_t>
