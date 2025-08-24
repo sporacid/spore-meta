@@ -10,4 +10,8 @@ target_include_directories(${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/in
 
 target_link_libraries(${TARGET_NAME} PRIVATE ${PROJECT_NAME}.lib)
 
-spore_add_meta(${TARGET_NAME})
+spore_add_meta(
+  ${TARGET_NAME}
+  EXTENSIONS  ${CMAKE_CURRENT_SOURCE_DIR}/codegen/meta_extensions.inja
+  TEMPLATES   ${CMAKE_CURRENT_SOURCE_DIR}/codegen/meta_extensions.inja
+)

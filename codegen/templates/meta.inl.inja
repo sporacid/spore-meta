@@ -260,12 +260,8 @@
                     {{ include("templates/meta_attribute.inja", class.attributes) }} {# #}
                 },
                 .extensions = meta_tuple {
-                    {% if truthy(class.attributes, "extensions") %}
-                        {% for extension, value in class.attributes.extensions %}
-                            {% if truthy(value) %}
-                                make_extension(meta_adl<{{ extension }}> {}, meta_adl<this_t> {}),
-                            {% endif %}
-                        {% endfor %}
+                    {% if truthy($.user_data, "extensions") %}
+                        {{ include($.user_data.extensions, class) }}
                     {% endif %}
                 },
             };
@@ -307,12 +303,8 @@
                     {{ include("templates/meta_attribute.inja", enum.attributes) }}
                 },
                 .extensions = meta_tuple {
-                    {% if truthy(enum.attributes, "extensions") %}
-                        {% for extension, value in enum.attributes.extensions %}
-                            {% if truthy(value) %}
-                                make_extension(meta_adl<{{ extension }}> {}, meta_adl<this_t> {}),
-                            {% endif %}
-                        {% endfor %}
+                    {% if truthy($.user_data, "extensions") %}
+                        {{ include($.user_data.extensions, enum) }}
                     {% endif %}
                 },
             };

@@ -8,7 +8,7 @@ namespace spore
 {
     namespace detail
     {
-        template <auto value_v>
+        template <auto>
         struct is_literal_type
         {
         };
@@ -19,7 +19,6 @@ namespace spore
     concept any_meta_extension = requires(value_t value)
     {
         { detail::is_literal_type<value_t {}> {} };
-        { []() consteval { return make_extension(meta_adl<value_t> {}, meta_adl<int> {}); }() } -> std::same_as<value_t>;
     };
     // clang-format on
 }

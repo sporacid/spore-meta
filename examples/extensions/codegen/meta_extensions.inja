@@ -1,0 +1,3 @@
+{% if truthy(attributes, "extension") %}
+    make_extension(meta_adl<{{ full_name }}> {}),
+{% endif %}
