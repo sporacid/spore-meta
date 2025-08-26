@@ -2,6 +2,41 @@
 
 #include "spore/examples/hello_world.hpp"
 
+
+#if 0
+namespace spore::meta
+{
+    template <meta_type_enabled value_t>
+    bool init_type_impl(meta_adl<value_t>, meta_adl<meta_init>)
+    {
+        std::cout << "Enabled: " << meta::get_name<value_t>() << std::endl;
+        return true;
+    }
+
+    template <meta_enum_enabled value_t>
+    bool init_enum_impl(meta_adl<value_t>, meta_adl<meta_init>)
+    {
+        std::cout << "Enabled: " << meta::get_name<value_t>() << std::endl;
+        return true;
+    }
+}
+#else
+
+    template <spore::meta_type_enabled value_t>
+    bool init_type_impl(spore::meta_adl<value_t>, spore::meta_adl<spore::meta::meta_init>)
+    {
+        std::cout << "Enabled: " << spore::meta::get_name<value_t>() << std::endl;
+        return true;
+    }
+
+    template <spore::meta_enum_enabled value_t>
+    bool init_enum_impl(spore::meta_adl<value_t>, spore::meta_adl<spore::meta::meta_init>)
+    {
+        std::cout << "Enabled: " << spore::meta::get_name<value_t>() << std::endl;
+        return true;
+    }
+#endif
+
 int main()
 {
     using namespace spore;

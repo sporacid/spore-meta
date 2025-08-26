@@ -63,11 +63,18 @@ namespace spore
             return type_id;
         }
 
-        template <meta_enabled value_t>
+        template <meta_type_enabled value_t>
         consteval any_meta_string auto get_name()
         {
             constexpr meta_type type = get_type<value_t>();
             return type.name;
+        }
+
+        template <meta_enum_enabled value_t>
+        consteval any_meta_string auto get_name()
+        {
+            constexpr meta_enum enum_ = get_enum<value_t>();
+            return enum_.name;
         }
 
         template <auto object_v>

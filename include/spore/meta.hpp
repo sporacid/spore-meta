@@ -2,6 +2,7 @@
 
 #include "spore/meta/meta.hpp"
 #include "spore/meta/meta_constant.hpp"
+#include "spore/meta/meta_init.hpp"
 #include "spore/meta/meta_macros.hpp"
 #include "spore/meta/meta_string_convert.hpp"
 #include "spore/meta/meta_truthy.hpp"

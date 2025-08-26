@@ -262,6 +262,16 @@
             return func.template operator()<type>();
         }
 
+        template < {# #}
+            {% if class.is_template or class.is_template_specialization %}
+                {% for template_param in class.template_params %}
+                    {{ template_param.type }} {{ template_param.name }} {# #}
+                    {% if not loop.is_last %} , {% endif %} {# #}
+                {% endfor %}
+            {% endif %}
+        > {# #}
+        bool spore::meta::is_type_init<{{ class.full_name }}> = spore::meta::init_type<{{ class.full_name }}>();;
+
     {% endif %}
 {% endfor %}
 
@@ -298,6 +308,9 @@
 
             return func.template operator()<enum_>();
         }
+
+        template <>
+        bool spore::meta::is_enum_init<{{ enum.full_name }}> = spore::meta::init_enum<{{ enum.full_name }}>();
 
     {% endif %}
 {% endfor %}
