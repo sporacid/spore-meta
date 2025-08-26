@@ -12,13 +12,13 @@ namespace spore
     template <typename value_t>
     concept meta_type_enabled = requires(value_t value)
     {
-        { with_meta_type(meta_adl<value_t> {}, []<meta_type type_v> { return type_v; }) } -> any_meta_type;
+        { get_meta_type(meta_adl<value_t> {}) } -> any_meta_type;
     };
 
     template <typename value_t>
     concept meta_enum_enabled = std::is_enum_v<value_t> && requires(value_t value)
     {
-        { with_meta_enum(meta_adl<value_t> {}, []<meta_enum enum_v> { return enum_v; }) } -> any_meta_enum;
+        { get_meta_enum(meta_adl<value_t> {}) } -> any_meta_enum;
     };
     // clang-format on
 
