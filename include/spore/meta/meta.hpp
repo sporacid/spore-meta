@@ -34,40 +34,47 @@ namespace spore
     namespace meta
     {
         template <meta_type_enabled value_t>
-        consteval any_meta_type auto get_type()
+        constexpr any_meta_type auto get_type()
         {
             return get_meta_type(meta_adl<value_t> {});
         }
 
         template <meta_enum_enabled value_t>
-        consteval any_meta_enum auto get_enum()
+        constexpr any_meta_enum auto get_enum()
         {
             return get_meta_enum(meta_adl<value_t> {});
         }
 
         template <meta_type_enabled value_t>
-        consteval meta_type_id get_type_id()
+        constexpr meta_type_id get_id()
         {
             constexpr meta_type_id type_id {get_type<value_t>()};
             return type_id;
         }
 
         template <meta_enum_enabled value_t>
-        consteval meta_type_id get_type_id()
+        constexpr meta_type_id get_id()
         {
             constexpr meta_type_id type_id {get_enum<value_t>()};
             return type_id;
         }
 
-        template <meta_enabled value_t>
-        consteval any_meta_string auto get_name()
+        template <meta_type_enabled value_t>
+        constexpr any_meta_string auto get_name()
         {
             constexpr meta_type type = get_type<value_t>();
             return type.name;
         }
 
+        template <meta_enum_enabled value_t>
+        constexpr any_meta_string auto get_name()
+        {
+            constexpr meta_type type = get_enum<value_t>();
+            return type.name;
+        }
+
         template <auto object_v>
-        consteval any_meta_string auto get_name() requires has_meta_name<object_v>
+        constexpr any_meta_string auto get_name() requires has_meta_name<object_v>
         {
             return object_v.name;
         }
