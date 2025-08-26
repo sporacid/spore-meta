@@ -25,7 +25,7 @@ namespace spore::examples::extensions
     };
 
     template <typename value_t>
-    consteval extension<value_t> make_extension(meta_adl<value_t>)
+    consteval extension<value_t> make_extension()
     {
         extension<value_t> extension;
 
@@ -43,6 +43,14 @@ namespace spore::examples::extensions
 
         return extension;
     }
+
+     template <typename value_t>
+     consteval any_meta_extension_tuple auto make_extensions(const meta_adl<value_t>, const meta_adl<void>)
+     {
+         return meta_tuple {
+             make_extension<value_t>(),
+         };
+     }
 }
 
 #include SPORE_META_GENERATED("spore/examples/extensions.meta.inl")

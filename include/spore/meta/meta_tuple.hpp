@@ -33,6 +33,8 @@ namespace spore
         value_t value;
         meta_tuple<values_t...> rest;
 
+        constexpr meta_tuple() = default;
+
         explicit constexpr meta_tuple(value_t value, values_t... rest)
             : value(std::move(value)),
               rest(std::move(rest)...) {}
@@ -59,25 +61,6 @@ namespace spore
     template <typename... values_t>
     meta_tuple(values_t&&...)
         -> meta_tuple<values_t...>;
-
-    template <typename>
-    struct is_meta_tuple : std::false_type
-    {
-    };
-
-    template <typename... values_t>
-    struct is_meta_tuple<meta_tuple<values_t...>> : std::true_type
-    {
-    };
-
-    template <typename value_t>
-    constexpr bool is_meta_tuple_v = is_meta_tuple<value_t>::value;
-
-    template <typename value_t>
-    concept any_meta_tuple = is_meta_tuple_v<value_t>;
-
-    template <typename value_t>
-    concept meta_tuple_convertible = is_meta_tuple_v<std::decay_t<value_t>>;
 
     namespace meta::tuples
     {
@@ -197,6 +180,35 @@ namespace spore
                     return meta_invalid();
                 }
             }
+
+            template <std::size_t index_v, meta_tuple tuple_v, typename predicate_t>
+            constexpr bool all_of_impl(predicate_t&& predicate)
+            {
+                if constexpr (index_v < tuple_v.size())
+                {
+                    constexpr auto value = tuple_v.template at<index_v>();
+
+                    if constexpr (detail::is_constexpr_invocable<std::decay_t<predicate_t>, value>())
+                    {
+                        if constexpr (std::decay_t<predicate_t> {}.template operator()<value>())
+                        {
+                            return all_of_impl<index_v + 1, tuple_v>(predicate);
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        return predicate.template operator()<value>() and all_of_impl<index_v + 1, tuple_v>(predicate);
+                    }
+                }
+                else
+                {
+                    return true;
+                }
+            }
         }
 
         template <meta_tuple tuple_v, typename func_t>
@@ -210,5 +222,38 @@ namespace spore
         {
             return detail::find_impl<0, tuple_v>(predicate);
         }
+
+        template <meta_tuple tuple_v, typename predicate_t>
+        constexpr bool all_of(predicate_t&& predicate)
+        {
+            return detail::all_of_impl<0, tuple_v>(predicate);
+        }
     }
+
+    template <typename>
+    struct is_meta_tuple : std::false_type
+    {
+    };
+
+    template <typename... values_t>
+    struct is_meta_tuple<meta_tuple<values_t...>> : std::true_type
+    {
+    };
+
+    template <typename value_t>
+    constexpr bool is_meta_tuple_v = is_meta_tuple<value_t>::value;
+
+    template <typename value_t>
+    concept any_meta_tuple = is_meta_tuple_v<value_t>;
+
+    // clang-format off
+    template <typename value_t, template <typename> typename concept_t>
+    concept any_meta_tuple_of = any_meta_tuple<value_t>
+        and meta::tuples::all_of<value_t{}>(
+            []<typename tuple_value_t> { return concept_t<tuple_value_t>::value; }
+        );
+    // clang-format on
+
+    template <typename value_t>
+    concept meta_tuple_convertible = any_meta_tuple<std::decay_t<value_t>>;
 }

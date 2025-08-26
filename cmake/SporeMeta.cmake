@@ -2,7 +2,7 @@ function(spore_add_meta SPORE_TARGET)
   cmake_parse_arguments(
     "SPORE_META"
     "IMPLICIT_TYPES;IMPLICIT_ENUMS;IMPLICIT_FIELDS;IMPLICIT_FUNCTIONS;IMPLICIT_CONSTRUCTORS"
-    "INPUT_DIRECTORY;INPUT_FILES;OUTPUT_DIRECTORY;CODEGEN_TARGET;EXTENSIONS"
+    "INPUT_DIRECTORY;INPUT_FILES;OUTPUT_DIRECTORY;CODEGEN_TARGET"
     ""
     ${ARGN}
   )
@@ -81,7 +81,6 @@ function(spore_add_meta SPORE_TARGET)
       implicit_fields=$<IF:$<BOOL:${SPORE_META_IMPLICIT_FIELDS}>,true,false>
       implicit_functions=$<IF:$<BOOL:${SPORE_META_IMPLICIT_FUNCTIONS}>,true,false>
       implicit_constructors=$<IF:$<BOOL:${SPORE_META_IMPLICIT_CONSTRUCTORS}>,true,false>
-      extensions=$<IF:$<BOOL:${SPORE_META_EXTENSIONS}>,${SPORE_META_EXTENSIONS},false>
     REFORMAT
   )
 
