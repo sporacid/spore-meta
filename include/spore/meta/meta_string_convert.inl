@@ -99,9 +99,8 @@ namespace spore::meta::strings
     template <meta_enabled value_t>
     consteval any_meta_string auto to_string(const meta_string_adl_type<value_t>)
     {
-        constexpr meta_adl<value_t> adl;
-        constexpr auto func = []<meta_type type_v> { return type_v.name; };
-        return with_meta_type(adl, func);
+        constexpr meta_type type = get_meta_type(meta_adl<value_t> {});
+        return type.name;
     }
 
     template <cv_qualified value_t>

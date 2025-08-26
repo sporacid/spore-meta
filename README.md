@@ -118,16 +118,14 @@ constexpr meta_enum my_enum_type {
 To integrate with the querying interface, you need to provide an accessor function for your type and your enum.
 
 ```cpp
-template <typename func_t>
-constexpr auto with_meta_type(meta_adl<my_struct>, func_t&& func)
+constexpr auto get_meta_type(const meta_adl<my_struct>)
 {
-    return func.template operator()<my_struct_type>();
+    return my_struct_type;
 }
 
-template <typename func_t>
-constexpr auto with_meta_enum(meta_adl<my_enum>, func_t&& func)
+constexpr auto get_meta_enum(const meta_adl<my_enum>)
 {
-    return func.template operator()<my_enum_type>();
+    return my_enum_type;
 }
 ```
 

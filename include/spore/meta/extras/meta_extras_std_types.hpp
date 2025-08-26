@@ -87,7 +87,9 @@ namespace spore
     SPORE_META_DEFINE_TEMPLATE_TYPE(std::set, typename, typename, typename)
     SPORE_META_DEFINE_TEMPLATE_TYPE(std::stack, typename, typename)
     SPORE_META_DEFINE_TEMPLATE_TYPE(std::unordered_map, typename, typename, typename, typename, typename)
+    SPORE_META_DEFINE_TEMPLATE_TYPE(std::unordered_multimap, typename, typename, typename, typename, typename)
     SPORE_META_DEFINE_TEMPLATE_TYPE(std::unordered_set, typename, typename, typename, typename)
+    SPORE_META_DEFINE_TEMPLATE_TYPE(std::unordered_multiset, typename, typename, typename, typename)
     SPORE_META_DEFINE_TEMPLATE_TYPE(std::vector, typename, typename)
 
     SPORE_META_DEFINE_TEMPLATE_TYPE(std::tuple, typename)
