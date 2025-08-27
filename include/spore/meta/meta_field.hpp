@@ -10,8 +10,11 @@
 
 namespace spore
 {
+    template <std::size_t name_v, typename field_t, any_meta_tuple_of<is_meta_attribute>... attributes_t>
+    struct meta_field;
+
     template <std::size_t name_v, typename field_t, any_meta_attribute... attributes_t>
-    struct meta_field
+    struct meta_field<name_v, field_t, meta_tuple<attributes_t...>>
     {
         using this_type = typename meta_field_traits<field_t>::this_type;
         using value_type = typename meta_field_traits<field_t>::value_type;
@@ -38,7 +41,7 @@ namespace spore
 
     template <std::size_t name_v, typename field_t, any_meta_attribute... attributes_t>
     meta_field(meta_string<name_v>, field_t, meta_tuple<attributes_t...>)
-        -> meta_field<name_v, field_t, attributes_t...>;
+        -> meta_field<name_v, field_t, meta_tuple<attributes_t...>>;
 
     template <typename>
     struct is_meta_field : std::false_type
@@ -46,7 +49,7 @@ namespace spore
     };
 
     template <std::size_t name_v, typename field_t, any_meta_attribute... attributes_t>
-    struct is_meta_field<meta_field<name_v, field_t, attributes_t...>> : std::true_type
+    struct is_meta_field<meta_field<name_v, field_t, meta_tuple<attributes_t...>>> : std::true_type
     {
     };
 

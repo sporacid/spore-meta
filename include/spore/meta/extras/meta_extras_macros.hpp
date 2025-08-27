@@ -51,6 +51,7 @@
             .functions = meta_tuple {},                              \
             .constructors = meta_tuple {},                           \
             .attributes = meta_tuple {},                             \
+            .extensions = meta_tuple {},                             \
         };                                                           \
                                                                      \
         return type;                                                 \
@@ -67,6 +68,7 @@
             .functions = meta_tuple {},                                                                                     \
             .constructors = meta_tuple {},                                                                                  \
             .attributes = meta_tuple {},                                                                                    \
+            .extensions = meta_tuple {},                                                                                    \
         };                                                                                                                  \
                                                                                                                             \
         return type;                                                                                                        \

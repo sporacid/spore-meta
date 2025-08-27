@@ -13,9 +13,9 @@ namespace spore
     template <
         typename constructor_t,
         typename this_t,
-        any_meta_tuple arguments_t,
-        any_meta_tuple parameters_t,
-        any_meta_tuple attributes_t>
+        any_meta_tuple_of<is_meta_argument> arguments_t,
+        any_meta_tuple_of<is_meta_parameter> parameters_t,
+        any_meta_tuple_of<is_meta_attribute> attributes_t>
     struct meta_constructor;
 
     template <
