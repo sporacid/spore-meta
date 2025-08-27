@@ -9,8 +9,11 @@
 
 namespace spore
 {
+    template <std::size_t name_v, typename value_t, any_meta_tuple_of<is_meta_attribute>... attributes_t>
+    struct meta_enum_value;
+
     template <std::size_t name_v, typename value_t, any_meta_attribute... attributes_t>
-    struct meta_enum_value
+    struct meta_enum_value<name_v, value_t, meta_tuple<attributes_t...>>
     {
         meta_string<name_v> name;
         value_t value;
@@ -19,7 +22,7 @@ namespace spore
 
     template <std::size_t name_v, typename value_t, any_meta_attribute... attributes_t>
     meta_enum_value(meta_string<name_v>, value_t, meta_tuple<attributes_t...>)
-        -> meta_enum_value<name_v, value_t, attributes_t...>;
+        -> meta_enum_value<name_v, value_t, meta_tuple<attributes_t...>>;
 
     template <typename>
     struct is_meta_enum_value : std::false_type
@@ -27,7 +30,7 @@ namespace spore
     };
 
     template <std::size_t name_v, typename value_t, any_meta_attribute... attributes_t>
-    struct is_meta_enum_value<meta_enum_value<name_v, value_t, attributes_t...>> : std::true_type
+    struct is_meta_enum_value<meta_enum_value<name_v, value_t, meta_tuple<attributes_t...>>> : std::true_type
     {
     };
 

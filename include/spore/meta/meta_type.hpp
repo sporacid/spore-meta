@@ -3,6 +3,7 @@
 #include "spore/meta/meta_attribute.hpp"
 #include "spore/meta/meta_base.hpp"
 #include "spore/meta/meta_constructor.hpp"
+#include "spore/meta/meta_extension.hpp"
 #include "spore/meta/meta_field.hpp"
 #include "spore/meta/meta_function.hpp"
 #include "spore/meta/meta_string.hpp"
@@ -15,11 +16,12 @@ namespace spore
 {
     template <
         std::size_t name_v,
-        any_meta_tuple bases_t,
-        any_meta_tuple fields_t,
-        any_meta_tuple functions_t,
-        any_meta_tuple constructors_t,
-        any_meta_tuple attributes_t>
+        any_meta_tuple_of<is_meta_base> bases_t,
+        any_meta_tuple_of<is_meta_field> fields_t,
+        any_meta_tuple_of<is_meta_function> functions_t,
+        any_meta_tuple_of<is_meta_constructor> constructors_t,
+        any_meta_tuple_of<is_meta_attribute> attributes_t,
+        any_meta_tuple_of<is_meta_extension> extensions_t>
     struct meta_type;
 
     template <
@@ -28,14 +30,16 @@ namespace spore
         any_meta_field... fields_t,
         any_meta_function... functions_t,
         any_meta_constructor... constructors_t,
-        any_meta_attribute... attributes_t>
+        any_meta_attribute... attributes_t,
+        any_meta_extension... extensions_t>
     struct meta_type<
         name_v,
         meta_tuple<bases_t...>,
         meta_tuple<fields_t...>,
         meta_tuple<functions_t...>,
         meta_tuple<constructors_t...>,
-        meta_tuple<attributes_t...>>
+        meta_tuple<attributes_t...>,
+        meta_tuple<extensions_t...>>
     {
         meta_string<name_v> name;
         meta_tuple<bases_t...> bases;
@@ -43,6 +47,7 @@ namespace spore
         meta_tuple<functions_t...> functions;
         meta_tuple<constructors_t...> constructors;
         meta_tuple<attributes_t...> attributes;
+        meta_tuple<extensions_t...> extensions;
     };
 
     template <
@@ -51,21 +56,24 @@ namespace spore
         any_meta_field... fields_t,
         any_meta_function... functions_t,
         any_meta_constructor... constructors_t,
-        any_meta_attribute... attributes_t>
+        any_meta_attribute... attributes_t,
+        any_meta_extension... extensions_t>
     meta_type(
         meta_string<name_v>,
         meta_tuple<bases_t...>,
         meta_tuple<fields_t...>,
         meta_tuple<functions_t...>,
         meta_tuple<constructors_t...>,
-        meta_tuple<attributes_t...>)
+        meta_tuple<attributes_t...>,
+        meta_tuple<extensions_t...>)
         -> meta_type<
             name_v,
             meta_tuple<bases_t...>,
             meta_tuple<fields_t...>,
             meta_tuple<functions_t...>,
             meta_tuple<constructors_t...>,
-            meta_tuple<attributes_t...>>;
+            meta_tuple<attributes_t...>,
+            meta_tuple<extensions_t...>>;
 
     template <typename>
     struct is_meta_type : std::false_type
@@ -78,7 +86,8 @@ namespace spore
         any_meta_field... fields_t,
         any_meta_function... functions_t,
         any_meta_constructor... constructors_t,
-        any_meta_attribute... attributes_t>
+        any_meta_attribute... attributes_t,
+        any_meta_extension... extensions_t>
     struct is_meta_type<
         meta_type<
             name_v,
@@ -86,7 +95,8 @@ namespace spore
             meta_tuple<fields_t...>,
             meta_tuple<functions_t...>,
             meta_tuple<constructors_t...>,
-            meta_tuple<attributes_t...>>> : std::true_type
+            meta_tuple<attributes_t...>,
+            meta_tuple<extensions_t...>>> : std::true_type
     {
     };
 

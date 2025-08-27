@@ -386,6 +386,55 @@ on [this wiki page](https://github.com/sporacid/spore-codegen/blob/main/docs/Par
 All attributes that start with `_spore_meta` are considered internal to this repository and won't be exposed through the
 reflection structure.
 
+## Extensions
+
+User-defined extensions can be created for each type. The extensions must derive from `meta_extension` and they must be
+literal types. You can override the function `make_extensions` to override the default extension factory.
+
+```cpp
+template <typename value_t>
+struct extension : meta_extension
+{
+    using action_t = void(*)(value_t&);
+    action_t action = nullptr;
+};
+
+template <typename value_t>
+consteval extension make_extension()
+{
+    return extension<value_t> {
+        .action = [](value_t& value) { action(value); };  
+    };
+}
+
+template <typename value_t>
+consteval any_meta_tuple_of<is_meta_extension> auto make_extensions(const meta_adl<value_t>, const meta_adl<void>)
+{
+    return meta_tuple {
+        make_extension<value_t>(),
+    };
+}
+```
+
+You can use concepts to create extensions on types that are more constrained.
+
+```cpp
+template <typename value_t>
+concept any_widget = /* ... */;
+
+template <any_widget value_t>
+consteval any_meta_tuple_of<is_meta_extension> auto make_extensions(const meta_adl<value_t>, const meta_adl<void>)
+{
+    return meta_tuple {
+        make_extension<value_t>(),
+        make_widget_extension<value_t>(),
+    };
+}
+```
+
+You can provide any number of overrides, but each override must be more constrained that previous ones to prevent
+ambiguity.
+
 # Examples
 
 ## Hello World
@@ -402,6 +451,14 @@ attributes and macros.
 
 [JSON serialization example](examples/json) shows how to generate JSON serialization automatically
 with [nlohmann-json](https://github.com/nlohmann/json) and attributes.
+
+## Templates
+
+[Templates example](examples/templates) shows how to reflect type, function and constructor templates.
+
+## Extensions
+
+[Extensions example](examples/extensions) shows how to add custom extensions to your reflected types.
 
 ## External Project Integration
 
