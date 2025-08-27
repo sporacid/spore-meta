@@ -21,6 +21,7 @@
 #include <memory>
 #include <optional>
 #include <queue>
+#include <ranges>
 #include <set>
 #include <stack>
 #include <string>
@@ -39,6 +40,7 @@ namespace spore
     SPORE_META_DEFINE_TYPE(char32_t)
     SPORE_META_DEFINE_TYPE(wchar_t)
 
+    SPORE_META_DEFINE_TYPE(bool)
     SPORE_META_DEFINE_TYPE(std::double_t)
     SPORE_META_DEFINE_TYPE(std::float_t)
     SPORE_META_DEFINE_TYPE(std::int8_t)
@@ -84,12 +86,16 @@ namespace spore
     SPORE_META_DEFINE_TEMPLATE_TYPE(std::plus, typename)
     SPORE_META_DEFINE_TEMPLATE_TYPE(std::priority_queue, typename, typename, typename)
     SPORE_META_DEFINE_TEMPLATE_TYPE(std::queue, typename, typename)
+    SPORE_META_DEFINE_TEMPLATE_TYPE(std::reference_wrapper, typename)
     SPORE_META_DEFINE_TEMPLATE_TYPE(std::set, typename, typename, typename)
+    SPORE_META_DEFINE_TEMPLATE_TYPE(std::shared_ptr, typename)
+    SPORE_META_DEFINE_TEMPLATE_TYPE(std::span, typename, std::size_t)
     SPORE_META_DEFINE_TEMPLATE_TYPE(std::stack, typename, typename)
+    SPORE_META_DEFINE_TEMPLATE_TYPE(std::unique_ptr, typename, typename)
     SPORE_META_DEFINE_TEMPLATE_TYPE(std::unordered_map, typename, typename, typename, typename, typename)
     SPORE_META_DEFINE_TEMPLATE_TYPE(std::unordered_multimap, typename, typename, typename, typename, typename)
-    SPORE_META_DEFINE_TEMPLATE_TYPE(std::unordered_set, typename, typename, typename, typename)
     SPORE_META_DEFINE_TEMPLATE_TYPE(std::unordered_multiset, typename, typename, typename, typename)
+    SPORE_META_DEFINE_TEMPLATE_TYPE(std::unordered_set, typename, typename, typename, typename)
     SPORE_META_DEFINE_TEMPLATE_TYPE(std::vector, typename, typename)
 
     SPORE_META_DEFINE_TEMPLATE_TYPE(std::tuple, typename)

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "spore/meta/meta_enum.hpp"
-#include "spore/meta/meta_string.hpp"
 #include "spore/meta/meta_type.hpp"
 #include "spore/meta/meta_utils.hpp"
 
