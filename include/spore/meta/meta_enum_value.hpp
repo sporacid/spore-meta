@@ -35,8 +35,5 @@ namespace spore
     };
 
     template <typename value_t>
-    constexpr bool is_meta_enum_value_v = is_meta_enum_value<value_t>::value;
-
-    template <typename value_t>
-    concept any_meta_enum_value = is_meta_enum_value_v<value_t>;
+    concept any_meta_enum_value = is_meta_enum_value<value_t>::value;
 }
