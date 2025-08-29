@@ -7,7 +7,6 @@
 #include "spore/meta/meta_type_id.hpp"
 
 #include <concepts>
-#include <string_view>
 
 namespace spore
 {
@@ -80,118 +79,118 @@ namespace spore
         }
 
         template <meta_type_enabled value_t, typename func_t>
-        constexpr meta_result auto for_each_base(func_t&& func)
+        constexpr any_meta_result auto for_each_base(func_t&& func)
         {
             constexpr meta_type type = get_type<value_t>();
             return tuples::for_each<type.bases>(std::forward<func_t>(func));
         }
 
         template <meta_type_enabled value_t, typename func_t>
-        constexpr meta_result auto for_each_field(func_t&& func)
+        constexpr any_meta_result auto for_each_field(func_t&& func)
         {
             constexpr meta_type type = get_type<value_t>();
             return tuples::for_each<type.fields>(std::forward<func_t>(func));
         }
 
         template <meta_type_enabled value_t, typename func_t>
-        constexpr meta_result auto for_each_function(func_t&& func)
+        constexpr any_meta_result auto for_each_function(func_t&& func)
         {
             constexpr meta_type type = get_type<value_t>();
             return tuples::for_each<type.functions>(std::forward<func_t>(func));
         }
 
         template <meta_type_enabled value_t, typename func_t>
-        constexpr meta_result auto for_each_constructor(func_t&& func)
+        constexpr any_meta_result auto for_each_constructor(func_t&& func)
         {
             constexpr meta_type type = get_type<value_t>();
             return tuples::for_each<type.constructors>(std::forward<func_t>(func));
         }
 
         template <meta_enum_enabled value_t, typename func_t>
-        constexpr meta_result auto for_each_value(func_t&& func)
+        constexpr any_meta_result auto for_each_value(func_t&& func)
         {
             constexpr meta_enum enum_ = get_enum<value_t>();
             return tuples::for_each<enum_.values>(std::forward<func_t>(func));
         }
 
         template <meta_type_enabled value_t, typename func_t>
-        constexpr meta_result auto for_each_attribute(func_t&& func)
+        constexpr any_meta_result auto for_each_attribute(func_t&& func)
         {
             constexpr meta_type type = get_type<value_t>();
             return tuples::for_each<type.attributes>(std::forward<func_t>(func));
         }
 
         template <meta_enum_enabled value_t, typename func_t>
-        constexpr meta_result auto for_each_attribute(func_t&& func)
+        constexpr any_meta_result auto for_each_attribute(func_t&& func)
         {
             constexpr meta_enum enum_ = get_enum<value_t>();
             return tuples::for_each<enum_.attributes>(std::forward<func_t>(func));
         }
 
         template <meta_type_enabled value_t, typename func_t>
-        constexpr meta_result auto for_each_extension(func_t&& func)
+        constexpr any_meta_result auto for_each_extension(func_t&& func)
         {
             constexpr meta_type type = get_type<value_t>();
             return tuples::for_each<type.extensions>(std::forward<func_t>(func));
         }
 
         template <meta_enum_enabled value_t, typename func_t>
-        constexpr meta_result auto for_each_extension(func_t&& func)
+        constexpr any_meta_result auto for_each_extension(func_t&& func)
         {
             constexpr meta_enum enum_ = get_enum<value_t>();
             return tuples::for_each<enum_.extensions>(std::forward<func_t>(func));
         }
 
         template <meta_type_enabled value_t, typename func_t>
-        constexpr meta_result auto for_each_base(const value_t&, func_t&& func)
+        constexpr any_meta_result auto for_each_base(const value_t&, func_t&& func)
         {
             return for_each_base<value_t>(std::forward<func_t>(func));
         }
 
         template <meta_type_enabled value_t, typename func_t>
-        constexpr meta_result auto for_each_field(const value_t&, func_t&& func)
+        constexpr any_meta_result auto for_each_field(const value_t&, func_t&& func)
         {
             return for_each_field<value_t>(std::forward<func_t>(func));
         }
 
         template <meta_type_enabled value_t, typename func_t>
-        constexpr meta_result auto for_each_function(const value_t&, func_t&& func)
+        constexpr any_meta_result auto for_each_function(const value_t&, func_t&& func)
         {
             return for_each_function<value_t>(std::forward<func_t>(func));
         }
 
         template <meta_type_enabled value_t, typename func_t>
-        constexpr meta_result auto for_each_constructor(const value_t&, func_t&& func)
+        constexpr any_meta_result auto for_each_constructor(const value_t&, func_t&& func)
         {
             return for_each_constructor<value_t>(std::forward<func_t>(func));
         }
 
         template <meta_enum_enabled value_t, typename func_t>
-        constexpr meta_result auto for_each_value(const value_t&, func_t&& func)
+        constexpr any_meta_result auto for_each_value(const value_t&, func_t&& func)
         {
             return for_each_value<value_t>(std::forward<func_t>(func));
         }
 
         template <meta_enabled value_t, typename func_t>
-        constexpr meta_result auto for_each_attribute(const value_t&, func_t&& func)
+        constexpr any_meta_result auto for_each_attribute(const value_t&, func_t&& func)
         {
             return for_each_attribute<value_t>(std::forward<func_t>(func));
         }
 
         template <meta_enabled value_t, typename func_t>
-        constexpr meta_result auto for_each_extension(const value_t&, func_t&& func)
+        constexpr any_meta_result auto for_each_extension(const value_t&, func_t&& func)
         {
             return for_each_extension<value_t>(std::forward<func_t>(func));
         }
 
         template <auto object_v, typename func_t>
-        constexpr meta_result auto for_each_attribute(func_t&& func) requires has_meta_attributes<object_v>
+        constexpr any_meta_result auto for_each_attribute(func_t&& func) requires has_meta_attributes<object_v>
         {
             return tuples::for_each<object_v.attributes>(std::forward<func_t>(func));
         }
 
         template <auto object_v, typename func_t>
-        constexpr meta_result auto for_each_argument(func_t&& func) requires has_meta_arguments<object_v>
+        constexpr any_meta_result auto for_each_argument(func_t&& func) requires has_meta_arguments<object_v>
         {
             return tuples::for_each<object_v.arguments>(std::forward<func_t>(func));
         }

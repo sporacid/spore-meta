@@ -144,8 +144,5 @@ namespace spore
     };
 
     template <typename value_t>
-    constexpr bool is_meta_function_v = is_meta_function<value_t>::value;
-
-    template <typename value_t>
-    concept any_meta_function = is_meta_function_v<value_t>;
+    concept any_meta_function = is_meta_function<value_t>::value;
 }

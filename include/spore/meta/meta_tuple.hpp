@@ -75,18 +75,26 @@ namespace spore
                 using type = std::variant<meta_invalid, args_t...>;
             };
 
-            template <typename func_t, auto arg_v>
-            constexpr bool is_constexpr_invocable()
+            template <auto arg_v, typename func_t>
+            constexpr auto is_constexpr_invocable_impl(func_t func)
+                -> std::integral_constant<bool, (func.template operator()<arg_v>(), true)>
             {
-                using void_t = std::void_t<decltype(std::declval<func_t>().template operator()<arg_v>())>;
+                return {};
+            }
 
-                if constexpr (std::is_default_constructible_v<func_t> and std::is_same_v<void, void_t>)
+            template <auto arg_v>
+            constexpr std::false_type is_constexpr_invocable_impl(...)
+            {
+                return {};
+            }
+
+            template <typename func_t, auto arg_v>
+            consteval bool is_constexpr_invocable()
+            {
+                if constexpr (std::is_default_constructible_v<func_t>)
                 {
-                    return [=]() constexpr {
-                        func_t func {};
-                        func.template operator()<arg_v>();
-                        return true;
-                    }();
+                    constexpr auto value = is_constexpr_invocable_impl<arg_v>(func_t {});
+                    return decltype(value)::value;
                 }
                 else
                 {
@@ -95,7 +103,7 @@ namespace spore
             }
 
             template <std::size_t index_v, meta_tuple tuple_v, typename func_t>
-            constexpr meta_result auto for_each_impl(func_t&& func)
+            constexpr any_meta_result auto for_each_impl(func_t&& func)
             {
                 if constexpr (index_v < tuple_v.size())
                 {
@@ -103,13 +111,13 @@ namespace spore
 
                     using result_t = decltype(func.template operator()<value>());
 
-                    if constexpr (meta_result<result_t>)
+                    if constexpr (any_meta_result<result_t>)
                     {
                         if constexpr (is_constexpr_invocable<std::decay_t<func_t>, value>())
                         {
-                            constexpr meta_result auto result = std::decay_t<func_t> {}.template operator()<value>();
+                            constexpr result_t result = std::decay_t<func_t> {}.template operator()<value>();
 
-                            if constexpr (is_meta_continue_v<result_t>)
+                            if constexpr (result.is_continue())
                             {
                                 return for_each_impl<index_v + 1, tuple_v>(func);
                             }
@@ -120,15 +128,17 @@ namespace spore
                         }
                         else
                         {
-                            meta_result auto result = func.template operator()<value>();
+                            result_t result = func.template operator()<value>();
 
-                            if constexpr (is_meta_continue_v<result_t>)
+                            if (result.is_continue())
                             {
-                                return for_each_impl<index_v + 1, tuple_v>(func);
+                                return meta::compose_result<result_t>(for_each_impl<index_v + 1, tuple_v>(func));
                             }
                             else
                             {
-                                return result;
+                                using other_result_t = decltype(for_each_impl<index_v + 1, tuple_v>(func));
+
+                                return meta::compose_result<other_result_t>(std::move(result));
                             }
                         }
                     }
@@ -141,7 +151,7 @@ namespace spore
                 }
                 else
                 {
-                    return meta_continue();
+                    return meta::continue_();
                 }
             }
 
@@ -152,7 +162,7 @@ namespace spore
                 {
                     constexpr auto value = tuple_v.template at<index_v>();
 
-                    if constexpr (detail::is_constexpr_invocable<std::decay_t<predicate_t>, value>())
+                    if constexpr (is_constexpr_invocable<std::decay_t<predicate_t>, value>())
                     {
                         if constexpr (std::decay_t<predicate_t> {}.template operator()<value>())
                         {
@@ -177,7 +187,7 @@ namespace spore
                 }
                 else
                 {
-                    return meta_invalid();
+                    return meta_invalid {};
                 }
             }
 
@@ -188,7 +198,7 @@ namespace spore
                 {
                     constexpr auto value = tuple_v.template at<index_v>();
 
-                    if constexpr (detail::is_constexpr_invocable<std::decay_t<predicate_t>, value>())
+                    if constexpr (is_constexpr_invocable<std::decay_t<predicate_t>, value>())
                     {
                         if constexpr (std::decay_t<predicate_t> {}.template operator()<value>())
                         {
@@ -212,7 +222,7 @@ namespace spore
         }
 
         template <meta_tuple tuple_v, typename func_t>
-        constexpr meta_result auto for_each(func_t&& func)
+        constexpr any_meta_result auto for_each(func_t&& func)
         {
             return detail::for_each_impl<0, tuple_v>(func);
         }
@@ -241,10 +251,7 @@ namespace spore
     };
 
     template <typename value_t>
-    constexpr bool is_meta_tuple_v = is_meta_tuple<value_t>::value;
-
-    template <typename value_t>
-    concept any_meta_tuple = is_meta_tuple_v<value_t>;
+    concept any_meta_tuple = is_meta_tuple<value_t>::value;
 
     // clang-format off
     template <typename value_t, template <typename> typename concept_t>

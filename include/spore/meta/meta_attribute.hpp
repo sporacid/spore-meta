@@ -29,8 +29,5 @@ namespace spore
     };
 
     template <typename value_t>
-    constexpr bool is_meta_attribute_v = is_meta_attribute<value_t>::value;
-
-    template <typename attribute_t>
-    concept any_meta_attribute = is_meta_attribute_v<attribute_t>;
+    concept any_meta_attribute = is_meta_attribute<value_t>::value;
 }

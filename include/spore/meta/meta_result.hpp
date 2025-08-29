@@ -1,6 +1,7 @@
 #pragma once
 
 #include <type_traits>
+#include <variant>
 
 namespace spore
 {
@@ -12,93 +13,168 @@ namespace spore
     {
     };
 
-    template <typename value_t>
-    struct meta_return
-    {
-        value_t value;
+//    namespace meta::detail
+//    {
+//        template <typename value_t, typename tuple_t>
+//        struct has_type;
+//
+//        template <typename value_t, typename... other_values_t>
+//        struct has_type<value_t, std::tuple<other_values_t...>>
+//            : std::disjunction<std::is_same<value_t, other_values_t>...>
+//        {
+//        };
+//    }
 
-        constexpr operator const value_t&() const
+    template <typename... values_t>
+    struct meta_result
+    {
+        std::variant<meta_continue, meta_break, values_t...> variant;
+
+        template <typename value_t>
+        constexpr meta_result(std::in_place_t, value_t&& value)
+            : variant(std::forward<value_t>(value))
         {
-            return value;
         }
 
+        constexpr bool is_continue() const
+        {
+            return std::holds_alternative<meta_continue>(variant);
+        }
+
+        constexpr bool is_break() const
+        {
+            return std::holds_alternative<meta_break>(variant);
+        }
+
+        template <typename value_t>
+        constexpr bool has_value() const
+        {
+            return std::holds_alternative<value_t>();
+        }
+
+        template <typename value_t>
+        constexpr const value_t& get_value() const&
+        {
+            return std::get<value_t>(variant);
+        }
+
+        template <typename value_t>
+        constexpr value_t& get_value() &
+        {
+            return std::get<value_t>(variant);
+        }
+
+        template <typename value_t>
+        constexpr value_t&& get_value() &&
+        {
+            return std::move(std::get<value_t>(variant));
+        }
+
+        template <typename value_t>
+        constexpr operator const value_t&() const&
+        {
+            return get_value<value_t>();
+        }
+
+        template <typename value_t>
         constexpr operator value_t&() &
         {
-            return value;
+            return get_value<value_t>();
         }
 
+        template <typename value_t>
         constexpr operator value_t&&() &&
         {
-            return value;
+            return std::move(*this).template get_value<value_t>();
         }
     };
 
     template <typename value_t>
-    struct is_meta_continue : std::false_type
+    struct is_meta_result : std::false_type
     {
     };
 
-    template <>
-    struct is_meta_continue<meta_continue> : std::true_type
-    {
-    };
-
-    template <typename value_t>
-    struct is_meta_break : std::false_type
-    {
-    };
-
-    template <>
-    struct is_meta_break<meta_break> : std::true_type
+    template <typename... values_t>
+    struct is_meta_result<meta_result<values_t...>> : std::true_type
     {
     };
 
     template <typename value_t>
-    struct is_meta_return : std::false_type
+    concept any_meta_result = is_meta_result<value_t>::value;
+
+    namespace meta
     {
-    };
-
-    template <typename value_t>
-    struct is_meta_return<meta_return<value_t>> : std::true_type
-    {
-    };
-
-    template <typename value_t>
-    constexpr bool is_meta_continue_v = is_meta_continue<value_t>::value;
-
-    template <typename value_t>
-    constexpr bool is_meta_break_v = is_meta_break<value_t>::value;
-
-    template <typename value_t>
-    constexpr bool is_meta_return_v = is_meta_return<value_t>::value;
-
-    template <typename value_t>
-    constexpr bool is_meta_result_v =
-        is_meta_continue_v<value_t> or
-        is_meta_break_v<value_t> or
-        is_meta_return_v<value_t>;
-
-    template <typename value_t>
-    concept meta_result = is_meta_result_v<value_t>;
-
-    template <meta_result result_t, meta_result other_result_t>
-    constexpr bool operator==(const result_t& result, const other_result_t& other_result)
-    {
-        if constexpr (is_meta_continue_v<result_t> and is_meta_continue_v<other_result_t>)
+        namespace detail
         {
-            return true;
+            template <typename value_t, typename... values_t>
+            constexpr bool contains = (std::is_same_v<value_t, values_t> or ...);
+
+            template <typename...>
+            struct unique;
+
+            template <>
+            struct unique<>
+            {
+                using type = meta_result<>;
+            };
+
+            template <typename, typename>
+            struct concat;
+
+            template <typename... values_t, typename... other_values_t>
+            struct concat<meta_result<values_t...>, meta_result<other_values_t...>>
+            {
+                using type = meta_result<values_t..., other_values_t...>;
+            };
+
+            template <typename value_t, typename... values_t>
+            struct unique<value_t, values_t...>
+            {
+                using tail_unique = typename unique<values_t...>::type;
+                using type = std::conditional_t<
+                    contains<value_t, values_t...>,
+                    tail_unique,
+                    typename concat<meta_result<value_t>, tail_unique>::type>;
+            };
+
+            template <typename, typename>
+            struct compose_result_type;
+
+            template <typename... values_t, typename... other_values_t>
+            struct compose_result_type<meta_result<values_t...>, meta_result<other_values_t...>>
+            {
+                using type = typename unique<values_t..., other_values_t...>::type;
+            };
         }
-        else if constexpr (is_meta_break_v<result_t> and is_meta_break_v<other_result_t>)
+
+        template <typename... values_t>
+        constexpr meta_result<values_t...> continue_()
         {
-            return true;
+            return meta_result<values_t...> {std::in_place, meta_continue {}};
         }
-        else if constexpr (is_meta_return_v<result_t> and is_meta_return_v<other_result_t>)
+
+        template <typename... values_t>
+        constexpr meta_result<values_t...> break_()
         {
-            return result.value == other_result.value;
+            return meta_result<values_t...> {std::in_place, meta_break {}};
         }
-        else
+
+        template <typename value_t>
+        constexpr meta_result<value_t> return_(value_t&& value)
         {
-            return false;
+            return meta_result<value_t> {std::in_place, std::forward<value_t>(value)};
+        }
+
+        template <any_meta_result other_result_t, typename... values_t>
+        constexpr auto compose_result(meta_result<values_t...> result)
+        {
+            using composed_result_t = typename detail::compose_result_type<meta_result<values_t...>, other_result_t>::type;
+
+            constexpr auto visitor = []<typename other_value_t>(other_value_t&& value) {
+                return composed_result_t {std::in_place, std::forward<other_value_t>(value)};
+            };
+
+            return std::visit(visitor, std::move(result.variant));
         }
     }
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <type_traits>
+#include <variant>
 
 namespace spore
 {
@@ -8,31 +9,30 @@ namespace spore
     {
     };
 
-    template <typename>
-    struct is_meta_invalid : std::false_type
-    {
-    };
-
-    template <>
-    struct is_meta_invalid<meta_invalid> : std::true_type
-    {
-    };
-
-    template <typename value_t>
-    constexpr bool is_meta_invalid_v = is_meta_invalid<value_t>::value;
-
     namespace meta
     {
         template <typename value_t>
         consteval bool is_valid(value_t&&)
         {
-            return not is_meta_invalid_v<std::decay_t<value_t>>;
+            return not std::is_same_v<meta_invalid, std::decay_t<value_t>>;
+        }
+
+        template <typename... values_t>
+        constexpr bool is_valid(const std::variant<values_t...>& variant)
+        {
+            return not std::holds_alternative<meta_invalid>(variant);
         }
 
         template <typename value_t>
         consteval bool is_invalid(value_t&&)
         {
-            return is_meta_invalid_v<std::decay_t<value_t>>;
+            return std::is_same_v<meta_invalid, std::decay_t<value_t>>;
+        }
+
+        template <typename... values_t>
+        constexpr bool is_invalid(const std::variant<values_t...>& variant)
+        {
+            return std::holds_alternative<meta_invalid>(variant);
         }
     }
 }
