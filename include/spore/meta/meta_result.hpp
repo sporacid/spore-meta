@@ -13,17 +13,146 @@ namespace spore
     {
     };
 
-//    namespace meta::detail
-//    {
-//        template <typename value_t, typename tuple_t>
-//        struct has_type;
-//
-//        template <typename value_t, typename... other_values_t>
-//        struct has_type<value_t, std::tuple<other_values_t...>>
-//            : std::disjunction<std::is_same<value_t, other_values_t>...>
-//        {
-//        };
-//    }
+    template <typename value_t>
+    struct meta_result;
+
+    template <typename value_t>
+    struct is_meta_result : std::false_type
+    {
+    };
+
+    template <typename value_t>
+    struct is_meta_result<meta_result<value_t>> : std::true_type
+    {
+    };
+
+    template <typename value_t>
+    concept any_meta_result = is_meta_result<value_t>::value;
+
+    template <>
+    struct meta_result<void>
+    {
+        std::variant<meta_continue, meta_break> variant;
+
+        template <typename other_value_t>
+        constexpr meta_result(other_value_t&& other_value) requires(not any_meta_result<std::decay_t<other_value_t>>)
+            : variant(std::forward<other_value_t>(other_value))
+        {
+        }
+
+        template <typename other_value_t>
+        constexpr meta_result(meta_result<other_value_t> other)
+        {
+            const auto visitor = [&](auto&& other_value) {
+                variant = std::forward<decltype(other_value)>(other_value);
+            };
+
+            std::visit(visitor, std::move(other.variant));
+        }
+
+        constexpr bool is_continue() const
+        {
+            return std::holds_alternative<meta_continue>(variant);
+        }
+
+        constexpr bool is_break() const
+        {
+            return std::holds_alternative<meta_break>(variant);
+        }
+
+        constexpr bool has_value() const
+        {
+            return false;
+        }
+    };
+
+    template <typename value_t>
+    struct meta_result
+    {
+        std::variant<meta_continue, meta_break, value_t> variant;
+
+        template <typename other_value_t>
+        constexpr meta_result(other_value_t&& other_value) requires(not any_meta_result<std::decay_t<other_value_t>>)
+            : variant(std::forward<other_value_t>(other_value))
+        {
+        }
+
+        template <typename other_value_t>
+        constexpr meta_result(meta_result<other_value_t> other)
+        {
+            const auto visitor = [&](auto&& other_value) {
+                variant = std::forward<decltype(other_value)>(other_value);
+            };
+
+            std::visit(visitor, std::move(other.variant));
+        }
+
+        constexpr bool is_continue() const
+        {
+            return std::holds_alternative<meta_continue>(variant);
+        }
+
+        constexpr bool is_break() const
+        {
+            return std::holds_alternative<meta_break>(variant);
+        }
+
+        constexpr bool has_value() const
+        {
+            return std::holds_alternative<value_t>(variant);
+        }
+
+        constexpr const value_t& get_value() const&
+        {
+            return std::get<value_t>(variant);
+        }
+
+        constexpr value_t& get_value() &
+        {
+            return std::get<value_t>(variant);
+        }
+
+        constexpr value_t&& get_value() &&
+        {
+            return std::get<value_t>(variant);
+        }
+
+        constexpr operator const value_t&() const&
+        {
+            return get_value();
+        }
+
+        constexpr operator value_t&() &
+        {
+            return get_value();
+        }
+
+        constexpr operator value_t&&() &&
+        {
+            return std::move(*this).get_value();
+        }
+    };
+
+    template <typename value_t>
+    meta_result(value_t&&)
+        -> meta_result<std::decay_t<value_t>>;
+
+#if 0
+    template <typename... values_t>
+    struct meta_result;
+
+    template <typename value_t>
+    struct is_meta_result : std::false_type
+    {
+    };
+
+    template <typename... values_t>
+    struct is_meta_result<meta_result<values_t...>> : std::true_type
+    {
+    };
+
+    template <typename value_t>
+    concept any_meta_result = is_meta_result<value_t>::value;
 
     template <typename... values_t>
     struct meta_result
@@ -31,9 +160,37 @@ namespace spore
         std::variant<meta_continue, meta_break, values_t...> variant;
 
         template <typename value_t>
-        constexpr meta_result(std::in_place_t, value_t&& value)
+        constexpr meta_result(value_t&& value) requires(not any_meta_result<std::decay<value_t>>)
             : variant(std::forward<value_t>(value))
         {
+        }
+
+        template <typename... other_values_t>
+        constexpr meta_result(meta_result<other_values_t...> other) requires(not std::is_same_v<meta_result, meta_result<other_values_t...>>)
+        {
+            const auto visitor = [&]<typename other_value_t>(other_value_t&& other_value) {
+                variant = std::forward<other_value_t>(other_value);
+            };
+
+            std::visit(visitor, std::move(other));
+        }
+
+        template <typename value_t>
+        constexpr meta_result& operator=(value_t&& value) requires(not any_meta_result<std::decay<value_t>>)
+        {
+            variant = std::forward<value_t>(value);
+            return *this;
+        }
+
+        template <typename... other_values_t>
+        constexpr meta_result& operator=(meta_result<other_values_t...> other) requires(not std::is_same_v<meta_result, meta_result<other_values_t...>>)
+        {
+            const auto visitor = [&]<typename other_value_t>(other_value_t&& other_value) {
+                variant = std::forward<other_value_t>(other_value);
+            };
+
+            std::visit(visitor, std::move(other));
+            return *this;
         }
 
         constexpr bool is_continue() const
@@ -89,19 +246,6 @@ namespace spore
         }
     };
 
-    template <typename value_t>
-    struct is_meta_result : std::false_type
-    {
-    };
-
-    template <typename... values_t>
-    struct is_meta_result<meta_result<values_t...>> : std::true_type
-    {
-    };
-
-    template <typename value_t>
-    concept any_meta_result = is_meta_result<value_t>::value;
-
     namespace meta
     {
         namespace detail
@@ -150,19 +294,19 @@ namespace spore
         template <typename... values_t>
         constexpr meta_result<values_t...> continue_()
         {
-            return meta_result<values_t...> {std::in_place, meta_continue {}};
+            return meta_result<values_t...> {meta_continue {}};
         }
 
         template <typename... values_t>
         constexpr meta_result<values_t...> break_()
         {
-            return meta_result<values_t...> {std::in_place, meta_break {}};
+            return meta_result<values_t...> {meta_break {}};
         }
 
         template <typename value_t>
         constexpr meta_result<value_t> return_(value_t&& value)
         {
-            return meta_result<value_t> {std::in_place, std::forward<value_t>(value)};
+            return meta_result<value_t> {std::forward<value_t>(value)};
         }
 
         template <any_meta_result other_result_t, typename... values_t>
@@ -177,4 +321,5 @@ namespace spore
             return std::visit(visitor, std::move(result.variant));
         }
     }
+#endif
 }

@@ -14,16 +14,16 @@ int main()
         std::cout << "  " << field_v.name << ": " << field_v.get(from_fields) << std::endl;
     });
 
-    constexpr auto r = meta::for_each_field(from_fields, [&]<meta_field field_v> {
-        using result_t = meta_result<std::string_view>;
+    constexpr auto r = meta::for_each_field(from_fields, [&]<meta_field field_v>() {
+        using result_t = meta_result<decltype(field_v)>;
 
         if (field_v.name == "message")
         {
-            return result_t {std::in_place, field_v.name.get()};
+            return result_t{field_v};
         }
         else
         {
-            return result_t {std::in_place, meta_continue {}};
+            return result_t{meta_continue {}};
         }
     });
 

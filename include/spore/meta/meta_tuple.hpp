@@ -128,17 +128,20 @@ namespace spore
                         }
                         else
                         {
+                            using actual_result_t = std::conditional_t<
+                                std::is_same_v<result_t, meta_result<void>>,
+                                decltype(for_each_impl<index_v + 1, tuple_v>(func)),
+                                result_t>;
+
                             result_t result = func.template operator()<value>();
 
                             if (result.is_continue())
                             {
-                                return meta::compose_result<result_t>(for_each_impl<index_v + 1, tuple_v>(func));
+                                return actual_result_t {for_each_impl<index_v + 1, tuple_v>(func)};
                             }
                             else
                             {
-                                using other_result_t = decltype(for_each_impl<index_v + 1, tuple_v>(func));
-
-                                return meta::compose_result<other_result_t>(std::move(result));
+                                return actual_result_t {std::move(result)};
                             }
                         }
                     }
@@ -151,7 +154,7 @@ namespace spore
                 }
                 else
                 {
-                    return meta::continue_();
+                    return meta_result<void> {meta_continue {}};
                 }
             }
 
