@@ -113,7 +113,7 @@
                                         {% endif %}
                                         ( {# #}
                                             {% for argument in function.arguments %} {# #}
-                                                std::forward<{{ argument.type.name }}>({{ argument.name }}) {% if argument.is_variadic %} ... {% endif %}
+                                                std::forward<decltype({{ argument.name }})>({{ argument.name }}) {% if argument.is_variadic %} ... {% endif %}
                                                 {% if not loop.is_last %} , {% endif %}
                                             {% endfor %}
                                         );
@@ -211,7 +211,7 @@
                                 ) {
                                     return this_t {
                                         {% for argument in constructor.arguments %} {# #}
-                                            std::forward<{{ argument.type.name }}>({{ argument.name }})
+                                            std::forward<decltype({{ argument.name }})>({{ argument.name }})
                                             {% if argument.is_variadic %} ... {% endif %} ,
                                         {% endfor %}
                                     };

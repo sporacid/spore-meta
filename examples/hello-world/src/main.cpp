@@ -33,12 +33,12 @@ int main()
     std::cout << "For each enum values: " << std::endl;
 
     meta::for_each_value<hello_world_enum>([]<meta_enum_value value_v> {
-        constexpr auto display_attr = meta::find_attribute<value_v>(
-            []<meta_attribute attribute_v> { return std::string_view(attribute_v.name) == "display"; });
+        constexpr auto predicate = []<meta_attribute attribute_v> { return attribute_v.name == "display"; };
+        constexpr auto attribute = meta::find_attribute<value_v>(predicate);
 
-        if constexpr (meta::is_valid(display_attr))
+        if constexpr (meta::is_valid(attribute))
         {
-            std::cout << "  " << value_v.value << ": " << display_attr.value << std::endl;
+            std::cout << "  " << value_v.value << ": " << attribute.value << std::endl;
         }
         else
         {

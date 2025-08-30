@@ -22,10 +22,7 @@ namespace spore
     };
 
     template <typename value_t>
-    constexpr bool is_meta_extension_v = is_meta_extension<value_t>::value;
-
-    template <typename value_t>
-    concept any_meta_extension = is_meta_extension_v<value_t>;
+    concept any_meta_extension = is_meta_extension<value_t>::value;
 
     template <typename value_t, typename void_t>
     consteval any_meta_tuple_of<is_meta_extension> auto make_extensions(const meta_adl<value_t>, const meta_adl<void_t>)
