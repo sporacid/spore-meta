@@ -35,9 +35,9 @@ namespace spore
 
         constexpr meta_tuple() = default;
 
-        explicit constexpr meta_tuple(value_t&& value, values_t&&... rest)
-            : value(std::forward<value_t>(value)),
-              rest(std::forward<values_t>(rest)...) {}
+        explicit constexpr meta_tuple(value_t value, values_t... rest)
+            : value(std::move(value)),
+              rest(std::move(rest)...) {}
 
         constexpr std::size_t size() const
         {
@@ -67,33 +67,12 @@ namespace spore
         namespace detail
         {
             template <typename>
-            struct deduce_find_variant_type;
+            struct deduce_variant_type;
 
             template <typename... args_t>
-            struct deduce_find_variant_type<meta_tuple<args_t...>>
+            struct deduce_variant_type<meta_tuple<args_t...>>
             {
                 using type = std::variant<meta_invalid, args_t...>;
-            };
-
-            template <typename, typename>
-            struct deduce_for_each_variant_type;
-
-            template <typename value_t, typename... values_t>
-            struct deduce_for_each_variant_type<value_t, std::variant<values_t...>>
-            {
-                using type = std::variant<meta_continue, meta_break, value_t, values_t...>;
-            };
-
-            template <typename value_t, typename... values_t>
-            struct deduce_for_each_variant_type<std::variant<values_t...>, value_t>
-            {
-                using type = std::variant<meta_continue, meta_break, values_t..., value_t>;
-            };
-
-            template <typename... values_t, typename... other_values_t>
-            struct deduce_for_each_variant_type<std::variant<values_t...>, std::variant<other_values_t...>>
-            {
-                using type = std::variant<meta_continue, meta_break, values_t..., other_values_t...>;
             };
 
             template <auto arg_v, typename func_t>
@@ -124,50 +103,55 @@ namespace spore
             }
 
             template <std::size_t index_v, meta_tuple tuple_v, typename func_t>
-            constexpr auto for_each_impl(func_t&& func)
+            constexpr any_meta_result auto for_each_impl(func_t&& func)
             {
                 if constexpr (index_v < tuple_v.size())
                 {
                     constexpr auto value = tuple_v.template at<index_v>();
 
-                    if constexpr (is_constexpr_invocable<std::decay_t<func_t>, value>())
-                    {
-                        constexpr auto result = std::decay_t<func_t> {}.template operator()<value>();
+                    using result_t = decltype(func.template operator()<value>());
 
-                        if constexpr (meta::is_continue(result))
+                    if constexpr (any_meta_result<result_t>)
+                    {
+                        if constexpr (is_constexpr_invocable<std::decay_t<func_t>, value>())
                         {
-                            return for_each_impl<index_v + 1, tuple_v>(func);
+                            constexpr result_t result = std::decay_t<func_t> {}.template operator()<value>();
+
+                            if constexpr (result.is_continue())
+                            {
+                                return for_each_impl<index_v + 1, tuple_v>(func);
+                            }
+                            else
+                            {
+                                return result;
+                            }
                         }
                         else
                         {
-                            return result;
+                            result_t result = func.template operator()<value>();
+
+                            if (result.is_continue())
+                            {
+                                return meta::compose_result<result_t>(for_each_impl<index_v + 1, tuple_v>(func));
+                            }
+                            else
+                            {
+                                using other_result_t = decltype(for_each_impl<index_v + 1, tuple_v>(func));
+
+                                return meta::compose_result<other_result_t>(std::move(result));
+                            }
                         }
                     }
                     else
                     {
-                        auto result = func.template operator()<value>();
+                        (void) func.template operator()<value>();
 
-                        using variant_t = typename deduce_for_each_variant_type<decltype(result), decltype(for_each_impl<index_v + 1, tuple_v>(func))>::type;
-
-                        if (meta::is_continue(result))
-                        {
-                            return variant_t {for_each_impl<index_v + 1, tuple_v>(func)};
-                        }
-                        else
-                        {
-                            return variant_t {std::move(result)};
-                        }
+                        return for_each_impl<index_v + 1, tuple_v>(func);
                     }
-                    //                    else
-                    //                    {
-                    //                        (void) func.template operator()<value>();
-                    //
-                    //                        return for_each_impl<index_v + 1, tuple_v>(func);
-                    //                    }
                 }
                 else
                 {
-                    return meta_continue {};
+                    return meta::continue_();
                 }
             }
 
@@ -191,7 +175,7 @@ namespace spore
                     }
                     else
                     {
-                        using variant_t = typename deduce_find_variant_type<decltype(tuple_v)>::type;
+                        using variant_t = typename deduce_variant_type<decltype(tuple_v)>::type;
 
                         if (predicate.template operator()<value>())
                         {
@@ -238,7 +222,7 @@ namespace spore
         }
 
         template <meta_tuple tuple_v, typename func_t>
-        constexpr auto for_each(func_t&& func)
+        constexpr any_meta_result auto for_each(func_t&& func)
         {
             return detail::for_each_impl<0, tuple_v>(func);
         }
