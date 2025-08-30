@@ -12,7 +12,7 @@ namespace spore
     namespace meta
     {
         template <typename value_t>
-        consteval bool is_valid(value_t&&)
+        constexpr bool is_valid(value_t&&)
         {
             return not std::is_same_v<meta_invalid, std::decay_t<value_t>>;
         }
@@ -24,7 +24,7 @@ namespace spore
         }
 
         template <typename value_t>
-        consteval bool is_invalid(value_t&&)
+        constexpr bool is_invalid(value_t&&)
         {
             return std::is_same_v<meta_invalid, std::decay_t<value_t>>;
         }

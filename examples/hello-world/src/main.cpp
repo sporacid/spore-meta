@@ -15,15 +15,15 @@ int main()
     });
 
     constexpr auto r = meta::for_each_field(from_fields, [&]<meta_field field_v> {
-        using result_t = meta_result<std::string_view>;
+        // using result_t = meta_result<std::string_view>;
 
         if (field_v.name == "message")
         {
-            return result_t {std::in_place, field_v.name.get()};
+            return field_v.name;
         }
         else
         {
-            return result_t {std::in_place, meta_continue {}};
+            return meta_continue {};
         }
     });
 

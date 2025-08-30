@@ -316,7 +316,7 @@ constexpr auto func = []<meta_field field_v> {
    }
 };
 
-constexpr any_meta_result auto result = meta::for_each_field<my_struct>(func);
+constexpr auto result = meta::for_each_field<my_struct>(func);
 
 if constexpr (result.has_value<int>())
 {
