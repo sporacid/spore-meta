@@ -293,44 +293,23 @@ All querying interface functions are available through the `spore/meta/meta.hpp`
 
 `meta::for_each_*` family of function allows to iterate through a reflection structure's tuple, such as fields or
 functions. The interface takes a single functor that should accept a single non-type template parameter of the given
-struct type. Optionally, the functor can return `spore::meta_result` to control the flow of iteration. The end result of
-the control flow will be returned to the caller.
+struct type. Optionally, the functor can return `spore::meta_result` to control the flow of iteration.
 
 ```cpp
 constexpr auto func = []<meta_field field_v> {
-   if constexpr (return_condition)
+   if constexpr (condition)
    {
-      // stops iteration with int result
-      constexpr int value = 0;
-      return meta::return_(value);
-   }
-   else if constexpr (break_condition)
-   {
-      // stops iteration
-      return meta::break_();
+      // stop iteration
+      return meta::break_;
    }
    else
    {
       // continue iteration
-      return meta::continue_();
+      return meta::continue_;
    }
 };
 
-constexpr any_meta_result auto result = meta::for_each_field<my_struct>(func);
-
-if constexpr (result.has_value<int>())
-{
-   // iteration yielded result
-   constexpr int value = result;
-}
-else if constexpr (result.is_break())
-{
-   // iteration has stopped
-}
-else if constexpr (result.is_continue())
-{
-   // iteration has continued
-}
+meta::for_each_field<my_struct>(func);
 ```
 
 # Find
@@ -338,22 +317,23 @@ else if constexpr (result.is_continue())
 `meta::find_*` family of function allows to find a reflection structure within a tuple that matches a predicate. The
 interface takes a single functor that should accept a single non-type template parameter of the given
 struct type. The functor should return a boolean result to signify whether the structure matched or not. The first
-matching structure will be returned. If no structure match the predicate, `meta_invalid` will be returned instead.
+matching structure will be returned. If no structure match the predicate, `spore::meta_invalid` will be returned
+instead.
 
 ```cpp
 constexpr auto predicate = []<meta_field field_v> {
-   return field_v.name == "i";
+    return field_v.name == "i";
 };
 
 constexpr auto field = meta::find_field<my_struct>(predicate);
 
 if constexpr (meta::is_valid(field))
 {
-   // field has been found
+    // field has been found
 }
 else
 {
-   // field has not been found
+    // field has not been found
 }
 ```
 
@@ -368,7 +348,7 @@ const auto predicate = [&]<meta_field field_v> {
 
 const std::variant field = meta::find_field<my_struct>(predicate);
 
-if (not std::holds_alternative<meta_invalid>(field))
+if (meta::is_valid(field))
 {
    // field has been found
 }

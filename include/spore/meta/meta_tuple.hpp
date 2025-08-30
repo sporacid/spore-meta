@@ -103,7 +103,7 @@ namespace spore
             }
 
             template <std::size_t index_v, meta_tuple tuple_v, typename func_t>
-            constexpr any_meta_result auto for_each_impl(func_t&& func)
+            constexpr void for_each_impl(func_t&& func)
             {
                 if constexpr (index_v < tuple_v.size())
                 {
@@ -111,37 +111,24 @@ namespace spore
 
                     using result_t = decltype(func.template operator()<value>());
 
-                    if constexpr (any_meta_result<result_t>)
+                    if constexpr (std::is_same_v<result_t, meta_result>)
                     {
                         if constexpr (is_constexpr_invocable<std::decay_t<func_t>, value>())
                         {
-                            constexpr result_t result = std::decay_t<func_t> {}.template operator()<value>();
+                            constexpr meta_result result = std::decay_t<func_t> {}.template operator()<value>();
 
-                            if constexpr (result.is_continue())
+                            if constexpr (result == meta_result::continue_)
                             {
-                                return for_each_impl<index_v + 1, tuple_v>(func);
-                            }
-                            else
-                            {
-                                return result;
+                                for_each_impl<index_v + 1, tuple_v>(func);
                             }
                         }
                         else
                         {
-                            using actual_result_t = std::conditional_t<
-                                std::is_same_v<result_t, meta_result<void>>,
-                                decltype(for_each_impl<index_v + 1, tuple_v>(func)),
-                                result_t>;
+                            const meta_result result = func.template operator()<value>();
 
-                            result_t result = func.template operator()<value>();
-
-                            if (result.is_continue())
+                            if (result == meta_result::continue_)
                             {
-                                return actual_result_t {for_each_impl<index_v + 1, tuple_v>(func)};
-                            }
-                            else
-                            {
-                                return actual_result_t {std::move(result)};
+                                for_each_impl<index_v + 1, tuple_v>(func);
                             }
                         }
                     }
@@ -149,12 +136,8 @@ namespace spore
                     {
                         (void) func.template operator()<value>();
 
-                        return for_each_impl<index_v + 1, tuple_v>(func);
+                        for_each_impl<index_v + 1, tuple_v>(func);
                     }
-                }
-                else
-                {
-                    return meta_result<void> {meta_continue {}};
                 }
             }
 
@@ -225,7 +208,7 @@ namespace spore
         }
 
         template <meta_tuple tuple_v, typename func_t>
-        constexpr any_meta_result auto for_each(func_t&& func)
+        constexpr void for_each(func_t&& func)
         {
             return detail::for_each_impl<0, tuple_v>(func);
         }

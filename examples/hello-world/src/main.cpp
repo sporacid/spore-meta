@@ -14,19 +14,6 @@ int main()
         std::cout << "  " << field_v.name << ": " << field_v.get(from_fields) << std::endl;
     });
 
-    constexpr auto r = meta::for_each_field(from_fields, [&]<meta_field field_v>() {
-        using result_t = meta_result<decltype(field_v)>;
-
-        if (field_v.name == "message")
-        {
-            return result_t{field_v};
-        }
-        else
-        {
-            return result_t{meta_continue {}};
-        }
-    });
-
     std::cout << std::endl;
     std::cout << "For each functions: " << std::endl;
 
@@ -46,12 +33,12 @@ int main()
     std::cout << "For each enum values: " << std::endl;
 
     meta::for_each_value<hello_world_enum>([]<meta_enum_value value_v> {
-        constexpr auto display_attr = meta::find_attribute<value_v>(
-            []<meta_attribute attribute_v> { return std::string_view(attribute_v.name) == "display"; });
+        constexpr auto predicate = []<meta_attribute attribute_v> { return attribute_v.name == "display"; };
+        constexpr auto attribute = meta::find_attribute<value_v>(predicate);
 
-        if constexpr (meta::is_valid(display_attr))
+        if constexpr (meta::is_valid(attribute))
         {
-            std::cout << "  " << value_v.value << ": " << display_attr.value << std::endl;
+            std::cout << "  " << value_v.value << ": " << attribute.value << std::endl;
         }
         else
         {
