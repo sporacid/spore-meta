@@ -262,8 +262,20 @@
                 .extensions = make_extensions(meta_adl<this_t> {}),
             };
 
+            {% if class.is_template or length(class.template_specialization_params) > 0 %}
+#ifdef SPORE_WITH_TYPE_REGISTRATION
+            std::ignore = spore::meta::is_type_registered<this_t>;
+#endif
+            {% endif %}
+
             return type;
         }
+
+        {% if not class.is_template and length(class.template_specialization_params) == 0 %}
+#ifdef SPORE_WITH_TYPE_REGISTRATION
+            template const bool spore::meta::is_type_registered<{{ class.full_name }}>;
+#endif
+        {% endif %}
 
     {% endif %}
 {% endfor %}
@@ -303,6 +315,10 @@
 
             return enum_;
         }
+
+#ifdef SPORE_WITH_TYPE_REGISTRATION
+        template const bool spore::meta::is_type_registered<{{ enum.full_name }}>;
+#endif
 
     {% endif %}
 {% endfor %}

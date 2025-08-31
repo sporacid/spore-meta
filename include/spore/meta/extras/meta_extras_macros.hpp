@@ -41,35 +41,47 @@
 #define SPORE_META_TEMPLATE_PARAM_NAME(Index, Value) _t##Index SPORE_META_IF(Index, SPORE_META_COMMA, SPORE_META_EMPTY)()
 #define SPORE_META_TEMPLATE_PARAM_STRING(Index, Value) +spore::meta::strings::to_string<_t##Index>() SPORE_META_IF(Index, +", ", )
 
-#define SPORE_META_DEFINE_TYPE(Name)                                 \
-    constexpr any_meta_type auto get_meta_type(const meta_adl<Name>) \
-    {                                                                \
-        constexpr spore::meta_type type {                            \
-            .name = meta_string {#Name},                             \
-            .bases = meta_tuple {},                                  \
-            .fields = meta_tuple {},                                 \
-            .functions = meta_tuple {},                              \
-            .constructors = meta_tuple {},                           \
-            .attributes = meta_tuple {},                             \
-            .extensions = meta_tuple {},                             \
-        };                                                           \
-                                                                     \
-        return type;                                                 \
-    }
+#ifdef SPORE_WITH_TYPE_REGISTRATION
+#    define SPORE_META_REGISTER_TYPE(Name) template const bool spore::meta::is_type_registered<Name>;
+#    define SPORE_META_REGISTER_TEMPLATE_TYPE(Name, ...) std::ignore = spore::meta::is_type_registered<Name<SPORE_META_FOR(SPORE_META_TEMPLATE_PARAM_NAME, __VA_ARGS__)>>;
+#else
+#    define SPORE_META_REGISTER_TYPE(Name)
+#    define SPORE_META_REGISTER_TEMPLATE_TYPE(Name, ...)
+#endif
 
-#define SPORE_META_DEFINE_TEMPLATE_TYPE(Name, ...)                                                                          \
-    template <SPORE_META_FOR(SPORE_META_TEMPLATE_PARAM, __VA_ARGS__)>                                                       \
-    constexpr any_meta_type auto get_meta_type(meta_adl<Name<SPORE_META_FOR(SPORE_META_TEMPLATE_PARAM_NAME, __VA_ARGS__)>>) \
-    {                                                                                                                       \
-        constexpr meta_type type {                                                                                          \
-            .name = meta_string {#Name} + "<" SPORE_META_FOR(SPORE_META_TEMPLATE_PARAM_STRING, __VA_ARGS__) + ">",          \
-            .bases = meta_tuple {},                                                                                         \
-            .fields = meta_tuple {},                                                                                        \
-            .functions = meta_tuple {},                                                                                     \
-            .constructors = meta_tuple {},                                                                                  \
-            .attributes = meta_tuple {},                                                                                    \
-            .extensions = meta_tuple {},                                                                                    \
-        };                                                                                                                  \
-                                                                                                                            \
-        return type;                                                                                                        \
+#define SPORE_META_DEFINE_TYPE(Name)                                               \
+    constexpr spore::any_meta_type auto get_meta_type(const spore::meta_adl<Name>) \
+    {                                                                              \
+        using namespace spore;                                                     \
+        constexpr spore::meta_type type {                                          \
+            .name = meta_string {#Name},                                           \
+            .bases = meta_tuple {},                                                \
+            .fields = meta_tuple {},                                               \
+            .functions = meta_tuple {},                                            \
+            .constructors = meta_tuple {},                                         \
+            .attributes = meta_tuple {},                                           \
+            .extensions = make_extensions(meta_adl<Name> {}),                      \
+        };                                                                         \
+        return type;                                                               \
+    }                                                                              \
+                                                                                   \
+    SPORE_META_REGISTER_TYPE(Name)
+
+#define SPORE_META_DEFINE_TEMPLATE_TYPE(Name, ...)                                                                                        \
+    template <SPORE_META_FOR(SPORE_META_TEMPLATE_PARAM, __VA_ARGS__)>                                                                     \
+    constexpr spore::any_meta_type auto get_meta_type(spore::meta_adl<Name<SPORE_META_FOR(SPORE_META_TEMPLATE_PARAM_NAME, __VA_ARGS__)>>) \
+    {                                                                                                                                     \
+        using namespace spore;                                                                                                            \
+        constexpr meta_type type {                                                                                                        \
+            .name = meta_string {#Name} + "<" SPORE_META_FOR(SPORE_META_TEMPLATE_PARAM_STRING, __VA_ARGS__) + ">",                        \
+            .bases = meta_tuple {},                                                                                                       \
+            .fields = meta_tuple {},                                                                                                      \
+            .functions = meta_tuple {},                                                                                                   \
+            .constructors = meta_tuple {},                                                                                                \
+            .attributes = meta_tuple {},                                                                                                  \
+            .extensions = make_extensions(meta_adl<Name<SPORE_META_FOR(SPORE_META_TEMPLATE_PARAM_NAME, __VA_ARGS__)>> {}),                \
+        };                                                                                                                                \
+                                                                                                                                          \
+        SPORE_META_REGISTER_TEMPLATE_TYPE(Name, __VA_ARGS__)                                                                              \
+        return type;                                                                                                                      \
     }

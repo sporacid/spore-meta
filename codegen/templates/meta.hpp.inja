@@ -1,6 +1,6 @@
 #pragma once
 
-#include "spore/meta/meta.hpp"
+#include "spore/meta.hpp"
 
 {% for class in classes %}
     {% if truthy($.user_data, "implicit_types") %}

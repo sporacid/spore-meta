@@ -24,6 +24,13 @@ if (SPORE_WITH_STD_TYPES)
   )
 endif ()
 
+if (SPORE_WITH_TYPE_REGISTRATION)
+  target_compile_definitions(
+    ${TARGET_NAME} INTERFACE
+    SPORE_WITH_TYPE_REGISTRATION
+  )
+endif ()
+
 include(GNUInstallDirs)
 
 install(
