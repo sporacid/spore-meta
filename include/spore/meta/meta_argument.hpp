@@ -35,8 +35,5 @@ namespace spore
     };
 
     template <typename value_t>
-    constexpr bool is_meta_argument_v = is_meta_argument<value_t>::value;
-
-    template <typename value_t>
-    concept any_meta_argument = is_meta_argument_v<value_t>;
+    concept any_meta_argument = is_meta_argument<value_t>::value;
 }

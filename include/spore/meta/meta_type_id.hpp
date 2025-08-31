@@ -5,6 +5,7 @@
 #include "spore/meta/meta_utils.hpp"
 
 #include <cstdint>
+#include <functional>
 
 namespace spore
 {
@@ -54,3 +55,12 @@ namespace spore
         }
     };
 }
+
+template <>
+struct std::hash<spore::meta_type_id>
+{
+    constexpr std::size_t operator()(const spore::meta_type_id& value)
+    {
+        return value.set ? value.hash : 0;
+    }
+};

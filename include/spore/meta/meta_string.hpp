@@ -137,13 +137,10 @@ namespace spore
     };
 
     template <typename value_t>
-    constexpr bool is_meta_string_v = is_meta_string<value_t>::value;
+    concept any_meta_string = is_meta_string<value_t>::value;
 
     template <typename value_t>
-    concept any_meta_string = is_meta_string_v<value_t>;
-
-    template <typename value_t>
-    concept meta_string_convertible = is_meta_string_v<std::decay_t<value_t>>;
+    concept meta_string_convertible = any_meta_string<std::decay_t<value_t>>;
 
     template <std::size_t capacity_v, std::size_t other_capacity_v>
     constexpr any_meta_string auto operator+(const meta_string<capacity_v>& string, const meta_string<other_capacity_v>& other_string)

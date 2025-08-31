@@ -94,8 +94,5 @@ namespace spore
     };
 
     template <typename value_t>
-    constexpr bool is_meta_constructor_v = is_meta_constructor<value_t>::value;
-
-    template <typename value_t>
-    concept any_meta_constructor = is_meta_constructor_v<value_t>;
+    concept any_meta_constructor = is_meta_constructor<value_t>::value;
 }

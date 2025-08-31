@@ -47,10 +47,7 @@ namespace spore
     };
 
     template <typename value_t>
-    constexpr bool is_meta_parameter_v = is_meta_parameter<value_t>::value;
-
-    template <typename value_t>
-    concept any_meta_parameter = is_meta_parameter_v<value_t>;
+    concept any_meta_parameter = is_meta_parameter<value_t>::value;
 
     template <std::size_t index_v>
     struct meta_parameter_ref
