@@ -6,6 +6,10 @@
 
 #include "spore/meta/extras/meta_extras_macros.hpp"
 
+#ifdef SPORE_WITH_TYPE_REGISTRATION
+#    include "spore/meta/extras/meta_extra_type_registration.hpp"
+#endif
+
 // TODO @sporacid Is there a better way than including all of std?
 
 #include <array>
@@ -39,8 +43,8 @@ namespace spore
     SPORE_META_DEFINE_TYPE(char16_t)
     SPORE_META_DEFINE_TYPE(char32_t)
     SPORE_META_DEFINE_TYPE(wchar_t)
-
     SPORE_META_DEFINE_TYPE(bool)
+
     SPORE_META_DEFINE_TYPE(std::double_t)
     SPORE_META_DEFINE_TYPE(std::float_t)
     SPORE_META_DEFINE_TYPE(std::int8_t)
