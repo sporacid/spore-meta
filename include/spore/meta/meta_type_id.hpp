@@ -15,18 +15,22 @@ namespace spore
 
         constexpr meta_type_id() = default;
 
+        constexpr meta_type_id(const std::string_view type_name)
+        {
+            hash = meta::utils::hash_string(type_name);
+            set = true;
+        }
+
         template <any_meta_type value_t>
         constexpr meta_type_id(const value_t& value)
+            : meta_type_id(value.name)
         {
-            hash = meta::utils::hash_string(value.name);
-            set = true;
         }
 
         template <any_meta_enum value_t>
         constexpr meta_type_id(const value_t& value)
+            : meta_type_id(value.name)
         {
-            hash = meta::utils::hash_string(value.name);
-            set = true;
         }
 
         constexpr bool valid() const

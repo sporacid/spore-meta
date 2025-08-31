@@ -1,7 +1,6 @@
 #pragma once
 
 #include "spore/meta/meta_enabled.hpp"
-#include "spore/meta/meta_string_convert.hpp"
 
 namespace spore::meta::strings
 {
