@@ -9,20 +9,27 @@ metadata via `libclang` and with CMake to run the code generation automatically 
 
 - [Quick Start](#quick-start)
 - [Integrations](#integrations)
-    - [CMake and Spore Codegen](#cmake-and-spore-codegen)
-        - [Explicit Code Generation](#explicit-code-generation)
-        - [Implicit Code Generation](#implicit-code-generation)
-        - [Custom Code Generation](#custom-code-generation)
-    - [Vcpkg](#vcpkg)
+    * [CMake and Spore Codegen](#cmake-and-spore-codegen)
+        + [Explicit Code Generation](#explicit-code-generation)
+        + [Implicit Code Generation](#implicit-code-generation)
+        + [Custom Code Generation](#custom-code-generation)
+    * [Vcpkg](#vcpkg)
 - [Query Interface](#query-interface)
-    - [For Each](#for-each)
-    - [Find](#find)
-    - [Attributes](#attributes)
+    * [For Each](#for-each)
+    * [Find](#find)
+    * [Attributes](#attributes)
+    * [Extensions](#extensions)
+- [Extras](#extras)
+    * [Std Types](#std-types)
+    * [Type registration](#type-registration)
 - [Examples](#examples)
-    - [Hello World](#hello-world)
-    - [Implicit Code Generation](#implicit-code-generation)
-    - [Json Serialization](#json-serialization)
-    - [External Project Integration](#external-project-integration)
+    * [Hello World](#hello-world)
+    * [Implicit Generation](#implicit-generation)
+    * [JSON Serialization](#json-serialization)
+    * [Type Registration](#type-registration-1)
+    * [Templates](#templates)
+    * [Extensions](#extensions-1)
+    * [External Project Integration](#external-project-integration)
 
 # Quick Start
 
@@ -133,7 +140,7 @@ And that's it! You should now be able to query your types at compile time.
 
 ```cpp
 constexpr meta_type my_struct_type = meta::get_type<my_struct>();
-constexpr meta_type my_enum_type = meta::get_type<my_enum>();
+constexpr meta_enum my_enum_type = meta::get_enum<my_enum>();
 ```
 
 # Integrations
@@ -333,7 +340,7 @@ else if constexpr (is_meta_continue_v<decltype(result)>)
 }
 ```
 
-# Find
+## Find
 
 `meta::find_*` family of function allows to find a reflection structure within a tuple that matches a predicate. The
 interface takes a single functor that should accept a single non-type template parameter of the given
@@ -460,8 +467,9 @@ The header defines primitive integral and floating point types as the `std` type
 ## Type registration
 
 If the CMake option `SPORE_WITH_TYPE_REGISTRATION` is set, an extra header with runtime type registration will be
-included and code generation will generate code to trigger your type registration at initialization time. This is useful
-if you need to resolve part of your reflection data at runtime. You can override the function `register_type` to
+included and code generation will generate code to trigger your type registration. This is useful
+if you need to resolve part of your reflection data at runtime. You must call the function `meta::register_types` to
+actually invoke the type registration. You can override the function `register_type` to
 override the default registration mechanism, e.g.
 
 ```cpp
@@ -478,6 +486,11 @@ template <typename value_t>
 void register_type(const meta_adl<value_t>, const meta_adl<void>)
 {
     registry::add_type<value_t>();
+}
+
+int main()
+{
+    meta::register_types();
 }
 ```
 
