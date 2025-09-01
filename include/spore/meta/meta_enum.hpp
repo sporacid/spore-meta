@@ -2,7 +2,6 @@
 
 #include "spore/meta/meta_attribute.hpp"
 #include "spore/meta/meta_enum_value.hpp"
-#include "spore/meta/meta_extension.hpp"
 #include "spore/meta/meta_string.hpp"
 #include "spore/meta/meta_tuple.hpp"
 #include "spore/meta/meta_type_ref.hpp"
@@ -16,48 +15,41 @@ namespace spore
         std::size_t name_v,
         typename value_t,
         any_meta_tuple_of<is_meta_enum_value> values_t,
-        any_meta_tuple_of<is_meta_attribute> attributes_t,
-        any_meta_tuple_of<is_meta_extension> extensions_t>
+        any_meta_tuple_of<is_meta_attribute> attributes_t>
     struct meta_enum;
 
     template <
         std::size_t name_v,
         typename value_t,
         any_meta_enum_value... values_t,
-        any_meta_attribute... attributes_t,
-        any_meta_extension... extensions_t>
+        any_meta_attribute... attributes_t>
     struct meta_enum<
         name_v,
         value_t,
         meta_tuple<values_t...>,
-        meta_tuple<attributes_t...>,
-        meta_tuple<extensions_t...>>
+        meta_tuple<attributes_t...>>
     {
         meta_string<name_v> name;
         meta_type_ref<value_t> type;
         meta_tuple<values_t...> values;
         meta_tuple<attributes_t...> attributes;
-        meta_tuple<extensions_t...> extensions;
     };
 
     template <
         std::size_t name_v,
         typename value_t,
         any_meta_enum_value... values_t,
-        any_meta_attribute... attributes_t,
-        any_meta_extension... extensions_t>
+        any_meta_attribute... attributes_t>
     meta_enum(
         meta_string<name_v>,
         meta_type_ref<value_t>,
         meta_tuple<values_t...>,
-        meta_tuple<attributes_t...>,
-        meta_tuple<extensions_t...>)
+        meta_tuple<attributes_t...>)
         -> meta_enum<
             name_v,
             value_t,
             meta_tuple<values_t...>,
-            meta_tuple<attributes_t...>,
-            meta_tuple<extensions_t...>>;
+            meta_tuple<attributes_t...>>;
 
     template <typename>
     struct is_meta_enum : std::false_type
@@ -68,15 +60,13 @@ namespace spore
         std::size_t name_v,
         typename value_t,
         any_meta_enum_value... values_t,
-        any_meta_attribute... attributes_t,
-        any_meta_extension... extensions_t>
+        any_meta_attribute... attributes_t>
     struct is_meta_enum<
         meta_enum<
             name_v,
             value_t,
             meta_tuple<values_t...>,
-            meta_tuple<attributes_t...>,
-            meta_tuple<extensions_t...>>> : std::true_type
+            meta_tuple<attributes_t...>>> : std::true_type
     {
     };
 

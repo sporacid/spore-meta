@@ -60,7 +60,6 @@
             .functions = meta_tuple {},                                            \
             .constructors = meta_tuple {},                                         \
             .attributes = meta_tuple {},                                           \
-            .extensions = make_extensions(meta_adl<Name> {}),                      \
         };                                                                         \
         return type;                                                               \
     }                                                                              \
@@ -79,7 +78,6 @@
             .functions = meta_tuple {},                                                                                                   \
             .constructors = meta_tuple {},                                                                                                \
             .attributes = meta_tuple {},                                                                                                  \
-            .extensions = make_extensions(meta_adl<Name<SPORE_META_FOR(SPORE_META_TEMPLATE_PARAM_NAME, __VA_ARGS__)>> {}),                \
         };                                                                                                                                \
                                                                                                                                           \
         SPORE_META_REGISTER_TEMPLATE_TYPE(Name, __VA_ARGS__)                                                                              \

@@ -3,6 +3,7 @@
 #include "spore/meta/meta_adl.hpp"
 #include "spore/meta/meta_enabled.hpp"
 #include "spore/meta/meta_enum.hpp"
+#include "spore/meta/meta_extension.hpp"
 #include "spore/meta/meta_type.hpp"
 #include "spore/meta/meta_type_id.hpp"
 
@@ -128,18 +129,11 @@ namespace spore
             return tuples::for_each<enum_.attributes>(std::forward<func_t>(func));
         }
 
-        template <meta_type_enabled value_t, typename func_t>
+        template <meta_enabled value_t, typename func_t>
         constexpr meta_result auto for_each_extension(func_t&& func)
         {
-            constexpr meta_type type = get_type<value_t>();
-            return tuples::for_each<type.extensions>(std::forward<func_t>(func));
-        }
-
-        template <meta_enum_enabled value_t, typename func_t>
-        constexpr meta_result auto for_each_extension(func_t&& func)
-        {
-            constexpr meta_enum enum_ = get_enum<value_t>();
-            return tuples::for_each<enum_.extensions>(std::forward<func_t>(func));
+            constexpr any_meta_tuple_of<is_meta_extension> auto extensions = get_extensions<value_t>();
+            return tuples::for_each<extensions>(std::forward<func_t>(func));
         }
 
         template <meta_type_enabled value_t, typename func_t>
@@ -245,18 +239,11 @@ namespace spore
             return tuples::find<enum_.attributes>(std::forward<predicate_t>(predicate));
         }
 
-        template <meta_type_enabled value_t, typename predicate_t>
+        template <meta_enabled value_t, typename predicate_t>
         constexpr auto find_extension(predicate_t&& predicate)
         {
-            constexpr meta_type type = get_type<value_t>();
-            return tuples::find<type.extensions>(std::forward<predicate_t>(predicate));
-        }
-
-        template <meta_enum_enabled value_t, typename predicate_t>
-        constexpr auto find_extension(predicate_t&& predicate)
-        {
-            constexpr meta_enum enum_ = get_enum<value_t>();
-            return tuples::find<enum_.extensions>(std::forward<predicate_t>(predicate));
+            constexpr any_meta_tuple_of<is_meta_extension> auto extensions = get_extensions<value_t>();
+            return tuples::find<extensions>(std::forward<predicate_t>(predicate));
         }
 
         template <meta_type_enabled value_t, typename predicate_t>

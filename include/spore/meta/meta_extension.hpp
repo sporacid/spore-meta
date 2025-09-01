@@ -7,8 +7,10 @@
 
 namespace spore
 {
-    struct meta_extension
+    template <typename value_t>
+    concept any_meta_extension = requires
     {
+        { []<auto> {}.template operator()<value_t {}>() };
     };
 
     template <typename value_t>
@@ -16,7 +18,7 @@ namespace spore
     {
     };
 
-    template <std::derived_from<meta_extension> value_t>
+    template <any_meta_extension value_t>
     struct is_meta_extension<value_t> : std::true_type
     {
     };
@@ -24,18 +26,18 @@ namespace spore
     template <typename value_t>
     constexpr bool is_meta_extension_v = is_meta_extension<value_t>::value;
 
-    template <typename value_t>
-    concept any_meta_extension = is_meta_extension_v<value_t>;
-
-    template <typename value_t, typename void_t>
-    consteval any_meta_tuple_of<is_meta_extension> auto make_extensions(const meta_adl<value_t>, const meta_adl<void_t>)
+    namespace meta
     {
-        return meta_tuple<> {};
-    }
+        template <meta_enabled value_t>
+        consteval any_meta_tuple_of<is_meta_extension> auto get_extensions(const meta_adl<value_t>)
+        {
+            return meta_tuple<> {};
+        }
 
-    template <typename value_t>
-    consteval any_meta_tuple_of<is_meta_extension> auto make_extensions(const meta_adl<value_t>)
-    {
-        return make_extensions(meta_adl<value_t> {}, meta_adl<void> {});
+        template <meta_enabled value_t>
+        consteval any_meta_tuple_of<is_meta_extension> auto get_extensions()
+        {
+            return get_extensions(meta_adl<value_t> {});
+        }
     }
 }

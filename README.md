@@ -388,27 +388,28 @@ reflection structure.
 
 ## Extensions
 
-User-defined extensions can be created for each type. The extensions must derive from `meta_extension` and they must be
-literal types. You can override the function `make_extensions` to override the default extension factory.
+User-defined extensions can be created for each type. The extensions must be literal types. You can override the
+function `get_extensions` to override the default extension accessor. You can query extensions with
+`meta::for_each_extension` and `meta::find_extension` interface.
 
 ```cpp
-template <typename value_t>
-struct extension : meta_extension
+template <meta_enabled value_t>
+struct extension
 {
-    using action_t = void(*)(value_t&);
+    using action_t = void (*)(value_t&);
     action_t action = nullptr;
 };
 
-template <typename value_t>
+template <meta_enabled value_t>
 consteval extension make_extension()
 {
     return extension<value_t> {
-        .action = [](value_t& value) { action(value); };  
+        .action = [](value_t& value) { action(value); },
     };
 }
 
-template <typename value_t>
-consteval any_meta_tuple_of<is_meta_extension> auto make_extensions(const meta_adl<value_t>, const meta_adl<void>)
+template <meta_enabled value_t>
+consteval any_meta_tuple_of<is_meta_extension> auto get_extensions(const meta_adl<value_t>)
 {
     return meta_tuple {
         make_extension<value_t>(),
@@ -420,10 +421,10 @@ You can use concepts to create extensions on types that are more constrained.
 
 ```cpp
 template <typename value_t>
-concept any_widget = /* ... */;
+concept any_widget = meta_enabled<value_t> and /* ... */;
 
 template <any_widget value_t>
-consteval any_meta_tuple_of<is_meta_extension> auto make_extensions(const meta_adl<value_t>, const meta_adl<void>)
+consteval any_meta_tuple_of<is_meta_extension> auto get_extensions(const meta_adl<value_t>)
 {
     return meta_tuple {
         make_extension<value_t>(),
@@ -434,6 +435,71 @@ consteval any_meta_tuple_of<is_meta_extension> auto make_extensions(const meta_a
 
 You can provide any number of overrides, but each override must be more constrained that previous ones to prevent
 ambiguity.
+
+# Extras
+
+## Std Types
+
+If the CMake option `SPORE_WITH_STD_TYPES` is set, an extra header with basic reflection for `std` types will be
+included. In it particularly useful because of the way reflected names are resolved, if you want to reflect on types
+that use the standard library in its parameters, e.g.
+
+```cpp
+template <typename value_t>
+struct SPORE_META_TYPE() type
+{
+};
+
+// Contains "type<std::vector<std::int32_t, std::allocator<std::int32_t>>>"
+constexpr meta_string type_name = meta::get_name<type<std::vector<std::int32_t>>(); 
+```
+
+The header defines primitive integral and floating point types as the `std` typedefs, e.g. `std::int32_t` and
+`std::float_t`.
+
+## Type registration
+
+If the CMake option `SPORE_WITH_TYPE_REGISTRATION` is set, an extra header with runtime type registration will be
+included and code generation will generate code to trigger your type registration at initialization time. This is useful
+if you need to resolve part of your reflection data at runtime. You can override the function `register_type` to
+override the default registration mechanism, e.g.
+
+```cpp
+struct registry
+{
+    template <typename value_t>
+    static void add_type()
+    {
+        // ...
+    }
+};
+
+template <typename value_t>
+void register_type(const meta_adl<value_t>, const meta_adl<void>)
+{
+    registry::add_type<value_t>();
+}
+```
+
+Since template type need to explicit instantiation for the registration to be triggered, their registration will happen
+lazily the first time `get_meta_type` is invoked for the template instantiation. If you need eager initialization of
+template type, you can use reflection data to recursively find all dependant types.
+
+```cpp
+template <typename value_t>
+void register_type(const meta_adl<value_t>, const meta_adl<void>)
+{
+    registry::add_type<value_t>();
+        
+    meta::for_each_field([]<meta_field field_v> {
+        using field_t = std::decay_t<decltype(field_v)::value_type>;
+        if constexpr (meta_enabled<field_t>)
+        {
+            registry::add_type<field_t>();
+        }
+    });
+}
+```
 
 # Examples
 
@@ -451,6 +517,10 @@ attributes and macros.
 
 [JSON serialization example](examples/json) shows how to generate JSON serialization automatically
 with [nlohmann-json](https://github.com/nlohmann/json) and attributes.
+
+## Type Registration
+
+[Type registration example](examples/registration) shows how to register type information at runtime.
 
 ## Templates
 
