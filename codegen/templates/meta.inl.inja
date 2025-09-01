@@ -259,7 +259,6 @@
                 .attributes = meta_tuple {
                     {{ include("templates/meta_attribute.inja", class.attributes) }} {# #}
                 },
-                .extensions = make_extensions(meta_adl<this_t> {}),
             };
 
             {% if class.is_template or length(class.template_specialization_params) > 0 %}
@@ -310,7 +309,6 @@
                 .attributes = meta_tuple {
                     {{ include("templates/meta_attribute.inja", enum.attributes) }}
                 },
-                .extensions = make_extensions(meta_adl<this_t> {}),
             };
 
             return enum_;

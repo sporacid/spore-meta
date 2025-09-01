@@ -28,14 +28,14 @@ namespace spore::examples::extensions
     }
 
     template <typename value_t>
-    struct value_extension : meta_extension
+    struct value_extension
     {
         using hash_value_t = std::size_t (*)(const value_t&);
         hash_value_t hash_value = nullptr;
     };
 
     template <typename value_t>
-    struct widget_extension : meta_extension
+    struct widget_extension
     {
         using draw_widget_t = void (*)(value_t&);
         draw_widget_t draw_widget = nullptr;
@@ -59,20 +59,20 @@ namespace spore::examples::extensions
 
     // clang-format off
     template <typename value_t>
-    concept any_value = requires(const value_t& value)
+    concept any_value = meta_enabled<value_t> and requires(const value_t& value)
     {
         { hash_value(value) } -> std::convertible_to<std::size_t>;
     };
 
     template <typename value_t>
-    concept any_widget = requires(value_t& value)
+    concept any_widget = meta_enabled<value_t> and requires(value_t& value)
     {
         { draw_widget(value) } -> std::same_as<void>;
     };
     // clang-format on
 
     template <any_value value_t>
-    consteval any_meta_tuple_of<is_meta_extension> auto make_extensions(const meta_adl<value_t>, const meta_adl<void>)
+    consteval any_meta_tuple_of<is_meta_extension> auto get_extensions(const meta_adl<value_t>)
     {
         return meta_tuple {
             make_value_extension<value_t>(),
@@ -80,7 +80,7 @@ namespace spore::examples::extensions
     }
 
     template <any_widget value_t>
-    consteval any_meta_tuple_of<is_meta_extension> auto make_extensions(const meta_adl<value_t>, const meta_adl<void>)
+    consteval any_meta_tuple_of<is_meta_extension> auto get_extensions(const meta_adl<value_t>)
     {
         return meta_tuple {
             make_widget_extension<value_t>(),
