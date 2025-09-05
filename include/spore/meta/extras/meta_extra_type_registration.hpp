@@ -79,7 +79,13 @@ namespace spore
 
     namespace meta
     {
-        void register_types()
+        template <typename value_t>
+        void register_type()
+        {
+            detail::meta_register_types::add_or_register_type(meta_adl<value_t> {});
+        }
+
+        inline void register_types()
         {
             detail::meta_register_types::register_types();
         }

@@ -19,8 +19,6 @@
         {
             using namespace spore;
 
-            using this_t = {{ class.full_name }};
-
             constexpr meta_type type {
                 {% if class.is_template or class.is_template_specialization %}
                     .name = meta_string {"{{ class.scope }}::{{ class.name }}<"}
@@ -53,7 +51,7 @@
                         {% if meta_field_enabled and field.flags.public %}
                             meta_field {
                                 .name = meta_string {"{{ field.name }}"},
-                                .field = &this_t::{{ field.name }},
+                                .field = &{{ class.full_name }}::{{ field.name }},
                                 .attributes = meta_tuple {
                                     {{ include("templates/meta_attribute.inja", field.attributes) }} {# #}
                                 },
@@ -88,7 +86,7 @@
                                     ({# #}
                                         {% if not function.flags.static %}
                                             {% if function.flags.const %} const {% endif %}
-                                            this_t& this_
+                                            {{ class.full_name }}& this_
                                             {% if length(function.arguments) > 0 %} , {% endif %}
                                         {% endif %}
                                         {% for argument in function.arguments %}
@@ -97,7 +95,7 @@
                                         {% endfor %} {# #}
                                     ) {
                                         return
-                                        {% if function.flags.static %} this_t:: {% else %} this_. {% endif %}
+                                        {% if function.flags.static %} {{ class.full_name }}:: {% else %} this_. {% endif %}
                                         {% if function.is_template %} template {% endif %} {{ function.name }}
                                         {% if function.is_template %}
                                             < {# #}
@@ -135,7 +133,7 @@
                                     {% if not function.flags.static %}
                                         meta_argument {
                                             .name = meta_string {"this"},
-                                            .type = meta_type_ref<{% if function.flags.const %} const {% endif %} this_t&>{},
+                                            .type = meta_type_ref<{% if function.flags.const %} const {% endif %} {{ class.full_name }}&>{},
                                             .attributes = meta_tuple {},
                                         },
                                     {% endif %}
@@ -209,14 +207,14 @@
                                         {% if not loop.is_last %} , {% endif %} {# #}
                                     {% endfor %} {# #}
                                 ) {
-                                    return this_t {
+                                    return {{ class.full_name }} {
                                         {% for argument in constructor.arguments %} {# #}
                                             std::forward<{{ argument.type.name }}>({{ argument.name }})
                                             {% if argument.is_variadic %} ... {% endif %} ,
                                         {% endfor %}
                                     };
                                 },
-                                .this_type = meta_type_ref<this_t>{},
+                                .this_type = meta_type_ref<{{ class.full_name }}>{},
                                 .arguments = meta_tuple {
                                     {% for argument in constructor.arguments %}
                                         {% set argument_param_index = -1 %}
@@ -263,7 +261,7 @@
 
             {% if class.is_template or length(class.template_specialization_params) > 0 %}
 #ifdef SPORE_WITH_TYPE_REGISTRATION
-            std::ignore = spore::meta::register_type_guard<this_t>;
+            std::ignore = spore::meta::register_type_guard<{{ class.full_name }}>;
 #endif
             {% endif %}
 
@@ -290,8 +288,6 @@
         {
             using namespace spore;
 
-            using this_t = {{ enum.full_name }};
-
             constexpr meta_enum enum_ {
                 .name = meta_string{ "{{ enum.full_name }}" },
                 .type = meta_type_ref<{{ enum.base.name }}>{},
@@ -299,7 +295,7 @@
                 {% for value in enum.values %}
                     meta_enum_value {
                         .name = meta_string {"{{ value.name }}"},
-                        .value = static_cast<{{ enum.base.name }}>(this_t::{{ value.name }}),
+                        .value = static_cast<{{ enum.base.name }}>({{ enum.full_name }}::{{ value.name }}),
                         .attributes = meta_tuple {
                             {{ include("templates/meta_attribute.inja", value.attributes) }}
                         },
