@@ -183,3 +183,22 @@ namespace spore
         return stream << string.get();
     }
 }
+
+#if __cpp_lib_format >= 201907L
+
+#    include <format>
+
+template <std::size_t size_v>
+struct std::formatter<spore::meta_string<size_v>> : std::formatter<std::string_view>
+{
+    constexpr auto parse(std::format_parse_context& ctx) const
+    {
+        return std::formatter<std::string_view>::parse(ctx);
+    }
+
+    constexpr auto format(const spore::meta_string<size_v>& value, std::format_context& ctx) const -> decltype(ctx.out())
+    {
+        return std::formatter<std::string_view>::format(value.get(), ctx);
+    }
+};
+#endif
