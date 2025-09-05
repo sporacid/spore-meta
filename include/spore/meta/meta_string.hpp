@@ -191,12 +191,9 @@ namespace spore
 template <std::size_t size_v>
 struct std::formatter<spore::meta_string<size_v>> : std::formatter<std::string_view>
 {
-    constexpr auto parse(std::format_parse_context& ctx) const
-    {
-        return std::formatter<std::string_view>::parse(ctx);
-    }
+    using std::formatter<std::string_view>::parse;
 
-    constexpr auto format(const spore::meta_string<size_v>& value, std::format_context& ctx) const -> decltype(ctx.out())
+    constexpr auto format(const spore::meta_string<size_v>& value, std::format_context& ctx) const
     {
         return std::formatter<std::string_view>::format(value.get(), ctx);
     }
