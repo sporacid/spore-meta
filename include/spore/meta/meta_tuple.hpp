@@ -75,18 +75,26 @@ namespace spore
                 using type = std::variant<meta_invalid, args_t...>;
             };
 
-            template <typename func_t, auto arg_v>
-            constexpr bool is_constexpr_invocable()
+            template <auto arg_v, typename func_t>
+            constexpr auto is_constexpr_invocable_impl(func_t func)
+                -> std::integral_constant<bool, (func.template operator()<arg_v>(), true)>
             {
-                using void_t = std::void_t<decltype(std::declval<func_t>().template operator()<arg_v>())>;
+                return {};
+            }
 
-                if constexpr (std::is_default_constructible_v<func_t> and std::is_same_v<void, void_t>)
+            template <auto arg_v>
+            constexpr std::false_type is_constexpr_invocable_impl(...)
+            {
+                return {};
+            }
+
+            template <typename func_t, auto arg_v>
+            consteval bool is_constexpr_invocable()
+            {
+                if constexpr (std::is_default_constructible_v<func_t>)
                 {
-                    return [=]() constexpr {
-                        func_t func {};
-                        func.template operator()<arg_v>();
-                        return true;
-                    }();
+                    constexpr auto value = is_constexpr_invocable_impl<arg_v>(func_t {});
+                    return decltype(value)::value;
                 }
                 else
                 {

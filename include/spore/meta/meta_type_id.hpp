@@ -59,8 +59,8 @@ namespace spore
 template <>
 struct std::hash<spore::meta_type_id>
 {
-    constexpr std::size_t operator()(const spore::meta_type_id& value)
+    constexpr std::size_t operator()(const spore::meta_type_id& value) const noexcept
     {
-        return value.set ? value.hash : 0;
+        return value.set ? (value.hash << 1) + 1 : 0;
     }
 };
