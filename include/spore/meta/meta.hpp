@@ -70,8 +70,8 @@ namespace spore
         template <meta_enum_enabled value_t>
         constexpr any_meta_string auto get_name()
         {
-            constexpr meta_type type = get_enum<value_t>();
-            return type.name;
+            constexpr meta_enum enum_ = get_enum<value_t>();
+            return enum_.name;
         }
 
         template <auto object_v>
@@ -193,57 +193,115 @@ namespace spore
         template <meta_type_enabled value_t, typename predicate_t>
         constexpr auto find_base(predicate_t&& predicate)
         {
+            constexpr meta_base value_hint {
+                .type = meta_type_ref<int> {},
+            };
+
             constexpr meta_type type = get_type<value_t>();
-            return tuples::find<type.bases>(std::forward<predicate_t>(predicate));
+            return tuples::find<type.bases, value_hint>(std::forward<predicate_t>(predicate));
         }
 
         template <meta_type_enabled value_t, typename predicate_t>
         constexpr auto find_field(predicate_t&& predicate)
         {
+            struct dummy
+            {
+                int field;
+            };
+
+            constexpr meta_field value_hint {
+                .name = meta_string {""},
+                .field = &dummy::field,
+                .attributes = meta_tuple {},
+            };
+
             constexpr meta_type type = get_type<value_t>();
-            return tuples::find<type.fields>(std::forward<predicate_t>(predicate));
+            return tuples::find<type.fields, value_hint>(std::forward<predicate_t>(predicate));
         }
 
         template <meta_type_enabled value_t, typename predicate_t>
         constexpr auto find_function(predicate_t&& predicate)
         {
+            constexpr meta_function value_hint {
+                .name = meta_string {""},
+                .function = [] {},
+                .return_type = meta_type_ref<void> {},
+                .arguments = meta_tuple {},
+                .parameters = meta_tuple {},
+                .attributes = meta_tuple {},
+            };
+
             constexpr meta_type type = get_type<value_t>();
-            return tuples::find<type.functions>(std::forward<predicate_t>(predicate));
+            return tuples::find<type.functions, value_hint>(std::forward<predicate_t>(predicate));
         }
 
         template <meta_type_enabled value_t, typename predicate_t>
         constexpr auto find_constructor(predicate_t&& predicate)
         {
+            struct dummy
+            {
+            };
+
+            constexpr meta_constructor value_hint {
+                .constructor = [](dummy&) { return dummy {}; },
+                .this_type = meta_type_ref<dummy> {},
+                .arguments = meta_tuple {},
+                .parameters = meta_tuple {},
+                .attributes = meta_tuple {},
+            };
+
             constexpr meta_type type = get_type<value_t>();
-            return tuples::find<type.constructors>(std::forward<predicate_t>(predicate));
+            return tuples::find<type.constructors, value_hint>(std::forward<predicate_t>(predicate));
         }
 
         template <meta_enum_enabled value_t, typename predicate_t>
         constexpr auto find_value(predicate_t&& predicate)
         {
+            constexpr meta_enum_value value_hint {
+                .name = meta_string {""},
+                .value = 0,
+                .attributes = meta_tuple {},
+            };
+
             constexpr meta_enum enum_ = get_enum<value_t>();
-            return tuples::find<enum_.values>(std::forward<predicate_t>(predicate));
+            return tuples::find<enum_.values, value_hint>(std::forward<predicate_t>(predicate));
         }
 
         template <meta_type_enabled value_t, typename predicate_t>
         constexpr auto find_attribute(predicate_t&& predicate)
         {
+            constexpr meta_attribute value_hint {
+                .name = meta_string {""},
+                .value = false,
+            };
+
             constexpr meta_type type = get_type<value_t>();
-            return tuples::find<type.attributes>(std::forward<predicate_t>(predicate));
+            return tuples::find<type.attributes, value_hint>(std::forward<predicate_t>(predicate));
         }
 
         template <meta_enum_enabled value_t, typename predicate_t>
         constexpr auto find_attribute(predicate_t&& predicate)
         {
+            constexpr meta_attribute value_hint {
+                .name = meta_string {""},
+                .value = false,
+            };
+
             constexpr meta_enum enum_ = get_enum<value_t>();
-            return tuples::find<enum_.attributes>(std::forward<predicate_t>(predicate));
+            return tuples::find<enum_.attributes, value_hint>(std::forward<predicate_t>(predicate));
         }
 
         template <meta_enabled value_t, typename predicate_t>
         constexpr auto find_extension(predicate_t&& predicate)
         {
+            struct dummy
+            {
+            };
+
+            constexpr dummy value_hint;
+
             constexpr any_meta_tuple_of<is_meta_extension> auto extensions = get_extensions<value_t>();
-            return tuples::find<extensions>(std::forward<predicate_t>(predicate));
+            return tuples::find<extensions, value_hint>(std::forward<predicate_t>(predicate));
         }
 
         template <meta_type_enabled value_t, typename predicate_t>
@@ -291,13 +349,24 @@ namespace spore
         template <auto object_v, typename predicate_t>
         constexpr auto find_attribute(predicate_t&& predicate) requires has_meta_attributes<object_v>
         {
-            return tuples::find<object_v.attributes>(std::forward<predicate_t>(predicate));
+            constexpr meta_attribute value_hint {
+                .name = meta_string {""},
+                .value = false,
+            };
+
+            return tuples::find<object_v.attributes, value_hint>(std::forward<predicate_t>(predicate));
         }
 
         template <auto object_v, typename predicate_t>
         constexpr auto find_argument(predicate_t&& predicate) requires has_meta_arguments<object_v>
         {
-            return tuples::find<object_v.arguments>(std::forward<predicate_t>(predicate));
+            constexpr meta_argument value_hint {
+                .name = meta_string {""},
+                .type = meta_type_ref<int> {},
+                .attributes = meta_tuple {},
+            };
+
+            return tuples::find<object_v.arguments, value_hint>(std::forward<predicate_t>(predicate));
         }
     }
 }

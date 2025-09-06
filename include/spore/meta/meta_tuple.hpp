@@ -153,7 +153,7 @@ namespace spore
                 }
             }
 
-            template <std::size_t index_v, meta_tuple tuple_v, typename predicate_t>
+            template <std::size_t index_v, meta_tuple tuple_v, auto hint_v, typename predicate_t>
             constexpr auto find_impl(predicate_t&& predicate)
             {
                 if constexpr (index_v < tuple_v.size())
@@ -168,7 +168,7 @@ namespace spore
                         }
                         else
                         {
-                            return find_impl<index_v + 1, tuple_v>(predicate);
+                            return find_impl<index_v + 1, tuple_v, hint_v>(predicate);
                         }
                     }
                     else
@@ -180,12 +180,21 @@ namespace spore
                             return variant_t {value};
                         }
 
-                        return variant_t {find_impl<index_v + 1, tuple_v>(predicate)};
+                        return variant_t {find_impl<index_v + 1, tuple_v, hint_v>(predicate)};
                     }
                 }
                 else
                 {
-                    return meta_invalid();
+                    if constexpr (detail::is_constexpr_invocable<std::decay_t<predicate_t>, hint_v>())
+                    {
+                        return meta_invalid {};
+                    }
+                    else
+                    {
+                        using variant_t = typename deduce_variant_type<decltype(tuple_v)>::type;
+
+                        return variant_t {meta_invalid {}};
+                    }
                 }
             }
 
@@ -217,6 +226,35 @@ namespace spore
                     return true;
                 }
             }
+
+            template <std::size_t index_v, meta_tuple tuple_v, typename predicate_t>
+            constexpr bool any_of_impl(predicate_t&& predicate)
+            {
+                if constexpr (index_v < tuple_v.size())
+                {
+                    constexpr auto value = tuple_v.template at<index_v>();
+
+                    if constexpr (detail::is_constexpr_invocable<std::decay_t<predicate_t>, value>())
+                    {
+                        if constexpr (std::decay_t<predicate_t> {}.template operator()<value>())
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return any_of_impl<index_v + 1, tuple_v>(predicate);
+                        }
+                    }
+                    else
+                    {
+                        return predicate.template operator()<value>() or any_of_impl<index_v + 1, tuple_v>(predicate);
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
         }
 
         template <meta_tuple tuple_v, typename func_t>
@@ -225,16 +263,22 @@ namespace spore
             return detail::for_each_impl<0, tuple_v>(func);
         }
 
-        template <meta_tuple tuple_v, typename predicate_t>
+        template <meta_tuple tuple_v, auto hint_v, typename predicate_t>
         constexpr auto find(predicate_t&& predicate)
         {
-            return detail::find_impl<0, tuple_v>(predicate);
+            return detail::find_impl<0, tuple_v, hint_v>(predicate);
         }
 
         template <meta_tuple tuple_v, typename predicate_t>
         constexpr bool all_of(predicate_t&& predicate)
         {
             return detail::all_of_impl<0, tuple_v>(predicate);
+        }
+
+        template <meta_tuple tuple_v, typename predicate_t>
+        constexpr bool any_of(predicate_t&& predicate)
+        {
+            return detail::any_of_impl<0, tuple_v>(predicate);
         }
     }
 
