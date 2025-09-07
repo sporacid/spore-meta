@@ -1,6 +1,6 @@
 #pragma once
 
-#include "spore/meta.hpp"
+#include "spore/meta/meta.hpp"
 
 #include <iostream>
 

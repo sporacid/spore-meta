@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "spore/meta.hpp"
+#include "spore/meta/meta.hpp"
 
 #include SPORE_META_GENERATED("spore/examples/hello_world.meta.hpp")
 
