@@ -7,6 +7,10 @@
         {% set meta_type_enabled = truthy(class.attributes, "_spore_meta_type") %}
     {% endif %}
     {% if meta_type_enabled and class.definition and not class.nested %}
+        {% if truthy(class.scope) %}
+            namespace {{ class.scope }}
+            {
+        {% endif %} {# #}
         {% if class.is_template or class.is_template_specialization %}
             template < {# #}
                 {% for template_param in class.template_params %}
@@ -15,7 +19,7 @@
                 {% endfor %}
             > {# #}
         {% endif %}
-        constexpr spore::any_meta_type auto {{ class.scope }}::get_meta_type(const spore::meta_adl<{{ class.full_name }}>)
+        constexpr spore::any_meta_type auto get_meta_type(const spore::meta_adl<{{ class.full_name }}>)
         {
             using namespace spore;
 
@@ -267,7 +271,10 @@
 
             return type;
         }
+        {% if truthy(class.scope) %}
+            }
 
+        {% endif %}
         {% if not class.is_template and length(class.template_specialization_params) == 0 %}
 #ifdef SPORE_WITH_TYPE_REGISTRATION
             template const spore::meta_register_type_guard<{{ class.full_name }}> spore::meta::register_type_guard<{{ class.full_name }}>;
@@ -284,7 +291,11 @@
         {% set meta_enum_enabled = truthy(enum.attributes, "_spore_meta_enum") %}
     {% endif %}
     {% if meta_enum_enabled and enum.definition and not enum.nested %}
-        constexpr spore::any_meta_enum auto {{ enum.scope }}::get_meta_enum(const spore::meta_adl<{{ enum.full_name }}>)
+        {% if truthy(enum.scope) %}
+            namespace {{ enum.scope }}
+            {
+        {% endif %} {# #}
+        constexpr spore::any_meta_enum auto get_meta_enum(const spore::meta_adl<{{ enum.full_name }}>)
         {
             using namespace spore;
 
@@ -309,7 +320,10 @@
 
             return enum_;
         }
+        {% if truthy(enum.scope) %}
+            }
 
+        {% endif %}
 #ifdef SPORE_WITH_TYPE_REGISTRATION
         template const spore::meta_register_type_guard<{{ enum.full_name }}> spore::meta::register_type_guard<{{ enum.full_name }}>;
 #endif
