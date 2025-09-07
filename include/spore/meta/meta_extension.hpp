@@ -29,15 +29,21 @@ namespace spore
     namespace meta
     {
         template <meta_enabled value_t>
-        consteval any_meta_tuple_of<is_meta_extension> auto get_extensions(const meta_adl<value_t>)
-        {
-            return meta_tuple<> {};
-        }
-
-        template <meta_enabled value_t>
         consteval any_meta_tuple_of<is_meta_extension> auto get_extensions()
         {
-            return get_extensions(meta_adl<value_t> {});
+            constexpr bool has_extensions = requires
+            {
+                { get_extensions(meta_adl<value_t>{}) } -> any_meta_tuple_of<is_meta_extension>;
+            };
+
+            if constexpr (has_extensions)
+            {
+                return get_extensions(meta_adl<value_t> {});
+            }
+            else
+            {
+                return meta_tuple<> {};
+            }
         }
     }
 }
