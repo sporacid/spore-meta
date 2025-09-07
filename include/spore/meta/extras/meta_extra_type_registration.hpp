@@ -23,57 +23,62 @@ namespace spore
         }
     }
 
-    namespace detail
+    struct meta_type_registrar
     {
-        struct meta_register_types
+        template <typename value_t>
+        void add_or_register_type(const meta_adl<value_t>)
         {
-            template <typename value_t>
-            static void add_or_register_type(const meta_adl<value_t>)
+            std::lock_guard lock {mutex};
+
+            auto register_func = [] {
+                using namespace spore::meta;
+                register_type(meta_adl<value_t> {});
+            };
+
+            if (is_pre_registration)
             {
-                std::lock_guard lock {mutex};
+                register_funcs.emplace_back(std::move(register_func));
+            }
+            else
+            {
+                register_func();
+            }
+        }
 
-                auto register_func = [] {
-                    using namespace spore::meta;
-                    register_type(meta_adl<value_t> {});
-                };
+        void register_types()
+        {
+            std::lock_guard lock {mutex};
 
-                if (is_pre_registration)
-                {
-                    register_funcs.emplace_back(std::move(register_func));
-                }
-                else
-                {
-                    register_func();
-                }
+            if (not register_funcs.empty())
+            {
+                std::ranges::for_each(register_funcs, &std::function<void()>::operator());
+                register_funcs.clear();
+                register_funcs.shrink_to_fit();
             }
 
-            static void register_types()
-            {
-                std::lock_guard lock {mutex};
+            is_pre_registration = false;
+        }
 
-                if (not register_funcs.empty())
-                {
-                    std::ranges::for_each(register_funcs, &std::function<void()>::operator());
-                    register_funcs.clear();
-                    register_funcs.shrink_to_fit();
-                }
+        static meta_type_registrar& get()
+        {
+            static meta_type_registrar instance;
+            return instance;
+        }
 
-                is_pre_registration = false;
-            }
+      private:
+        meta_type_registrar() = default;
 
-          private:
-            static inline std::recursive_mutex mutex;
-            static inline std::vector<std::function<void()>> register_funcs;
-            static inline bool is_pre_registration = true;
-        };
-    }
+        std::recursive_mutex mutex;
+        std::vector<std::function<void()>> register_funcs;
+        bool is_pre_registration = true;
+    };
 
     template <typename value_t>
     struct meta_register_type_guard
     {
         meta_register_type_guard()
         {
-            detail::meta_register_types::add_or_register_type(meta_adl<value_t> {});
+            meta_type_registrar::get().add_or_register_type(meta_adl<value_t> {});
         }
     };
 
@@ -82,12 +87,12 @@ namespace spore
         template <typename value_t>
         void register_type()
         {
-            detail::meta_register_types::add_or_register_type(meta_adl<value_t> {});
+            meta_type_registrar::get().add_or_register_type(meta_adl<value_t> {});
         }
 
         inline void register_types()
         {
-            detail::meta_register_types::register_types();
+            meta_type_registrar::get().register_types();
         }
 
         template <typename value_t>
