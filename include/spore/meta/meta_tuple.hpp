@@ -66,13 +66,43 @@ namespace spore
     {
         namespace detail
         {
+            template <typename value_t, typename... values_t>
+            constexpr bool pack_contains = (std::is_same_v<value_t, values_t> or ...);
+
+            template <typename, typename>
+            struct concat_variant;
+
+            template <typename... args_t, typename... other_args_t>
+            struct concat_variant<std::variant<args_t...>, std::variant<other_args_t...>>
+            {
+                using type = std::variant<args_t..., other_args_t...>;
+            };
+
+            template <typename...>
+            struct unique_variant_types;
+
+            template <>
+            struct unique_variant_types<>
+            {
+                using type = std::variant<>;
+            };
+
+            template <typename arg_t, typename... args_t>
+            struct unique_variant_types<arg_t, args_t...>
+            {
+                using type = std::conditional_t<
+                    pack_contains<arg_t, args_t...>,
+                    typename unique_variant_types<args_t...>::type,
+                    typename concat_variant<std::variant<arg_t>, typename unique_variant_types<args_t...>::type>::type>;
+            };
+
             template <typename>
             struct deduce_variant_type;
 
             template <typename... args_t>
             struct deduce_variant_type<meta_tuple<args_t...>>
             {
-                using type = std::variant<meta_invalid, args_t...>;
+                using type = typename unique_variant_types<meta_invalid, args_t...>::type;
             };
 
             template <auto arg_v, typename func_t>
