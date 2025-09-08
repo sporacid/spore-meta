@@ -1,7 +1,6 @@
 #pragma once
 
 #include "spore/meta/meta.hpp"
-#include "{{ path }}"
 
 {% for class in classes %}
     {% if truthy($.user_data, "implicit_types") %}
@@ -10,8 +9,8 @@
         {% set meta_type_enabled = truthy(class.attributes, "_spore_meta_type") %}
     {% endif %}
     {% if meta_type_enabled and class.definition %}
-        {% if truthy(class.scope) %}
-            namespace {{ class.scope }}
+        {% if truthy(class.outer_scope) %}
+            namespace {{ class.outer_scope }}
             {
         {% endif %} {# #}
         {% if class.is_template or class.is_template_specialization %}
@@ -274,7 +273,7 @@
 
             return type;
         }
-        {% if truthy(class.scope) %}
+        {% if truthy(class.outer_scope) %}
             }
 
         {% endif %}
@@ -294,8 +293,8 @@
         {% set meta_enum_enabled = truthy(enum.attributes, "_spore_meta_enum") %}
     {% endif %}
     {% if meta_enum_enabled and enum.definition %}
-        {% if truthy(enum.scope) %}
-            namespace {{ enum.scope }}
+        {% if truthy(enum.outer_scope) %}
+            namespace {{ enum.outer_scope }}
             {
         {% endif %} {# #}
         constexpr spore::any_meta_enum auto get_meta_enum(const spore::meta_adl<{{ enum.full_name }}>)
@@ -323,7 +322,7 @@
 
             return enum_;
         }
-        {% if truthy(enum.scope) %}
+        {% if truthy(enum.outer_scope) %}
             }
 
         {% endif %}
