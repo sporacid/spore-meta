@@ -9,8 +9,8 @@
         {% set meta_type_enabled = truthy(class.attributes, "_spore_meta_type") %}
     {% endif %}
     {% if meta_type_enabled and class.definition and not class.nested %}
-        {% if truthy(class.scope) %}
-            namespace {{ class.scope }}
+        {% if truthy(class.outer_scope) %}
+            namespace {{ class.outer_scope }}
             {
         {% endif %} {# #}
         {% if class.is_template or class.is_template_specialization %}
@@ -40,7 +40,7 @@
             > {# #}
         {% endif %}
         constexpr spore::any_meta_type auto get_meta_type(spore::meta_adl<{{ class.full_name }}>);
-        {% if truthy(class.scope) %}
+        {% if truthy(class.outer_scope) %}
             }
 
         {% endif %}
@@ -55,13 +55,13 @@
     {% endif %}
     {% if meta_enum_enabled and enum.definition and not enum.nested %}
         {% if truthy(enum.scope) %}
-            namespace {{ enum.scope }}
+            namespace {{ enum.outer_scope }}
             {
         {% endif %} {# #}
         {{ enum.type }} {{ enum.name }} : {{ enum.base.name }};
 
         constexpr spore::any_meta_enum auto get_meta_enum(const spore::meta_adl<{{ enum.full_name }}>);
-        {% if truthy(enum.scope) %}
+        {% if truthy(enum.outer_scope) %}
             }
 
         {% endif %}
