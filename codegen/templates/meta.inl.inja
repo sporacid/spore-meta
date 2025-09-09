@@ -13,7 +13,7 @@
             namespace {{ class.outer_scope }}
             {
         {% endif %} {# #}
-        {% if class.is_template or class.is_template_specialization %}
+        {% if class.is_template %}
             template < {# #}
                 {% for template_param in class.template_params %}
                     {{ template_param.type }} {{ template_param.name }}
