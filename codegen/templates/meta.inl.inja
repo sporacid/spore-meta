@@ -26,16 +26,27 @@
             using namespace spore;
 
             constexpr meta_type type {
-                {% if class.is_template or class.is_template_specialization %}
+                {% if class.is_template_specialization %}
                     .name = meta_string {"{{ class.scope }}::{{ class.name }}<"}
-                    {% for template_param in class.template_params %}
-                        {% if template_param.is_variadic %}
-                            + meta::strings::to_string<", ", {{ template_param.name }}...>()
-                        {% else %}
-                            + meta::strings::to_string<{{ template_param.name }}>()
-                        {% endif %}
-                        {% if not loop.is_last %} + ", " {% endif %}
-                    {% endfor %}
+                        {% for template_specialization_param in class.template_specialization_params %}
+                            {% if ends_with(template_specialization_param, "...") %}
+                                + meta::strings::join_string<", ", {{ template_specialization_param }}>()
+                            {% else %}
+                                + meta::strings::to_string<{{ template_specialization_param }}>()
+                            {% endif %}
+                            {% if not loop.is_last %} + ", " {% endif %}
+                        {% endfor %}
+                        + meta_string {">"},
+                {% else if class.is_template %}
+                    .name = meta_string {"{{ class.scope }}::{{ class.name }}<"}
+                        {% for template_param in class.template_params %}
+                            {% if template_param.is_variadic %}
+                                + meta::strings::join_string<", ", {{ template_param.name }}...>()
+                            {% else %}
+                                + meta::strings::to_string<{{ template_param.name }}>()
+                            {% endif %}
+                            {% if not loop.is_last %} + ", " {% endif %}
+                        {% endfor %}
                         + meta_string {">"},
                 {% else %}
                     .name = meta_string {"{{ class.full_name }}"},

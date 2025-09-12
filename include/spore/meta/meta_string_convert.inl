@@ -7,20 +7,7 @@ namespace spore::meta::strings
     template <typename value_t>
     concept cv_qualified = std::is_const_v<value_t> or std::is_volatile_v<value_t>;
 
-    template <std::signed_integral auto value_v>
-    consteval any_meta_string auto to_string(const meta_string_adl_value<value_v>)
-    {
-        using value_t = decltype(value_v);
-
-        if constexpr (value_v < 0)
-        {
-            return "-" + to_string(static_cast<std::make_unsigned_t<value_t>>(-value_v));
-        }
-        else
-        {
-            return to_string(static_cast<std::make_unsigned_t<value_t>>(value_v));
-        }
-    }
+    constexpr meta_string comma_separator = ", ";
 
     template <std::unsigned_integral auto value_v>
     consteval any_meta_string auto to_string(const meta_string_adl_value<value_v>)
@@ -46,6 +33,25 @@ namespace spore::meta::strings
             {
                 return meta_string {chars};
             }
+        }
+    }
+
+    template <std::signed_integral auto value_v>
+    consteval any_meta_string auto to_string(const meta_string_adl_value<value_v>)
+    {
+        using value_t = decltype(value_v);
+
+        if constexpr (value_v < 0)
+        {
+            constexpr auto unsigned_value = static_cast<std::make_unsigned_t<value_t>>(-value_v);
+
+            return "-" + to_string<unsigned_value>();
+        }
+        else
+        {
+            constexpr auto unsigned_value = static_cast<std::make_unsigned_t<value_t>>(value_v);
+
+            return to_string<unsigned_value>();
         }
     }
 
@@ -159,46 +165,24 @@ namespace spore::meta::strings
     template <typename return_t, typename... args_t>
     consteval any_meta_string auto to_string(const meta_string_adl_type<return_t(args_t...)>)
     {
-        return to_string<return_t>() + "(" + to_string<", ", args_t...>() + ")";
+        return to_string<return_t>() + "(" + join_string<comma_separator, args_t...>() + ")";
     }
 
     template <typename return_t, typename... args_t>
     consteval any_meta_string auto to_string(const meta_string_adl_type<return_t (*)(args_t...)>)
     {
-        return to_string<return_t>() + "(*)(" + to_string<", ", args_t...>() + ")";
+        return to_string<return_t>() + "(*)(" + join_string<comma_separator, args_t...>() + ")";
     }
 
     template <typename return_t, typename... args_t>
     consteval any_meta_string auto to_string(const meta_string_adl_type<return_t (&)(args_t...)>)
     {
-        return to_string<return_t>() + "(&)(" + to_string<", ", args_t...>() + ")";
+        return to_string<return_t>() + "(&)(" + join_string<comma_separator, args_t...>() + ")";
     }
 
     template <typename this_t, typename return_t, typename... args_t>
     consteval any_meta_string auto to_string(const meta_string_adl_type<return_t (this_t::*)(args_t...)>)
     {
-        return to_string<return_t>() + "(" + to_string<this_t>() + "::*)(" + to_string<", ", args_t...>() + ")";
-    }
-
-    template <std::size_t index_v, meta_string separator, typename... values_t>
-    consteval any_meta_string auto to_string(const meta_string_adl_type<values_t>...)
-    {
-        if constexpr (index_v < sizeof...(values_t))
-        {
-            using value_t = std::tuple_element_t<index_v, std::tuple<values_t...>>;
-
-            if constexpr (index_v < sizeof...(values_t) - 1)
-            {
-                return to_string<value_t>() + separator + to_string<index_v + 1, separator>(meta_string_adl_type<values_t> {}...);
-            }
-            else
-            {
-                return to_string<value_t>();
-            }
-        }
-        else
-        {
-            return meta_string {""};
-        }
+        return to_string<return_t>() + "(" + to_string<this_t>() + "::*)(" + join_string<comma_separator, args_t...>() + ")";
     }
 }

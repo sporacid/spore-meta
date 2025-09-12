@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 
 option(SPORE_WITH_EXAMPLES "Whether to build examples" ON)
 option(SPORE_WITH_STD_TYPES "Whether to include std types" ON)
+option(SPORE_WITH_STD_FORMATTERS "Whether to include std formatters" ON)
 option(SPORE_WITH_TYPE_REGISTRATION "Whether to type registration mechanism" ON)
 
 set(CMAKE_CXX_STANDARD 20)
