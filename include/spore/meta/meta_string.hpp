@@ -3,6 +3,10 @@
 #include <string_view>
 #include <type_traits>
 
+#ifdef SPORE_WITH_STD_FORMATTERS
+#    include <format>
+#endif
+
 namespace spore
 {
     template <std::size_t capacity_v>
@@ -184,10 +188,7 @@ namespace spore
     }
 }
 
-#if __cpp_lib_format >= 201907L
-
-#    include <format>
-
+#ifdef SPORE_WITH_STD_FORMATTERS
 template <std::size_t size_v>
 struct std::formatter<spore::meta_string<size_v>> : std::formatter<std::string_view>
 {
