@@ -92,6 +92,25 @@ function(spore_add_meta SPORE_TARGET)
     set(SPORE_TARGET_INCLUDE_TYPE "PUBLIC")
   endif ()
 
+  file(
+    GLOB_RECURSE
+    SPORE_META_OUTPUT_FILES
+    CONFIGURE_DEPENDS
+    ${SPORE_META_OUTPUT_DIRECTORY}/**.hpp
+    ${SPORE_META_OUTPUT_DIRECTORY}/**.inl
+  )
+
+  set_source_files_properties(
+    ${SPORE_META_OUTPUT_FILES}
+    PROPERTIES GENERATED TRUE
+  )
+
+  target_sources(
+    ${SPORE_TARGET}
+    ${SPORE_TARGET_INCLUDE_TYPE}
+    ${SPORE_META_OUTPUT_FILES}
+  )
+
   target_include_directories(
     ${SPORE_TARGET}
     ${SPORE_TARGET_INCLUDE_TYPE}
