@@ -65,7 +65,7 @@ namespace spore
 
         constexpr bool operator<(const meta_type_id& other) const
         {
-            return std::tie(set, hash) == std::tie(other.set, other.hash);
+            return std::tie(set, hash) < std::tie(other.set, other.hash);
         }
     };
 }
