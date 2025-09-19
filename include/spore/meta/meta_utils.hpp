@@ -5,6 +5,36 @@
 
 namespace spore::meta::utils
 {
+    namespace detail
+    {
+        template <auto arg_v, typename func_t>
+        constexpr auto is_constexpr_invocable_impl(func_t func)
+            -> std::integral_constant<bool, (func.template operator()<arg_v>(), true)>
+        {
+            return {};
+        }
+
+        template <auto arg_v>
+        constexpr std::false_type is_constexpr_invocable_impl(...)
+        {
+            return {};
+        }
+    }
+
+    template <typename func_t, auto arg_v>
+    consteval bool is_constexpr_invocable()
+    {
+        if constexpr (std::is_default_constructible_v<func_t>)
+        {
+            constexpr auto value = detail::is_constexpr_invocable_impl<arg_v>(func_t {});
+            return decltype(value)::value;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     constexpr std::uint64_t hash_string(const std::string_view string)
     {
         // From https://github.com/foonathan/string_id

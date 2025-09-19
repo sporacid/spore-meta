@@ -46,5 +46,13 @@ int main()
         }
     });
 
+    meta::for_each_field_r<impl>([]<meta_field field_v> {
+        std::cout << "field: " << field_v.name << std::endl;
+    });
+
+    meta::for_each_function_r<impl>([]<meta_function function_v> {
+        std::cout << "function: " << function_v.name << std::endl;
+    });
+
     return 0;
 }

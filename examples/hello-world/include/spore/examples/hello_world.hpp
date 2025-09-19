@@ -8,6 +8,69 @@
 
 namespace spore::examples::hello_world
 {
+    struct SPORE_META_TYPE() base1
+    {
+        SPORE_META_FIELD()
+        int b11;
+
+        SPORE_META_FIELD()
+        int b12;
+
+        SPORE_META_FUNCTION()
+        void f11() {}
+
+        SPORE_META_FUNCTION()
+        void f12() {}
+
+        SPORE_META_FUNCTION()
+        virtual void f124124() {}
+    };
+
+    struct SPORE_META_TYPE() base2
+    {
+        SPORE_META_FIELD()
+        int b21;
+
+        SPORE_META_FIELD()
+        int b22;
+
+        SPORE_META_FUNCTION()
+        void f21() {}
+
+        SPORE_META_FUNCTION()
+        void f22() {}
+    };
+
+    struct SPORE_META_TYPE() base3 : base1
+    {
+        SPORE_META_FIELD()
+        int b31;
+
+        SPORE_META_FUNCTION()
+        void f31() {}
+    };
+
+    struct SPORE_META_TYPE() impl : base3, base2
+    {
+        SPORE_META_FIELD()
+        int b11;
+
+        SPORE_META_FIELD()
+        int b31;
+
+        SPORE_META_FIELD()
+        int b41;
+
+        SPORE_META_FIELD()
+        int b42;
+
+        SPORE_META_FIELD()
+        int b43;
+
+        SPORE_META_FUNCTION()
+        void f124124() override {}
+    };
+
     struct SPORE_META_TYPE() hello_world_fields
     {
         SPORE_META_FIELD()

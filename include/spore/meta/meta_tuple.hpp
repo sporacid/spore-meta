@@ -2,6 +2,7 @@
 
 #include "spore/meta/meta_invalid.hpp"
 #include "spore/meta/meta_result.hpp"
+#include "spore/meta/meta_utils.hpp"
 
 #include <cstddef>
 #include <type_traits>
@@ -105,33 +106,6 @@ namespace spore
                 using type = typename unique_variant_types<meta_invalid, args_t...>::type;
             };
 
-            template <auto arg_v, typename func_t>
-            constexpr auto is_constexpr_invocable_impl(func_t func)
-                -> std::integral_constant<bool, (func.template operator()<arg_v>(), true)>
-            {
-                return {};
-            }
-
-            template <auto arg_v>
-            constexpr std::false_type is_constexpr_invocable_impl(...)
-            {
-                return {};
-            }
-
-            template <typename func_t, auto arg_v>
-            consteval bool is_constexpr_invocable()
-            {
-                if constexpr (std::is_default_constructible_v<func_t>)
-                {
-                    constexpr auto value = is_constexpr_invocable_impl<arg_v>(func_t {});
-                    return decltype(value)::value;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
             template <std::size_t index_v, meta_tuple tuple_v, typename func_t>
             constexpr meta_result auto for_each_impl(func_t&& func)
             {
@@ -143,7 +117,7 @@ namespace spore
 
                     if constexpr (meta_result<result_t>)
                     {
-                        if constexpr (is_constexpr_invocable<std::decay_t<func_t>, value>())
+                        if constexpr (utils::is_constexpr_invocable<std::decay_t<func_t>, value>())
                         {
                             constexpr meta_result auto result = std::decay_t<func_t> {}.template operator()<value>();
 
@@ -190,7 +164,7 @@ namespace spore
                 {
                     constexpr auto value = tuple_v.template at<index_v>();
 
-                    if constexpr (detail::is_constexpr_invocable<std::decay_t<predicate_t>, value>())
+                    if constexpr (utils::is_constexpr_invocable<std::decay_t<predicate_t>, value>())
                     {
                         if constexpr (std::decay_t<predicate_t> {}.template operator()<value>())
                         {
@@ -215,7 +189,7 @@ namespace spore
                 }
                 else
                 {
-                    if constexpr (detail::is_constexpr_invocable<std::decay_t<predicate_t>, hint_v>())
+                    if constexpr (utils::is_constexpr_invocable<std::decay_t<predicate_t>, hint_v>())
                     {
                         return meta_invalid {};
                     }
@@ -235,7 +209,7 @@ namespace spore
                 {
                     constexpr auto value = tuple_v.template at<index_v>();
 
-                    if constexpr (detail::is_constexpr_invocable<std::decay_t<predicate_t>, value>())
+                    if constexpr (utils::is_constexpr_invocable<std::decay_t<predicate_t>, value>())
                     {
                         if constexpr (std::decay_t<predicate_t> {}.template operator()<value>())
                         {
@@ -264,7 +238,7 @@ namespace spore
                 {
                     constexpr auto value = tuple_v.template at<index_v>();
 
-                    if constexpr (detail::is_constexpr_invocable<std::decay_t<predicate_t>, value>())
+                    if constexpr (utils::is_constexpr_invocable<std::decay_t<predicate_t>, value>())
                     {
                         if constexpr (std::decay_t<predicate_t> {}.template operator()<value>())
                         {

@@ -85,7 +85,7 @@ struct std::formatter<spore::meta_type_id> : std::formatter<std::uint64_t>
 {
     using std::formatter<std::uint64_t>::parse;
 
-    constexpr auto format(const spore::meta_type_id& value, std::format_context& ctx) const
+    auto format(const spore::meta_type_id& value, std::format_context& ctx) const
     {
         return std::formatter<std::uint64_t>::format(value.value(), ctx);
     }
