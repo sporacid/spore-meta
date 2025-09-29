@@ -300,44 +300,24 @@ All querying interface functions are available through the `spore/meta/meta.hpp`
 
 `meta::for_each_*` family of function allows to iterate through a reflection structure's tuple, such as fields or
 functions. The interface takes a single functor that should accept a single non-type template parameter of the given
-struct type. Optionally, the functor can return `spore::meta_continue`, `spore::meta_break` or `spore::meta_return` to
-control the flow of iteration. The end result of the control flow will be returned to the caller.
+struct type. Optionally, the functor can return `spore::meta::continue_` or `spore::meta::break_` to control the flow of
+iteration.
 
 ```cpp
 constexpr auto func = []<meta_field field_v> {
-   if constexpr (return_condition)
-   {
-      // stops iteration with int result
-      constexpr int value = 0;
-      return meta_return(value);
-   }
-   else if constexpr (break_condition)
-   {
-      // stops iteration
-      return meta_break();
-   }
-   else
-   {
-      // continue iteration
-      return meta_continue();
-   }
+    if constexpr (break_condition)
+    {
+        // stops iteration
+        return meta::break_;
+    }
+    else
+    {
+        // continue iteration
+        return meta::continue_;
+    }
 };
 
-constexpr any_meta_result auto result = meta::for_each_field<my_struct>(func);
-
-if constexpr (is_meta_return_v<decltype(result)>)
-{
-   // iteration yielded result
-   constexpr int value = result;
-}
-else if constexpr (is_meta_break_v<decltype(result)>)
-{
-   // iteration has stopped
-}
-else if constexpr (is_meta_continue_v<decltype(result)>)
-{
-   // iteration has continued
-}
+meta::for_each_field<my_struct>(func);
 ```
 
 ## Find
