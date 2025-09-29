@@ -194,7 +194,7 @@ struct std::formatter<spore::meta_string<size_v>> : std::formatter<std::string_v
 {
     using std::formatter<std::string_view>::parse;
 
-    constexpr auto format(const spore::meta_string<size_v>& value, std::format_context& ctx) const
+    auto format(const spore::meta_string<size_v>& value, std::format_context& ctx) const
     {
         return std::formatter<std::string_view>::format(value.get(), ctx);
     }
