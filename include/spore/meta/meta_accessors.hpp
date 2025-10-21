@@ -7,9 +7,6 @@
 #include "spore/meta/meta_type.hpp"
 #include "spore/meta/meta_type_id.hpp"
 
-#include <concepts>
-#include <string_view>
-
 namespace spore
 {
     // clang-format off
@@ -37,12 +34,14 @@ namespace spore
         template <meta_type_enabled value_t>
         constexpr any_meta_type auto get_type()
         {
+            using namespace spore::meta;
             return get_meta_type(meta_adl<value_t> {});
         }
 
         template <meta_enum_enabled value_t>
         constexpr any_meta_enum auto get_enum()
         {
+            using namespace spore::meta;
             return get_meta_enum(meta_adl<value_t> {});
         }
 

@@ -42,7 +42,7 @@
 #define SPORE_META_TEMPLATE_PARAM_STRING(Index, Value) +spore::meta::strings::to_string<_t##Index>() SPORE_META_IF(Index, +", ", )
 
 #ifdef SPORE_WITH_TYPE_REGISTRATION
-#    define SPORE_META_REGISTER_TYPE(Name) template const meta_register_type_guard<Name> spore::meta::register_type_guard<Name>;
+#    define SPORE_META_REGISTER_TYPE(Name) template const spore::meta_register_type_guard<Name> spore::meta::register_type_guard<Name>;
 #    define SPORE_META_REGISTER_TEMPLATE_TYPE(Name, ...) std::ignore = spore::meta::register_type_guard<Name<SPORE_META_FOR(SPORE_META_TEMPLATE_PARAM_NAME, __VA_ARGS__)>>;
 #else
 #    define SPORE_META_REGISTER_TYPE(Name)
