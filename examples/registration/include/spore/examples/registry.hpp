@@ -40,7 +40,7 @@ namespace spore::examples::registration
     };
 
     template <typename value_t>
-    void register_type(const meta_adl<value_t>, const meta_adl<void>)
+    void register_type(const meta_adl<value_t>)
     {
         registry::instance().add_type<value_t>();
 

@@ -1,3 +1,4 @@
+add_subdirectory(adl)
 add_subdirectory(extensions)
 add_subdirectory(hello-world)
 add_subdirectory(implicit)

@@ -7,30 +7,22 @@
 #include "spore/meta/meta_type.hpp"
 #include "spore/meta/meta_type_id.hpp"
 
-#include <concepts>
-#include <string_view>
-
 namespace spore
 {
-    // clang-format off
     template <auto object_v>
-    concept has_meta_attributes = requires
-    {
+    concept has_meta_attributes = requires {
         { object_v.attributes } -> meta_tuple_convertible;
     };
 
     template <auto object_v>
-    concept has_meta_arguments = requires
-    {
+    concept has_meta_arguments = requires {
         { object_v.arguments } -> meta_tuple_convertible;
     };
 
     template <auto object_v>
-    concept has_meta_name = requires
-    {
+    concept has_meta_name = requires {
         { object_v.name } -> meta_string_convertible;
     };
-    // clang-format on
 
     namespace meta
     {
@@ -75,7 +67,8 @@ namespace spore
         }
 
         template <auto object_v>
-        constexpr any_meta_string auto get_name() requires has_meta_name<object_v>
+        constexpr any_meta_string auto get_name()
+            requires has_meta_name<object_v>
         {
             return object_v.name;
         }
@@ -179,13 +172,15 @@ namespace spore
         }
 
         template <auto object_v, typename func_t>
-        constexpr void for_each_attribute(func_t&& func) requires has_meta_attributes<object_v>
+        constexpr void for_each_attribute(func_t&& func)
+            requires has_meta_attributes<object_v>
         {
             tuples::for_each<object_v.attributes>(std::forward<func_t>(func));
         }
 
         template <auto object_v, typename func_t>
-        constexpr void for_each_argument(func_t&& func) requires has_meta_arguments<object_v>
+        constexpr void for_each_argument(func_t&& func)
+            requires has_meta_arguments<object_v>
         {
             tuples::for_each<object_v.arguments>(std::forward<func_t>(func));
         }
@@ -347,7 +342,8 @@ namespace spore
         }
 
         template <auto object_v, typename predicate_t>
-        constexpr auto find_attribute(predicate_t&& predicate) requires has_meta_attributes<object_v>
+        constexpr auto find_attribute(predicate_t&& predicate)
+            requires has_meta_attributes<object_v>
         {
             constexpr meta_attribute value_hint {
                 .name = meta_string {""},
@@ -358,7 +354,8 @@ namespace spore
         }
 
         template <auto object_v, typename predicate_t>
-        constexpr auto find_argument(predicate_t&& predicate) requires has_meta_arguments<object_v>
+        constexpr auto find_argument(predicate_t&& predicate)
+            requires has_meta_arguments<object_v>
         {
             constexpr meta_argument value_hint {
                 .name = meta_string {""},
