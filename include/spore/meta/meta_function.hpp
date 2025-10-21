@@ -55,30 +55,22 @@ namespace spore
             {
                 if constexpr (sizeof...(params_t) > 0)
                 {
-                    // clang-format off
                     return requires { std::declval<function_t>().template operator()<params_t...>(std::declval<args_t>()...); };
-                    // clang-format on
                 }
                 else
                 {
-                    // clang-format off
                     return requires { std::declval<function_t>().operator()(std::declval<args_t>()...); };
-                    // clang-format on
                 }
             }
             else
             {
                 if constexpr (sizeof...(params_t) > 0)
                 {
-                    // clang-format off
                     return requires { { std::declval<function_t>().template operator()<params_t...>(std::declval<args_t>()...) } -> std::same_as<return_t>; };
-                    // clang-format on
                 }
                 else
                 {
-                    // clang-format off
                     return requires { { std::declval<function_t>().operator()(std::declval<args_t>()...) } -> std::same_as<return_t>; };
-                    // clang-format on
                 }
             }
         }

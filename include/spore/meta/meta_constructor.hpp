@@ -40,9 +40,11 @@ namespace spore
         template <typename... args_t>
         static constexpr bool is_constructible_with(meta_type_ref<args_t>...)
         {
-            // clang-format off
-            return requires { { std::declval<constructor_t>().operator()(std::declval<args_t>()...) } -> std::same_as<this_t>; };
-            // clang-format on
+            constexpr bool is_constructible = requires {
+                { std::declval<constructor_t>().operator()(std::declval<args_t>()...) } -> std::same_as<this_t>;
+            };
+
+            return is_constructible;
         }
 
         template <typename... args_t>

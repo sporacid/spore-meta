@@ -57,19 +57,15 @@ namespace spore::examples::extensions
         };
     }
 
-    // clang-format off
     template <typename value_t>
-    concept any_value = meta_enabled<value_t> and requires(const value_t& value)
-    {
+    concept any_value = meta_enabled<value_t> and requires(const value_t& value) {
         { hash_value(value) } -> std::convertible_to<std::size_t>;
     };
 
     template <typename value_t>
-    concept any_widget = meta_enabled<value_t> and requires(value_t& value)
-    {
+    concept any_widget = meta_enabled<value_t> and requires(value_t& value) {
         { draw_widget(value) } -> std::same_as<void>;
     };
-    // clang-format on
 
     template <any_value value_t>
     consteval any_meta_tuple_of<is_meta_extension> auto get_extensions(const meta_adl<value_t>)

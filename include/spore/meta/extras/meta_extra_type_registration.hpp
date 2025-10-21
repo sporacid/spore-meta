@@ -1,47 +1,46 @@
 #pragma once
 
+#include "spore/meta/meta_accessors.hpp"
 #include "spore/meta/meta_adl.hpp"
+#include "spore/meta/meta_type_id.hpp"
 
 #include <functional>
 #include <mutex>
-#include <ranges>
+#include <unordered_set>
 #include <vector>
 
 namespace spore
 {
-    namespace meta
-    {
-        template <typename value_t, typename void_t>
-        void register_type(const meta_adl<value_t>, const meta_adl<void_t>)
-        {
-        }
-
-        template <typename value_t>
-        void register_type(const meta_adl<value_t>)
-        {
-            register_type(meta_adl<value_t> {}, meta_adl<void> {});
-        }
-    }
-
     struct meta_type_registrar
     {
         template <typename value_t>
         void add_or_register_type(const meta_adl<value_t>)
         {
-            std::lock_guard lock {mutex};
-
-            auto register_func = [] {
-                using namespace spore::meta;
-                register_type(meta_adl<value_t> {});
+            constexpr bool has_register_type = requires {
+                { register_type(meta_adl<value_t> {}) } -> std::same_as<void>;
             };
 
-            if (is_pre_registration)
+            if constexpr (has_register_type)
             {
-                register_funcs.emplace_back(std::move(register_func));
-            }
-            else
-            {
-                register_func();
+                std::lock_guard lock {mutex};
+
+                constexpr meta_type_id type_id = meta::get_id<value_t>();
+
+                if (not registered_types.contains(type_id))
+                {
+                    auto register_func = [] { register_type(meta_adl<value_t> {}); };
+
+                    if (is_pre_registration)
+                    {
+                        register_funcs.emplace_back(std::move(register_func));
+                    }
+                    else
+                    {
+                        register_func();
+                    }
+
+                    registered_types.emplace(type_id);
+                }
             }
         }
 
@@ -51,7 +50,11 @@ namespace spore
 
             if (not register_funcs.empty())
             {
-                std::ranges::for_each(register_funcs, &std::function<void()>::operator());
+                for (std::size_t index = 0; index < register_funcs.size(); ++index)
+                {
+                    register_funcs[index]();
+                }
+
                 register_funcs.clear();
                 register_funcs.shrink_to_fit();
             }
@@ -70,6 +73,7 @@ namespace spore
 
         std::recursive_mutex mutex;
         std::vector<std::function<void()>> register_funcs;
+        std::unordered_set<meta_type_id> registered_types;
         bool is_pre_registration = true;
     };
 

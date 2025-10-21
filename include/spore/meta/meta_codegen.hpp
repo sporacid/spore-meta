@@ -10,7 +10,7 @@
 
 #include <type_traits>
 
-namespace spore::meta
+namespace spore
 {
     template <typename value_t>
     constexpr any_meta_type auto get_meta_type(const meta_adl<value_t>)
